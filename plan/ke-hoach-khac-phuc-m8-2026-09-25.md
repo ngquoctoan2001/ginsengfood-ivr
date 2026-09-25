@@ -199,12 +199,12 @@ biến `9/9`; gate sweep `44/44`. Rà lại thấy phần đã làm **đúng hư
 
 | Mã | Nguồn | Việc | File chính | Kiểm | Giờ | Trạng thái |
 | --- | --- | --- | --- | --- | ---: | --- |
-| `K-31` | 🆕 | Lỗi bị nuốt không log: `CallbackDispatcher.cs:125-139` (bug lập trình → `RETRY_EXHAUSTED` + mở circuit 30 s, không để lại loại lỗi); `RuntimeGateApprovals.cs:155-161, :218-221, :335-338` + `RuntimeGateDefaults.cs:66-69` (truy vấn hỏng thành "không" im lặng); `TryHangupAsync` ở 2 gateway → log loại lỗi + `RecordFailClosed`/metric | Callbacks, FeatureFlags, Telephony | test logger thu | 1,25 | ⬜ |
-| `K-32` | 🆕 | `Retry-After` không có trần (`CallbackDispatcher.cs:277-280`, `TargetV1CallbackTransport.cs:265-269`): một phản hồi 429 kèm Retry-After lớn làm callback tới muộn tùy ý, lách giới hạn tuổi của C21 → chặn trần ở `MaxRetryDelay` | Callbacks | `UT-CB-RETRY-AFTER-01` | 1 | ⬜ |
-| `K-33` | 🆕 dòng 121 | Cảnh báo giả "IVR worker loops have stopped ticking: (none registered)" lúc khởi động: `IvrHeartbeat.cs:25-37` đọc registry ở tick đầu (`do/while`) trước khi các JobHost đăng ký; dòng "N loops turning" đếm cả vòng đã tắt → startup grace ≤30 s qua `TimeProvider`, chỉ đếm vòng đang bật | `src/Ivr.Worker/IvrHeartbeat.cs`, `WorkerLiveness.cs` | `IT-WORKER-LIVENESS-13` | 1,5 | ⬜ |
-| `K-34` | 🆕 | Helm: `deployment-api.yaml:44-48` không đặt `Ivr__Speech__Tts__Provider`, ảnh API bake `FAKE` ⇒ **API không khởi động** ở chế độ không-MOCK → đặt `UNSELECTED`. Worker thiếu `IVR_INTERNAL_SERVICE_TOKEN` ⇒ bật EligibilityPolling qua helm là worker không khởi động | `deploy/helm/ivr/templates/*` | `k8s-selftest` + ca render mới | 0,75 | ⬜ |
-| `K-35` | 🆕 | `src/Ivr.Api/appsettings.Development.json` chứa 5 token dev công khai (có tầng Danger) được đóng vào ảnh API, không có guard → `CopyToPublishDirectory="Never"` hoặc guard lúc khởi động | `Ivr.Api.csproj` | `image-selftest` | 0,5 | ⬜ |
-| `K-36` | 🆕 | Trạng thái circuit callback chỉ có ở worker; `/health/ready` của API luôn `not_configured` → đưa trạng thái circuit vào body `/healthz` của worker (README sửa ở `K-22`) | Worker health | test health worker | 0,75 | ⬜ |
+| `K-31` | 🆕 | Lỗi bị nuốt không log: `CallbackDispatcher.cs:125-139` (bug lập trình → `RETRY_EXHAUSTED` + mở circuit 30 s, không để lại loại lỗi); `RuntimeGateApprovals.cs:155-161, :218-221, :335-338` + `RuntimeGateDefaults.cs:66-69` (truy vấn hỏng thành "không" im lặng); `TryHangupAsync` ở 2 gateway → log loại lỗi + `RecordFailClosed`/metric | Callbacks, FeatureFlags, Telephony | test logger thu | 1,25 | ⏸ Toàn · `RuntimeGateApprovals.cs` chờ duyệt vì impact CRITICAL/HIGH; dispatcher và audit store ✅ 5aec684 (W-0360) · UT-CALLBACK-TRANSPORT-LOGGED-18, UT-OBS-FAILCLOSED-11; `TryHangupAsync` ở L4 |
+| `K-32` | 🆕 | `Retry-After` không có trần (`CallbackDispatcher.cs:277-280`, `TargetV1CallbackTransport.cs:265-269`): một phản hồi 429 kèm Retry-After lớn làm callback tới muộn tùy ý, lách giới hạn tuổi của C21 → chặn trần ở `MaxRetryDelay` | Callbacks | `UT-CB-RETRY-AFTER-01` | 1 | ✅ 5aec684 (W-0360) · UT-CALLBACK-RETRY-AFTER-17; trần 5 phút, không phải MaxRetryDelay (5 s, 09B cấm) |
+| `K-33` | 🆕 dòng 121 | Cảnh báo giả "IVR worker loops have stopped ticking: (none registered)" lúc khởi động: `IvrHeartbeat.cs:25-37` đọc registry ở tick đầu (`do/while`) trước khi các JobHost đăng ký; dòng "N loops turning" đếm cả vòng đã tắt → startup grace ≤30 s qua `TimeProvider`, chỉ đếm vòng đang bật | `src/Ivr.Worker/IvrHeartbeat.cs`, `WorkerLiveness.cs` | `IT-WORKER-LIVENESS-13` | 1,5 | ✅ 5aec684 (W-0360) · UT-WORKER-HEARTBEAT-01/02 (unit, thay cho IT đề xuất) |
+| `K-34` | 🆕 | Helm: `deployment-api.yaml:44-48` không đặt `Ivr__Speech__Tts__Provider`, ảnh API bake `FAKE` ⇒ **API không khởi động** ở chế độ không-MOCK → đặt `UNSELECTED`. Worker thiếu `IVR_INTERNAL_SERVICE_TOKEN` ⇒ bật EligibilityPolling qua helm là worker không khởi động | `deploy/helm/ivr/templates/*` | `k8s-selftest` + ca render mới | 0,75 | ✅ 5aec684 (W-0360) · IT-K8S-TTS-08, IT-K8S-ELIG-09 (phần render; gate đầy đủ ở lượt collector --extended) |
+| `K-35` | 🆕 | `src/Ivr.Api/appsettings.Development.json` chứa 5 token dev công khai (có tầng Danger) được đóng vào ảnh API, không có guard → `CopyToPublishDirectory="Never"` hoặc guard lúc khởi động | `Ivr.Api.csproj` | `image-selftest` | 0,5 | ✅ 5aec684 (W-0360) · IT-IMG-BUILD-01 kiểm ảnh API không còn file |
+| `K-36` | 🆕 | Trạng thái circuit callback chỉ có ở worker; `/health/ready` của API luôn `not_configured` → đưa trạng thái circuit vào body `/healthz` của worker (README sửa ở `K-22`) | Worker health | test health worker | 0,75 | ✅ 5aec684 (W-0360) · UT-WORKER-HEALTH-CIRCUIT-01/02 |
 
 ### `L6` — Số điện thoại / PII · 7,5 giờ
 
@@ -971,7 +971,7 @@ git commit -m "type(scope): W-XXXX mô tả" -- <paths>
 | `D1…D11` | Đã đạt | ✅ còn đúng (kiểm lại 25/09) | `K-08`, `K-05` (chữ D11) |
 | Dòng 106, 123 | `IVR_ADAPTER_MODE` dùng làm bằng chứng | 🆕 biến không có tác dụng | `Q-15` |
 | Dòng 120, 717 | Thiếu `X-Actor-Id` → 403 | ✅ `f3e26a6` (IR-06, IR-08) | — |
-| Dòng 121 | Cảnh báo "(none registered)" lúc khởi động | ⬜ | `K-33` |
+| Dòng 121 | Cảnh báo "(none registered)" lúc khởi động | ✅ 5aec684 | `K-33` |
 | Dòng 714 | CI hosted không xanh | `openapi_lint` ✅; còn `deploy_dev` | `K-01`, `K-05`, `Q-14`, `CB-17` |
 
 ---
