@@ -25,7 +25,7 @@ thời điểm mở cửa sổ `T0`). Hai phiên chia lô qua tin nhắn: phiên
 | `06-error-codes` | Điều kiện guard mới; dòng bảo vệ token; dòng `total_amount` số lẻ; `409` chỉ còn cho `call_restriction` ở intake; số mã ổn định sửa 18 → 16 | `ci-config-selftest.mjs` |
 | Sổ quyết định | Theo chốt chief 25/09: 11 dòng; nay 12 dòng mở / 29. Đồng bộ `04-sim-adapter-contract`, `pia`, `release-compliance-checklist`, `05-pii-policy` | `gate-status.mjs` |
 | Fixture | Ca âm `NEG-SCHEMA-AMOUNT-01` (`total_amount = 210636.8` bị schema từ chối) | `validate-openapi.mjs` |
-| Ghim hash | IR-06 ở 7 nơi, `TaskIntakeService.cs` ở 4 nơi, `EligibilityRules.cs` ở 2 nơi (chỉ đổi chú thích) | 4 validator `--self-test` + `--check-template` |
+| Ghim hash | IR-06 ở 7 nơi, `TaskIntakeService.cs` ở 4 nơi, `EligibilityRules.cs` ở 2 nơi (chỉ đổi chú thích) | `d06-revalidation-evidence-validator.mjs`, `upstream-session-signoff-validator.mjs`, `dial-token-production-bundle-validator.mjs`, `opt-out-suppression-bundle-validator.mjs`: `--self-test` + `--check-template` |
 
 ## Làm khác kế hoạch, và vì sao
 
@@ -42,9 +42,9 @@ thời điểm mở cửa sổ `T0`). Hai phiên chia lô qua tin nhắn: phiên
 | Phần | Kết quả |
 | --- | --- |
 | Build | `0` cảnh báo, `0` lỗi (`dotnet build Ivr.sln`) |
-| Test | unit `832/832`, contract `24/24`, integration `412/412`, chaos `8/8`. Lượt đầu unit `831/832`: bảng traceability chưa có 4 TestId mới; sinh lại bảng (`871` → `875` dòng) rồi chạy lại toàn bộ unit |
+| Test | unit `832/832`, contract `24/24`, integration `412/412`, chaos `8/8`. Lượt đầu unit `831/832`: bảng traceability chưa có 4 TestId mới; sinh lại bảng bằng `generate-test-traceability.mjs` (`871` → `875` dòng) rồi chạy lại toàn bộ unit |
 | Test biên mới | 4 test ở `tests/Ivr.UnitTests/Intake/IntakeMorningBoundaryTests.cs`; quét `1440` phút + mốc giây ở biên cho cả hai chương trình (`2.888` lượt gọi intake); 9 ca buổi sáng và các phút 07:53–07:59 (24/7), 07:58–07:59 (Giờ Vàng) đỏ nếu chạy trên guard cũ |
-| Ghim hash | `W0178`, `W0181`, `W0183`, `W0187` self-test đạt; `--check-template` của W-0181, W-0183, W-0187 đạt; `contract-freeze-verifier`, `ci-config-selftest`, `validate-openapi` (17 ca schema âm bị từ chối) đạt |
+| Ghim hash | Self-test đạt: `d06-revalidation-evidence-validator.mjs` (`W0178`), `upstream-session-signoff-validator.mjs` (`W0181`), `dial-token-production-bundle-validator.mjs` (`W0183`), `opt-out-suppression-bundle-validator.mjs` (`W0187`); `--check-template` của W-0181, W-0183, W-0187 đạt; `contract-freeze-verifier`, `ci-config-selftest`, `validate-openapi` (17 ca schema âm bị từ chối) đạt |
 | Gate sweep | `GATE_SWEEP_PASS 44/44 run, 26 skipped by manifest`, exit `0` (`node deploy/ci/scripts/gate-sweep.mjs` từ Git Bash, 13:41 ngày 25/09, sau khi build và test xong) |
 | Phạm vi | `gitnexus detect_changes` trước commit; guard B17 có impact HIGH (31 symbol), không test hiện có nào đổi kết quả |
 
