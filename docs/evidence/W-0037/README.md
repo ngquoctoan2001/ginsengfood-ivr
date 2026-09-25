@@ -69,3 +69,43 @@ Tất cả chạy trên PostgreSQL thật qua Testcontainers.
 - **Không có OWASP ZAP.** Cần một service đang chạy trong pipeline; thuộc `P7-3`.
 - **Không có PII thật, không có khách thật.** `MOCK`, `REAL_CUSTOMER_CALL_ALLOWED=NO`.
 - **`TESTS_PASS` là trần.** Chỉ reviewer/owner chuyển `ACCEPTED`.
+
+## 8. `PT-SOAK-02` — lượt ngày `25/09`, dừng ở phút 199
+
+*Thêm `25/09`. Mục `5` ở trên ghi soak `NOT_RUN` và rate limiting "CHƯA CÓ"; hai dòng đó giữ nguyên như lúc viết.
+Rate limiting có từ `W-0282` (`5cc4b17`): `Ivr:ServiceQuota`, tắt mặc định vì chưa đo năng lực thật, bật ở sandbox,
+và `SEC-AUTHZ-05` có test.*
+
+`W-0353` thêm chế độ soak cho `tools/dev/Invoke-LocalMockE2E.mjs`. Lượt này chạy nó trên máy dev từ 10:06:
+
+```text
+node tools/dev/Invoke-LocalMockE2E.mjs --duration-minutes 240 --sample-seconds 60 --skip-faults --evidence-dir docs/evidence/W-0037
+```
+
+Hai worker tranh cùng một hàng việc, `MOCK` toàn phần, `REAL_CUSTOMER_CALL_ALLOWED=NO`. **Lượt dừng lúc khoảng 13:25,
+ở phút 199 trên 240**, sau mẫu 176 và vòng 1120; hệ thống báo task bị dừng từ phía người dùng, log không có lỗi nào của
+stack trước đó. Harness chưa kịp tính verdict nên **không có `pt-soak-02.json`, và lượt này không phải bằng chứng
+`PT-SOAK-02` đạt**: vừa thiếu mốc bốn giờ, vừa thiếu verdict của chính harness.
+
+Để lượt dở không mất, [partial-soak-2026-09-25.json](partial-soak-2026-09-25.json) tính lại từ các mẫu đã ghi đúng
+những tiêu chí harness dùng, cùng ngưỡng, quý đầu so với quý cuối của 199 phút:
+
+| Tiêu chí | Quý đầu → quý cuối | Ngưỡng |
+| --- | --- | --- |
+| Working set API · worker-1 · worker-2 | 187,9 → 163,6 MB · 172,0 → 179,7 MB · 174,2 → 178,0 MB | ≤ 1,5 lần |
+| Handle API · worker-1 · worker-2 | 694 → 658 · 513 → 529 · 515 → 527 | ≤ 1,5 lần + 100 |
+| Mỗi tiến trình một PID suốt lượt | 1 · 1 · 1 | không restart |
+| Kết nối database, đỉnh | 36 → 17 | ≤ 1,5 lần + 5 |
+| Task quá hạn chưa có kết quả; quay số sau hạn; kết quả khách sau hạn | 0; 0; 0 | 0 |
+| Độ trễ đóng cửa sổ, trung vị (tệ nhất) | 0,086 → 0,068 giây (0,45 giây) | + 30 giây |
+| Độ dư trước hạn, trung vị | 130,6 → 131,0 giây | − 30 giây |
+
+Mọi tiêu chí tính được đều trong ngưỡng. Một tiêu chí **không tính được**: thời lượng vòng lõi, vì console chỉ in mỗi
+vòng thứ mười và các vòng được in ở đây đều là vòng extended; số liệu từng vòng nằm trong tiến trình harness đã bị dừng.
+
+**Soak không đo pipeline analytics.** Trong khi mọi chỉ số trên đạt, log hai worker cho thấy ETL analytics không hoàn
+tất lượt nào trong phần log còn giữ lúc 12:15, và normalizer ghi lỗi trùng khóa khi hai worker đua. Ba lỗi đó được sửa
+ở `W-0355` (`c2435b9`); lượt này chạy trên bản trước khi sửa.
+
+**Còn lại:** một lượt đủ bốn giờ, trên bản đã có `W-0355`, vào lúc máy không build, không chạy CI hay collector.
+Lượt này chạy khi máy còn build và chạy test ở nửa giữa; quý đầu được giữ không có việc nặng.
