@@ -12,6 +12,26 @@ compared byte-for-byte in GitLab CI. A breaking change fails
 and does not approve the external Sales contract.</p>
 <h2>Current comparisons</h2>
 <blockquote>
+<p><strong><code>1.0.0-draft.33</code> (W-0354)</strong> có hai thay đổi, và <code>oasdiff</code> chỉ thấy một trong hai. Nó mô tả thay đổi đó ngược chiều.</p>
+<ol>
+<li><strong><code>privacy_safe_order_summary.total_amount</code> nay là số đồng nguyên</strong> (<code>multipleOf: 1</code>). Số lẻ như <code>210636.8</code> bị
+<code>400 IVR_MALFORMED_REQUEST</code>. Trước bản này intake nhận số lẻ, rồi renderer ném lỗi <strong>lúc quay số</strong>, vì tiền đọc cho
+khách nghe không có phần lẻ; gateway lại coi đó là kênh SIM hỏng và cách ly kênh. Đây là một phép <strong>siết</strong> field
+dùng chung, nên có đính chính ngày <code>25/09</code> ở <code>IR-07</code> (mục <code>B16</code> trong danh sách của chief). <code>oasdiff v1.26.1</code> không
+xét <code>multipleOf</code>, nên báo cáo sinh máy không có dòng nào cho thay đổi này.</li>
+<li><strong>Ba field có thể null của <code>IvrAuditEvidenceRow</code></strong> (<code>reason</code>, <code>before_state_json</code>, <code>after_state_json</code>) đổi từ
+<code>nullable: true</code> sang <code>type: [string, &#39;null&#39;]</code>. <code>nullable</code> là từ khoá của OpenAPI 3.0 và <strong>không có trong 3.1</strong>: một
+công cụ đúng chuẩn 3.1 bỏ qua nó và đọc ba field thành <em>không bao giờ null</em>, trong khi API vẫn trả <code>null</code>. Từ khoá
+đó cũng là thứ làm job hosted <code>openapi_lint</code> đỏ từ <code>draft.29</code> (<code>W-0307</code>, <code>16/09</code>); sweep local không chạy Redocly
+nên không thấy. <strong>Báo cáo sinh máy ghi ngược:</strong> <code>oasdiff v1.26.1</code> hiểu <code>nullable: true</code> của bản cũ nhưng không hiểu
+<code>&#39;null&#39;</code> trong mảng <code>type</code>, nên in <em>&quot;became not nullable&quot;</em>. Nghĩa đúng theo 3.1 là ba field <strong>có thể null</strong>, rõ
+ràng lần đầu tiên. Hành vi trên dây không đổi. Cách viết <code>anyOf: [{type: string}, {type: &#39;null&#39;}]</code> được <code>oasdiff</code>
+đọc đúng là <em>&quot;thêm kiểu null&quot;</em>, nhưng nó xếp đó là breaking, nên không dùng.</li>
+</ol>
+<p><strong>Không breaking theo <code>oasdiff</code></strong>: <code>32→33</code> và <code>27→33</code> đều <code>0</code> error, <code>0</code> warning. Module 3 chỉ cần sinh lại client khi
+dùng <code>audit-evidence</code>, và phải làm tròn <code>total_amount</code> trước khi gửi.</p>
+</blockquote>
+<blockquote>
 <p><strong><code>1.0.0-draft.32</code> (W-0203 F-2)</strong> thêm một endpoint admin, <code>POST /result-callbacks/{callbackId}:replay</code>.
 Trước bản này, callback đã chết (<code>RETRY_EXHAUSTED</code> hoặc <code>INVALID_DEAD_LETTER</code>) chỉ đưa lại hàng đợi được bằng
 một lệnh <code>UPDATE</code> gõ thẳng vào database. Endpoint làm đúng thay đổi đó (<code>RETRY_PENDING</code>, retry về <code>0</code>, tới hạn
@@ -116,7 +136,7 @@ Xem <code>docs/evidence/W-0275/README.md</code>.</p>
 <tbody><tr>
 <td>IVR-owned Target V1 draft</td>
 <td><code>1.0.0-draft.27</code></td>
-<td><code>1.0.0-draft.32</code></td>
+<td><code>1.0.0-draft.33</code></td>
 <td><a href="ivr-order-confirmation-changelog.html">IVR API changelog</a></td>
 </tr>
 <tr>

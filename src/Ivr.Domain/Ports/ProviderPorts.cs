@@ -73,7 +73,26 @@ public sealed record DialTokenResolutionRequest(
     AttemptId AttemptId,
     TaskId TaskId,
     int MaxResolves,
-    string? DirectPhoneE164 = null);
+    string? DirectPhoneE164 = null)
+{
+    /// <summary>
+    /// W-0354 / B15. The compiler-generated <c>ToString</c> of a record prints every public
+    /// property, and <see cref="DirectPhoneE164"/> is a customer's number in the clear. Every other
+    /// type on this port already redacts itself (<see cref="DialAuthorization"/>,
+    /// <see cref="DialTokenReference"/>), so this one does too: one structured log of the whole
+    /// request would otherwise put the number in a log line.
+    /// </summary>
+    private bool PrintMembers(System.Text.StringBuilder builder)
+    {
+        builder.Append("DialToken = ").Append(DialToken)
+            .Append(", AttemptId = ").Append(AttemptId)
+            .Append(", TaskId = ").Append(TaskId)
+            .Append(", MaxResolves = ").Append(MaxResolves)
+            .Append(", DirectPhoneE164 = ")
+            .Append(DirectPhoneE164 is null ? "null" : "[REDACTED_PHONE_E164]");
+        return true;
+    }
+}
 
 public sealed record RenderedSpeech
 {

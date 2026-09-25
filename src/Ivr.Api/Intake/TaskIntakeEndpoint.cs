@@ -266,11 +266,17 @@ public static class TaskIntakeEndpoint
             EnsureNonBlankString(speech.GetProperty(field), field);
         }
 
+        // W-0354 / B16. total_amount is what the customer pays, in whole dong, after the order's one
+        // final rounding. A fraction used to pass here and then fail at DIAL time, inside the
+        // speller ("VND has no spoken subunit"), where the gateway read it as a broken channel and
+        // quarantined a SIM: the order was never called and other orders lost dialling capacity.
+        // Refused at the door instead, where Module 3 can see it and fix the producer.
         if (speech.GetProperty("currency").GetString() != "VND"
             || speech.GetProperty("locale").GetString() != "vi-VN"
             || speech.GetProperty("total_amount").ValueKind != JsonValueKind.Number
             || !speech.GetProperty("total_amount").TryGetDecimal(out decimal totalAmount)
-            || totalAmount < 0)
+            || totalAmount < 0
+            || totalAmount != decimal.Truncate(totalAmount))
         {
             throw new InvalidDataException("The speech summary violates its schema.");
         }

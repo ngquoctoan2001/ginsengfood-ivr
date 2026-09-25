@@ -86,18 +86,23 @@ public sealed class AsteriskSchedulerDispatchGateway(
                     "The runtime dispatch gate blocked the lab call.");
             }
 
+            // W-0354 / B13. The deployment's own mode, not LAB_REAL_SIM: the production branch
+            // (PD-01) dispatches through this gateway too, and both calls below decide what is
+            // allowed by mode. IsReady still admits LAB_REAL_SIM only, so today this is the same
+            // value; it stops being the same the day SIP-04 opens production, which is the point.
+            ExecutionMode mode = executionContext.ToDomainMode();
             RenderedSpeech speech = await speechRenderer.RenderAsync(
                 dispatch.SpeechSummary,
                 dispatch.ScriptTemplateId,
                 dispatch.ScriptVersion,
-                ExecutionMode.LabRealSim,
+                mode,
                 cancellationToken);
             speech = await speechSynthesisService.SynthesizeAsync(
                 speech,
                 dispatch.SpeechSummary,
                 dispatch.ScriptTemplateId,
                 dispatch.ScriptVersion,
-                ExecutionMode.LabRealSim,
+                mode,
                 lease.Deadline,
                 cancellationToken);
             SimGatewayHealth health = await simGateway.CheckHealthAsync(

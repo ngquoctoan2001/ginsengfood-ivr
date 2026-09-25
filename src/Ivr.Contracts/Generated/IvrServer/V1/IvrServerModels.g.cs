@@ -171,6 +171,9 @@ namespace Ivr.Contracts.Generated.IvrServer.V1
         [System.ComponentModel.DataAnnotations.MinLength(1)]
         public required System.Collections.Generic.ICollection<OrderSpeechItem> Items { get; init; }
 
+        /// <summary>
+        /// What the customer pays, in whole dong, after the order's one final rounding - the same source as Module 3's final payable amount. From 1.0.0-draft.33 (W-0354) a fraction is refused with 400 IVR_MALFORMED_REQUEST: the amount is read aloud to the customer and VND has no spoken subunit, so before this a fraction was accepted and failed only at dial time.
+        /// </summary>
         [System.Text.Json.Serialization.JsonPropertyName("total_amount")]
         [System.ComponentModel.DataAnnotations.Range(0D, double.MaxValue)]
         public required double Total_amount { get; init; }

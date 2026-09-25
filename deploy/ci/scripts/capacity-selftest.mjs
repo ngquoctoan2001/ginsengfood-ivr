@@ -413,8 +413,9 @@ function sessionLengthStaysUnansweredAndCannotBeSubstitutedQuietly() {
   // W-0134 / OD-19. The model has no session-length input, and adding one naively is not a neutral
   // refactor -- it swaps a conservative "the peak lands at once" for an unapproved "the peak
   // arrives evenly", and the sizing collapses. This check keeps the input declared, keeps the
-  // unsourced 45-minute figure out of the arithmetic, and refuses a session length that arrives
-  // without an arrival profile beside it.
+  // 45-minute figure out of the arithmetic, and refuses a session length that arrives without an
+  // arrival profile beside it. The figure has had a source since 2026-09-24 (D07); a source for the
+  // length is still not a decision about how orders arrive inside it.
   assert.equal(SESSION_LENGTH.decisionId, "M8-OD-C",
     "the decision that would answer session length is no longer named.");
 
@@ -436,7 +437,7 @@ function sessionLengthStaysUnansweredAndCannotBeSubstitutedQuietly() {
   });
 
   const asWindow = sizing(gh.policy.windowSeconds);
-  const asSession = sizing(SESSION_LENGTH.unsourcedSpecCandidateSeconds);
+  const asSession = sizing(SESSION_LENGTH.candidateSessionSeconds);
   assert(
     asSession * 4 < asWindow,
     `substituting the session length used to collapse the sizing (${asWindow} -> ${asSession} `
@@ -454,10 +455,12 @@ function sessionLengthStaysUnansweredAndCannotBeSubstitutedQuietly() {
       + `Sizing against it instead of the ${gh.policy.windowSeconds}s confirmation window takes `
       + `Golden Hour from ${asWindow} channels to ${asSession}, which is only correct if orders `
       + "really do arrive evenly across the session. Decide that, or leave the window in place.");
-    assert.notEqual(
-      SESSION_LENGTH.sessionSeconds, SESSION_LENGTH.unsourcedSpecCandidateSeconds,
-      "the session length was set to the 45-minute figure from the §14.1 column header, which the "
-      + "spec itself calls an assumption rather than a decision. It needs its own source.");
+    if (SESSION_LENGTH.sessionSeconds === SESSION_LENGTH.candidateSessionSeconds) {
+      assert(
+        typeof SESSION_LENGTH.candidateSource === "string"
+          && SESSION_LENGTH.candidateSource.trim().length > 0,
+        "the session length was set to the 45-minute figure with no decision named as its source.");
+    }
   } else {
     assert.equal(SESSION_LENGTH.answered, false,
       "session length is declared answered but carries no value.");
@@ -484,7 +487,7 @@ function sessionLengthStaysUnansweredAndCannotBeSubstitutedQuietly() {
   process.stdout.write(
     `CAP-SESSION-06 PASS_UNANSWERED — session length is declared open under `
     + `${SESSION_LENGTH.decisionId} and the model still sizes against `
-    + `${SESSION_LENGTH.sizedAgainst}. Substituting the unsourced 45-minute figure would take `
+    + `${SESSION_LENGTH.sizedAgainst}. Substituting the 45-minute figure (D07) without an arrival profile would take `
     + `Golden Hour from ${asWindow} to ${asSession} channels, so a session length is refused `
     + `unless an arrival profile is decided with it\n`);
 }

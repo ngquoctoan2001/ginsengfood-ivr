@@ -89,11 +89,28 @@ SELECT to_regclass('public.ivr_console_accounts') IS NOT NULL
 
 | Kết quả | Nghĩa | Hành động |
 | --- | --- | --- |
-| `true` | database này **chưa bao giờ** chạy bản drop — hoặc dựng sau `c8dc3c4`, hoặc dựng trước `ec3b5ca` | không phải làm gì; đây là trạng thái mọi database mới sẽ có |
+| `true` | **chỉ đọc được khi database chưa áp `P03`** (xem ô ngay dưới): khi đó database này **chưa bao giờ** chạy bản drop | không phải làm gì |
 | `false` | đã chạy bản drop trong cửa sổ `8` ngày ở trên | **không tự dựng lại bảng**; xem ô dưới |
 
-Phép thử này đứng được vì không có đường nào khác làm hai bảng đó biến mất: chỉ `W0122` bản cũ
-drop chúng, và không migration nào sau đó tạo lại.
+> **Sửa `25/09` (`W-0354`, mục `B5` trong danh sách của chief) — phép thử trên chỉ đúng với database chưa áp
+> `P03`.** Bản trước ghi *"không migration nào sau đó tạo lại"*. Câu đó sai: `20260905120000_P03PreserveConsoleCompatibility`
+> (cùng commit `c8dc3c4` viết lại `W0122`) chạy `CREATE TABLE IF NOT EXISTS` cho cả hai bảng. Một database đã
+> drop trong cửa sổ rồi nâng lên từ `c8dc3c4` trở đi sẽ có lại hai bảng **rỗng**, và câu SQL trên báo `true` —
+> đúng hành vi `IT-SCHEMA-EXPAND-07` giữ ở nhánh `dropAlreadyApplied`. Vì vậy phải hỏi thêm một câu trước:
+>
+> ```sql
+> SELECT EXISTS (SELECT 1 FROM "__EFMigrationsHistory"
+>                WHERE "MigrationId" = '20260905120000_P03PreserveConsoleCompatibility') AS p03_applied;
+> ```
+>
+> | `p03_applied` | Đọc thế nào |
+> | --- | --- |
+> | `false` | Phép thử `to_regclass` ở trên dùng được, đọc theo bảng kết quả ngay trên |
+> | `true` | Schema **không** phân biệt được. Chỉ một chiều còn đọc được: `ivr_console_accounts` **có hàng** ⇒ chưa từng drop, vì `P03` tạo bảng rỗng và từ `W-0128` không code nào ghi vào bảng này. **Không có hàng** ⇒ **không xác định được từ schema**. Khi đó dựa vào nhật ký triển khai hoặc backup từ trước `c8dc3c4`; không có thì ghi đúng câu "không xác định được từ schema", đừng đoán |
+>
+> Database dựng mới từ `c8dc3c4` trở đi rơi vào dòng `true` với bảng rỗng, và như vậy là đúng: chúng chưa từng
+> chạy bản drop. Việc phân biệt chỉ quan trọng với database sống qua cửa sổ `8` ngày. Diễn tập trên database
+> thật vẫn chờ có môi trường (`W-0063`).
 
 **Môi trường đã biết, tính đến `2026-09-16`:**
 

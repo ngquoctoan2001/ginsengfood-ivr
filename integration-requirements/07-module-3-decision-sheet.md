@@ -690,3 +690,32 @@ và ca *"nửa cặp token"* bị `400`.
 | `M3-05` | Vẫn đề xuất gửi **tên tỉnh/thành**. Lý do: đủ để khách nhận ra đơn, không lộ địa chỉ chi tiết, và tỉnh quyết định giọng miền |
 | `M3-06` | Vẫn đề xuất **≤ 5 dòng**. Lý do: mỗi dòng được đọc thành tiếng, nhiều dòng thì cuộc gọi dài quá cửa sổ xác nhận |
 | `E-5` | Nghe thử VieNeu đọc tên hàng và vùng giao thật của M3 trên sandbox; tên nào đọc sai thì bổ sung `pronunciation_hints` |
+
+---
+
+## Đính chính bổ sung `2026-09-25` — theo danh sách của chief (`W-0354`)
+
+> Viết theo [danh sách việc chief lập ngày `25/09`](../plan/toan-viec-can-lam-m8-2026-09-25.md), thay mặt Tech
+> Lead. Chỗ nào mục này nói khác phần trên hoặc các đính chính trước thì **mục này thắng**. Chỉ **một** dòng
+> đổi contract: `total_amount` phải là số đồng nguyên từ `draft.33`. Các dòng còn lại nói về cách Module 3 xử lý
+> những giá trị IVR **đã phát từ trước**.
+>
+> **Trạng thái gửi:** phiếu ghi đã gửi Module 3 ngày `17/09`. Ngày `25/09` anh Mạnh báo **chưa nhận** bản
+> `draft.30` lẫn các đính chính. Phiếu được gửi lại kèm mục này; ngày gửi lại ghi ở đây khi gửi. Tới khi
+> Module 3 xác nhận đã nhận, các dòng chờ Module 3 trong sổ quyết định giữ hậu tố `M3_NOT_RECEIVED`.
+
+**Nếu chỉ đọc một câu:** *đơn 24/7 phát sinh ngoài `08:00–21:08` thì Module 3 giữ lại tới `08:00` rồi mới gửi;
+và sau `IVR_NO_ANSWER_FINAL`, Module 3 xử lý đơn ngay theo chương trình, không chờ `24` giờ.*
+
+| Chỗ trong phiếu | Phiếu ghi | Đúng là |
+| --- | --- | --- |
+| Đầu phiếu · Phần 0 dòng `1` · `D-1` | Contract hiện hành `1.0.0-draft.30`, đính chính `17/09` nâng lên `draft.31` | **`1.0.0-draft.33`**. [`31→32`](../docs/api/changelog/ivr-order-confirmation.v1.0.0-draft.31-to-v1.0.0-draft.32.md) thêm một endpoint quản trị phát lại callback đã chết. [`32→33`](../docs/api/changelog/ivr-order-confirmation.v1.0.0-draft.32-to-v1.0.0-draft.33.md) có hai việc: siết `total_amount` (dòng ngay dưới), và ghi đúng kiểu OpenAPI 3.1 cho ba field có thể null trong phản hồi `audit-evidence` (`reason`, `before_state_json`, `after_state_json`). oasdiff không báo breaking ở bước nào |
+| `privacy_safe_order_summary.total_amount` | `number`, `minimum: 0` | **Số đồng nguyên**: số khách phải trả sau lần làm tròn cuối, cùng nguồn với số phải thu phía Module 3. Từ `draft.33` (`multipleOf: 1`), số lẻ như `210636.8` bị `400 IVR_MALFORMED_REQUEST`. Trước đó IVR vẫn nhận số lẻ, rồi hỏng lúc quay số vì tiền đọc cho khách nghe không có phần lẻ; lỗi đó còn cách ly nhầm một kênh SIM. Module 3 làm tròn trước khi gửi. Đây là một phép **siết** field dùng chung, dù oasdiff không tính là breaking |
+| `M3-02` | `TASK_BLOCKED_OPERATIONAL` → **retry được**, trạng thái tạm | Đúng với kill switch và hết dung lượng. **Sai với reason `CALLING_WINDOW_CLOSED_FOR_WHOLE_CONFIRMATION_WINDOW`** (`W-0298`): không attempt nào của task rơi vào giờ gọi, nên gửi lại **trong cùng cửa sổ** thì bị từ chối lại. Hướng chief chốt `25/09`, **không phải câu hỏi lựa chọn**: Module 3 giữ đơn `TWENTY_FOUR_SEVEN` (COD) phát sinh ngoài `08:00–21:08`, rồi gửi task **từ `08:00` trở đi** với cửa sổ mới và `Idempotency-Key` **mới**. Được dùng lại `task_id` cũ, vì task bị chặn do giờ gọi **không được lưu**. Đơn `GOLDEN_HOUR` không gặp ca này: phiên Giờ Vàng nằm trong giờ gọi |
+| `A-10` | Core không đổi trạng thái, đơn tự hết hạn theo timeout của M3 | `A-10` chỉ còn một nghĩa: **IVR không tự hủy đơn**. Sau `IVR_NO_ANSWER_FINAL`, Module 3 xử lý theo flow 04 và chốt `25/09`: đơn `TWENTY_FOUR_SEVEN` (COD) **hủy** với lý do `IVR_NO_ANSWER_MAX`; đơn `GOLDEN_HOUR` cho **xác nhận hết hiệu lực** và nhả suất theo flow 05 (lý do ghi `IVR_NO_ANSWER_MAX`), **không** hủy như đơn COD |
+| `A-10` · callback | *(không nói)* | Trên dây, `IVR_NO_ANSWER_FINAL` vẫn đi kèm `recommended_core_action = CORE_NO_STATE_CHANGE_WAIT_FOR_TIMEOUT`. Giá trị này bị một ràng buộc trong DB của IVR khoá và **không đổi** ở lượt này. **Module 3 không làm theo nó**; xử lý theo dòng ngay trên |
+| `M3-13` | Đề xuất chờ **24 giờ** rồi cho đơn hết hạn | **Rút đề xuất; câu hỏi không còn.** Module 3 xử lý đơn ngay khi nhận callback, theo dòng `A-10`. Chờ `24` giờ thì hàng của phiên Giờ Vàng bị giữ suốt thời gian đó |
+| `A-11` | Endpoint thu hồi *"đi cùng lượt phát hành contract kế tiếp"* | `draft.30`, `draft.31`, `draft.32` đều **không** có endpoint này, và đúng là phải vậy: IVR chỉ mở nó **sau khi Module 3 trả lời `M3-14`** (shape `task_id` + `order_version` + `reason`). Tới lúc đó, hai fence thu hồi phía IVR không kích hoạt được |
+| `M3-30` | Hỏi Module 3 có thay `risk_flags` bằng một field ưu tiên riêng không | **Rút câu hỏi.** Trên dây **không có** field ưu tiên và sẽ không có (`IR-06` §3.4, bổ sung `W-0304`). Scheduler tự xếp thứ tự; đòn bẩy duy nhất của Module 3 là `expires_at`. Muốn mở một field ưu tiên thì phải trình chief, vì đó là field dùng chung |
+| `M3-16` | IVR giao **31 endpoint**: `15` read, `5` write + `3` dev, `8` danger | **33 endpoint**: `16` read (thêm `GET /audit-evidence`, `draft.29`), `5` write + `3` dev, `9` danger (thêm `POST /result-callbacks/{callbackId}:replay`, `draft.32`). `X-Actor-Id` bắt buộc trên `31/33`, thiếu là `403` (`IR-06` §4A.2, Bẫy 2) |
+| `M3-10` · `D-5` | *(không nói về phát lại)* | Endpoint phát lại callback đã chết (`draft.32`) **không** giới hạn tuổi. Phát lại sau thời hạn giữ key thì M3 chỉ còn revalidate (`M3-11`) để chặn, nên M3 phải xét `order_version` và trạng thái đơn trên **mọi** callback. Thêm vào `D-5` ca: phát lại `IVR_CONFIRMED` sau khi đơn đã hết hạn ⇒ `REJECTED_STALE`. Chi tiết ở `IR-06` §4A.3 |

@@ -104,6 +104,22 @@ Phần Module 8 đã chốt và ghi thành position. **Không tự đổi** khi 
 
 **Chờ:** M3 và Product ký + giao artifact; chính sách production chưa chốt.
 
+> **Đính chính `25/09` (`W-0354`, mục `C2` trong danh sách của chief) — dòng `IVR_OPT_OUT` của m8-05
+> (`:82`) sai so với runtime.** File m8-05 bị ghim hash (`deploy/ci/pins/external-decision-artifacts.sha256`),
+> nên đính chính nằm ở đây, không sửa file đó. m8-05 ghi: *"`IVR_OPT_OUT` không phải result code — chặn
+> ở eligibility, ghi `IVR_POLICY_BLOCKED`"*. Đúng là:
+>
+> - **V1 không có opt-out** (`IR-07` `A-13`, `OD-V1-23`). Không có tín hiệu nào để chặn theo nó.
+> - Hạn chế gọi do Module 3 cấp (`call_restriction = true`) bị chặn **ngay tại intake**: quyết định
+>   `TASK_BLOCKED_OPERATIONAL`, reason `PHONE_CALL_RESTRICTED` (`TaskIntakeService.ValidateEligibilityAndEvidence`).
+>   Không cuộc gọi nào được tạo, nên cũng không có call result nào được ghi.
+> - `IVR_POLICY_BLOCKED` hiện **không có nơi phát**: chỉ còn trong enum và bộ ánh xạ.
+>
+> Vì sao phải ghi đính chính này: chiều `16/09`, bản phản hồi của dev đã nhận sửa dòng này, và chief đã
+> duyệt nguyên lô. 33 phút sau, commit `W-0304` (`9dc5479`) gọi mục này là *"false premise"*, lý do là
+> m8-05 vốn đã ghi `IVR_POLICY_BLOCKED` từ `03/09`. Commit đó bỏ qua mục mà không báo lại chief. Lý do
+> ấy sai: câu trong m8-05 có từ `03/09` thật, nhưng chính nó mới là chỗ lệch với runtime.
+
 ### m8-06
 
 **Trace phiên upstream · 03/09/2026 · `M8_POSITION_SIGNED / GOLDEN_HOUR_SESSION_ID_PROPOSED / M3_CONTRACT_SIGNOFF_REQUIRED / CODE_NOT_AUTHORIZED`**

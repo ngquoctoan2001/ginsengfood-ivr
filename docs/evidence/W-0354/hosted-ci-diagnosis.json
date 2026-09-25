@@ -1,0 +1,410 @@
+{
+  "schema": "ivr-w0354-hosted-ci-diagnosis/v1",
+  "captured_at": "2026-09-25",
+  "source": "Windows Application event log, provider gitlab-runner, on the development machine that hosts the project runner (runner_name ivr-docker-winhost, project 85344202). Kept since 2026-09-21; older entries have rotated out.",
+  "method": [
+    "The project has one runner, concurrency one, so validate-stage jobs run one after another in the order GitLab created them, which is the YAML order of the included files.",
+    "Positions were anchored by reading CI_JOB_NAME from the running job's container (docker inspect) while pipeline 2880815585 ran: execution #18 was k8s_selftest and #22 tts_candidate_selftest, matching the YAML order below.",
+    "Job IDs are global on gitlab.com and not contiguous inside a pipeline, so positions are counted in execution order, not by job-ID offset."
+  ],
+  "validate_stage_yaml_order": [
+    "ci_config_selftest",
+    "openapi_lint",
+    "api_docs_verify",
+    "api_contract_diff",
+    "contract_suite",
+    "e2e_flow_suite",
+    "review_gate_selftest",
+    "compliance_pack_selftest",
+    "gate_status_mirror",
+    "capacity_selftest",
+    "gate_sweep",
+    "observability_rules",
+    "observability_contract",
+    "observability_helm",
+    "observability_staging_contract",
+    "chaos_suite",
+    "image_selftest",
+    "k8s_selftest",
+    "dr_selftest",
+    "cd_selftest",
+    "progressive_selftest",
+    "tts_candidate_selftest"
+  ],
+  "finding": {
+    "red_jobs": [
+      "openapi_lint (position 2, fails in 15-45 s) - red in every pipeline the log still holds, 2026-09-21 to 2026-09-25",
+      "gate_sweep (position 11, fails after 10-14 min) - red from pipeline 2870180103 (2026-09-22 13:48) to 2877405205 (2026-09-24 11:46); green again at 1091496 (pipeline 2880815585). Its failing gate was not identified: the job log lives on gitlab.com, and the local sweep was green throughout"
+    ],
+    "openapi_lint_cause": "Redocly lint: 3 errors, `Property nullable is not expected here` (struct rule) at IvrAuditEvidenceRow.reason/before_state_json/after_state_json. nullable is an OpenAPI 3.0 keyword; the spec is openapi: 3.1.0. Introduced by W-0307 (6029b19, 2026-09-16, draft.29). Reproduced on this machine in node:24-bookworm-slim on `git archive HEAD` of 1091496: `npm --prefix deploy/ci run openapi:lint` exits 1.",
+    "why_local_was_green": "deploy/ci/gate-invocations.json had no Redocly gate; the local sweep ran validate-openapi.mjs, openapi-contract-drift.mjs and selftest-openapi.mjs, none of which lints struct.",
+    "consequence": "validate fails, so no build/test/security/privacy/publish/deploy job has run on the hosted pipeline since at least 2026-09-21.",
+    "fix": "W-0354: contract 1.0.0-draft.33 writes the three fields as type: [string, 'null']; deploy/ci/scripts/openapi-lint-gate.mjs joins the local sweep with two negative controls."
+  },
+  "pipelines": [
+    {
+      "pipeline_id": "2866622185",
+      "first_job_finished_at": "2026-09-21T13:59:17+07:00",
+      "jobs_seen": 22,
+      "system_failures": null,
+      "failed": [
+        {
+          "position": 2,
+          "job_name": "openapi_lint",
+          "job_id": 16619538261,
+          "at": "2026-09-21T13:59:39+07:00",
+          "seconds": 16
+        }
+      ],
+      "canceled": 0
+    },
+    {
+      "pipeline_id": "2869539004",
+      "first_job_finished_at": "2026-09-22T07:33:15+07:00",
+      "jobs_seen": 22,
+      "system_failures": null,
+      "failed": [
+        {
+          "position": 2,
+          "job_name": "openapi_lint",
+          "job_id": 16641252243,
+          "at": "2026-09-22T07:33:35+07:00",
+          "seconds": 17
+        }
+      ],
+      "canceled": 0
+    },
+    {
+      "pipeline_id": "2869745930",
+      "first_job_finished_at": "2026-09-22T09:47:41+07:00",
+      "jobs_seen": 22,
+      "system_failures": null,
+      "failed": [
+        {
+          "position": 2,
+          "job_name": "openapi_lint",
+          "job_id": 16642543979,
+          "at": "2026-09-22T09:48:02+07:00",
+          "seconds": 15
+        }
+      ],
+      "canceled": 0
+    },
+    {
+      "pipeline_id": "2870180103",
+      "first_job_finished_at": "2026-09-22T13:48:55+07:00",
+      "jobs_seen": 28,
+      "system_failures": "docker daemon unavailable (runner could not reach npipe docker_engine)",
+      "failed": [
+        {
+          "position": 2,
+          "job_name": "openapi_lint",
+          "job_id": 16645251869,
+          "at": "2026-09-22T13:49:15+07:00",
+          "seconds": 16
+        },
+        {
+          "position": 11,
+          "job_name": "gate_sweep",
+          "job_id": 16645251878,
+          "at": "2026-09-22T14:04:34+07:00",
+          "seconds": 593
+        }
+      ],
+      "canceled": 0
+    },
+    {
+      "pipeline_id": "2870664449",
+      "first_job_finished_at": "2026-09-22T16:29:01+07:00",
+      "jobs_seen": 44,
+      "system_failures": "docker daemon unavailable (runner could not reach npipe docker_engine)",
+      "failed": [],
+      "canceled": 0
+    },
+    {
+      "pipeline_id": "2873633307",
+      "first_job_finished_at": "2026-09-23T11:16:48+07:00",
+      "jobs_seen": 10,
+      "system_failures": null,
+      "failed": [
+        {
+          "position": 2,
+          "job_name": "openapi_lint",
+          "job_id": 16670903688,
+          "at": "2026-09-23T11:17:07+07:00",
+          "seconds": 15
+        }
+      ],
+      "canceled": 0
+    },
+    {
+      "pipeline_id": "2873645334",
+      "first_job_finished_at": "2026-09-23T11:24:10+07:00",
+      "jobs_seen": 22,
+      "system_failures": null,
+      "failed": [
+        {
+          "position": 2,
+          "job_name": "openapi_lint",
+          "job_id": 16670978172,
+          "at": "2026-09-23T11:24:30+07:00",
+          "seconds": 15
+        },
+        {
+          "position": 11,
+          "job_name": "gate_sweep",
+          "job_id": 16670978181,
+          "at": "2026-09-23T11:39:46+07:00",
+          "seconds": 598
+        }
+      ],
+      "canceled": 0
+    },
+    {
+      "pipeline_id": "2873760077",
+      "first_job_finished_at": "2026-09-23T12:33:39+07:00",
+      "jobs_seen": 22,
+      "system_failures": null,
+      "failed": [
+        {
+          "position": 2,
+          "job_name": "openapi_lint",
+          "job_id": 16671701853,
+          "at": "2026-09-23T12:33:57+07:00",
+          "seconds": 14
+        },
+        {
+          "position": 11,
+          "job_name": "gate_sweep",
+          "job_id": 16671701862,
+          "at": "2026-09-23T12:51:37+07:00",
+          "seconds": 686
+        }
+      ],
+      "canceled": 0
+    },
+    {
+      "pipeline_id": "2873939547",
+      "first_job_finished_at": "2026-09-23T13:59:38+07:00",
+      "jobs_seen": 18,
+      "system_failures": null,
+      "failed": [
+        {
+          "position": 2,
+          "job_name": "openapi_lint",
+          "job_id": 16672935241,
+          "at": "2026-09-23T13:59:57+07:00",
+          "seconds": 14
+        },
+        {
+          "position": 11,
+          "job_name": "gate_sweep",
+          "job_id": 16672935250,
+          "at": "2026-09-23T14:16:20+07:00",
+          "seconds": 668
+        }
+      ],
+      "canceled": 1
+    },
+    {
+      "pipeline_id": "2874063716",
+      "first_job_finished_at": "2026-09-23T14:44:37+07:00",
+      "jobs_seen": 18,
+      "system_failures": null,
+      "failed": [
+        {
+          "position": 2,
+          "job_name": "openapi_lint",
+          "job_id": 16673834681,
+          "at": "2026-09-23T14:44:59+07:00",
+          "seconds": 18
+        },
+        {
+          "position": 11,
+          "job_name": "gate_sweep",
+          "job_id": 16673834690,
+          "at": "2026-09-23T15:00:39+07:00",
+          "seconds": 580
+        }
+      ],
+      "canceled": 1
+    },
+    {
+      "pipeline_id": "2874190557",
+      "first_job_finished_at": "2026-09-23T15:25:31+07:00",
+      "jobs_seen": 17,
+      "system_failures": null,
+      "failed": [
+        {
+          "position": 2,
+          "job_name": "openapi_lint",
+          "job_id": 16674778618,
+          "at": "2026-09-23T15:25:57+07:00",
+          "seconds": 15
+        },
+        {
+          "position": 11,
+          "job_name": "gate_sweep",
+          "job_id": 16674778627,
+          "at": "2026-09-23T15:44:58+07:00",
+          "seconds": 830
+        }
+      ],
+      "canceled": 1
+    },
+    {
+      "pipeline_id": "2874332222",
+      "first_job_finished_at": "2026-09-23T16:07:21+07:00",
+      "jobs_seen": 22,
+      "system_failures": null,
+      "failed": [
+        {
+          "position": 2,
+          "job_name": "openapi_lint",
+          "job_id": 16675840766,
+          "at": "2026-09-23T16:07:57+07:00",
+          "seconds": 32
+        },
+        {
+          "position": 11,
+          "job_name": "gate_sweep",
+          "job_id": 16675840775,
+          "at": "2026-09-23T16:26:19+07:00",
+          "seconds": 718
+        }
+      ],
+      "canceled": 0
+    },
+    {
+      "pipeline_id": "2877021409",
+      "first_job_finished_at": "2026-09-24T07:49:12+07:00",
+      "jobs_seen": 16,
+      "system_failures": null,
+      "failed": [
+        {
+          "position": 2,
+          "job_name": "openapi_lint",
+          "job_id": 16696500714,
+          "at": "2026-09-24T07:49:33+07:00",
+          "seconds": 16
+        },
+        {
+          "position": 11,
+          "job_name": "gate_sweep",
+          "job_id": 16696500723,
+          "at": "2026-09-24T08:10:43+07:00",
+          "seconds": 755
+        }
+      ],
+      "canceled": 1
+    },
+    {
+      "pipeline_id": "2877065460",
+      "first_job_finished_at": "2026-09-24T08:15:33+07:00",
+      "jobs_seen": 17,
+      "system_failures": null,
+      "failed": [
+        {
+          "position": 2,
+          "job_name": "openapi_lint",
+          "job_id": 16696774955,
+          "at": "2026-09-24T08:16:06+07:00",
+          "seconds": 28
+        },
+        {
+          "position": 11,
+          "job_name": "gate_sweep",
+          "job_id": 16696774964,
+          "at": "2026-09-24T08:35:44+07:00",
+          "seconds": 739
+        }
+      ],
+      "canceled": 1
+    },
+    {
+      "pipeline_id": "2877107222",
+      "first_job_finished_at": "2026-09-24T08:44:42+07:00",
+      "jobs_seen": 22,
+      "system_failures": null,
+      "failed": [
+        {
+          "position": 2,
+          "job_name": "openapi_lint",
+          "job_id": 16697035264,
+          "at": "2026-09-24T08:45:29+07:00",
+          "seconds": 44
+        },
+        {
+          "position": 11,
+          "job_name": "gate_sweep",
+          "job_id": 16697035273,
+          "at": "2026-09-24T09:09:01+07:00",
+          "seconds": 821
+        }
+      ],
+      "canceled": 0
+    },
+    {
+      "pipeline_id": "2877317795",
+      "first_job_finished_at": "2026-09-24T10:57:25+07:00",
+      "jobs_seen": 18,
+      "system_failures": null,
+      "failed": [
+        {
+          "position": 2,
+          "job_name": "openapi_lint",
+          "job_id": 16698354244,
+          "at": "2026-09-24T10:58:01+07:00",
+          "seconds": 30
+        },
+        {
+          "position": 11,
+          "job_name": "gate_sweep",
+          "job_id": 16698354253,
+          "at": "2026-09-24T11:17:24+07:00",
+          "seconds": 835
+        }
+      ],
+      "canceled": 1
+    },
+    {
+      "pipeline_id": "2877405205",
+      "first_job_finished_at": "2026-09-24T11:46:18+07:00",
+      "jobs_seen": 22,
+      "system_failures": null,
+      "failed": [
+        {
+          "position": 2,
+          "job_name": "openapi_lint",
+          "job_id": 16698886750,
+          "at": "2026-09-24T11:46:42+07:00",
+          "seconds": 19
+        },
+        {
+          "position": 11,
+          "job_name": "gate_sweep",
+          "job_id": 16698886759,
+          "at": "2026-09-24T12:03:13+07:00",
+          "seconds": 666
+        }
+      ],
+      "canceled": 0
+    },
+    {
+      "pipeline_id": "2880815585",
+      "first_job_finished_at": "2026-09-25T08:56:18+07:00",
+      "jobs_seen": 22,
+      "system_failures": null,
+      "failed": [
+        {
+          "position": 2,
+          "job_name": "openapi_lint",
+          "job_id": 16724411765,
+          "at": "2026-09-25T08:56:40+07:00",
+          "seconds": 16
+        }
+      ],
+      "canceled": 0
+    }
+  ]
+}

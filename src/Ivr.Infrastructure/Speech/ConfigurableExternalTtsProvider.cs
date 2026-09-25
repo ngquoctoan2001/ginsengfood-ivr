@@ -20,6 +20,27 @@ public sealed class TtsProviderNotConfiguredException(string message)
     : TtsSynthesisException("TTS_NOT_CONFIGURED", message);
 
 /// <summary>
+/// W-0354 / B16. The order's own data could not be turned into a script — a fractional
+/// <c>total_amount</c>, an amount past the speller's range, a value a template refuses.
+/// <para>
+/// It derives from <see cref="TtsSynthesisException"/> on purpose, so both dispatch gateways map it
+/// through the arm they already have for "no audio for this order": <c>AudioError</c> with the
+/// channel reported <b>healthy</b>. Before this, the underlying <see cref="ArgumentException"/> fell
+/// through to the generic arm, which reports the channel <b>unhealthy</b>; one bad order put a SIM
+/// into quarantine, and three in ten minutes disabled it, taking capacity away from every other
+/// order. The fault is in the data, and the data travels with the task, not with the SIM.
+/// </para>
+/// </summary>
+public sealed class SpeechRenderRejectedException(Exception innerException)
+    : TtsSynthesisException(
+        TechnicalCode,
+        "The order summary could not be rendered into the approved script.",
+        innerException)
+{
+    public const string TechnicalCode = "SPEECH_RENDER_DATA_REJECTED";
+}
+
+/// <summary>
 /// HTTP settings for the self-hosted VieNeu-TTS sidecar (W-0122).
 /// <para>
 /// VieNeu is the only speech engine. The sidecar shares the worker's network namespace, so the

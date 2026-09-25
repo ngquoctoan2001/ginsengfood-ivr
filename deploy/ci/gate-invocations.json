@@ -105,6 +105,7 @@
     },
     "observability-staging-evidence.mjs": { "argv": ["--self-test"], "expect": "CT-OBS-STAGING-14 PASS" },
     "openapi-contract-drift.mjs": { "argv": [], "expect": "OPENAPI_HUMAN_DIFF_CURRENT=YES" },
+    "openapi-lint-gate.mjs": { "argv": [], "expect": "OPENAPI_LINT_PASS" },
     "opt-out-suppression-bundle-validator.mjs": { "argv": ["--self-test"], "expect": "W0187_OPTOUT_BUNDLE_SELFTEST_PASS" },
     "progressive-selftest.mjs": { "argv": ["--self-test"], "expect": "PROGRESSIVE_SELFTEST_PASS" },
     "regenerate-openapi.ps1": {

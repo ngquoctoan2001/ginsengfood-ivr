@@ -1,0 +1,56 @@
+[
+  {
+    "id": "M1 intake accepts a fractional total_amount",
+    "outcome": "Failed!  - Failed:     1, Passed:     0, Skipped:     0, Total:     1, Duration: 997 ms - Ivr.IntegrationTests.dll (net10.0)",
+    "also": null,
+    "verdict": "RED_AS_EXPECTED"
+  },
+  {
+    "id": "M2 renderer lets the ArgumentException escape",
+    "outcome": "Failed!  - Failed:     2, Passed:     2, Skipped:     0, Total:     4, Duration: 160 ms - Ivr.UnitTests.dll (net10.0)",
+    "also": "Failed!  - Failed:     1, Passed:     0, Skipped:     0, Total:     1, Duration: 5 s - Ivr.IntegrationTests.dll (net10.0)",
+    "verdict": "RED_AS_EXPECTED"
+  },
+  {
+    "id": "M3a resolution request prints the number",
+    "outcome": "Failed!  - Failed:     1, Passed:     0, Skipped:     0, Total:     1, Duration: 62 ms - Ivr.UnitTests.dll (net10.0)",
+    "also": null,
+    "verdict": "RED_AS_EXPECTED"
+  },
+  {
+    "id": "M3b dispatch context prints the number",
+    "outcome": "Failed!  - Failed:     1, Passed:     0, Skipped:     0, Total:     1, Duration: 82 ms - Ivr.UnitTests.dll (net10.0)",
+    "also": null,
+    "verdict": "RED_AS_EXPECTED"
+  },
+  {
+    "id": "M4 every mode maps to LAB_REAL_SIM",
+    "outcome": "Failed!  - Failed:     1, Passed:     6, Skipped:     0, Total:     7, Duration: 39 ms - Ivr.UnitTests.dll (net10.0)",
+    "also": null,
+    "verdict": "RED_AS_EXPECTED"
+  },
+  {
+    "id": "M5a e2e overlay API window back to 21:08",
+    "outcome": "Failed!  - Failed:     1, Passed:     2, Skipped:     0, Total:     3, Duration: 73 ms - Ivr.UnitTests.dll (net10.0)",
+    "also": null,
+    "verdict": "RED_AS_EXPECTED"
+  },
+  {
+    "id": "M5b API LocalMockE2E profile window back to 21:08",
+    "outcome": "Failed!  - Failed:     1, Passed:     0, Skipped:     0, Total:     1, Duration: 34 ms - Ivr.UnitTests.dll (net10.0)",
+    "also": null,
+    "verdict": "RED_AS_EXPECTED"
+  },
+  {
+    "id": "M6 intake audit carries the number",
+    "outcome": "Failed!  - Failed:     1, Passed:     0, Skipped:     0, Total:     1, Duration: 7 s - Ivr.IntegrationTests.dll (net10.0)",
+    "also": null,
+    "verdict": "RED_AS_EXPECTED"
+  },
+  {
+    "id": "M7 the night guard lets every task in",
+    "outcome": "Failed!  - Failed:     1, Passed:     0, Skipped:     0, Total:     1, Duration: 5 s - Ivr.IntegrationTests.dll (net10.0)",
+    "also": null,
+    "verdict": "RED_AS_EXPECTED"
+  }
+]

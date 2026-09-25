@@ -10,6 +10,25 @@ and does not approve the external Sales contract.
 
 ## Current comparisons
 
+> **`1.0.0-draft.33` (W-0354)** có hai thay đổi, và `oasdiff` chỉ thấy một trong hai. Nó mô tả thay đổi đó ngược chiều.
+>
+> 1. **`privacy_safe_order_summary.total_amount` nay là số đồng nguyên** (`multipleOf: 1`). Số lẻ như `210636.8` bị
+>    `400 IVR_MALFORMED_REQUEST`. Trước bản này intake nhận số lẻ, rồi renderer ném lỗi **lúc quay số**, vì tiền đọc cho
+>    khách nghe không có phần lẻ; gateway lại coi đó là kênh SIM hỏng và cách ly kênh. Đây là một phép **siết** field
+>    dùng chung, nên có đính chính ngày `25/09` ở `IR-07` (mục `B16` trong danh sách của chief). `oasdiff v1.26.1` không
+>    xét `multipleOf`, nên báo cáo sinh máy không có dòng nào cho thay đổi này.
+> 2. **Ba field có thể null của `IvrAuditEvidenceRow`** (`reason`, `before_state_json`, `after_state_json`) đổi từ
+>    `nullable: true` sang `type: [string, 'null']`. `nullable` là từ khoá của OpenAPI 3.0 và **không có trong 3.1**: một
+>    công cụ đúng chuẩn 3.1 bỏ qua nó và đọc ba field thành *không bao giờ null*, trong khi API vẫn trả `null`. Từ khoá
+>    đó cũng là thứ làm job hosted `openapi_lint` đỏ từ `draft.29` (`W-0307`, `16/09`); sweep local không chạy Redocly
+>    nên không thấy. **Báo cáo sinh máy ghi ngược:** `oasdiff v1.26.1` hiểu `nullable: true` của bản cũ nhưng không hiểu
+>    `'null'` trong mảng `type`, nên in *"became not nullable"*. Nghĩa đúng theo 3.1 là ba field **có thể null**, rõ
+>    ràng lần đầu tiên. Hành vi trên dây không đổi. Cách viết `anyOf: [{type: string}, {type: 'null'}]` được `oasdiff`
+>    đọc đúng là *"thêm kiểu null"*, nhưng nó xếp đó là breaking, nên không dùng.
+>
+> **Không breaking theo `oasdiff`**: `32→33` và `27→33` đều `0` error, `0` warning. Module 3 chỉ cần sinh lại client khi
+> dùng `audit-evidence`, và phải làm tròn `total_amount` trước khi gửi.
+
 > **`1.0.0-draft.32` (W-0203 F-2)** thêm một endpoint admin, `POST /result-callbacks/{callbackId}:replay`.
 > Trước bản này, callback đã chết (`RETRY_EXHAUSTED` hoặc `INVALID_DEAD_LETTER`) chỉ đưa lại hàng đợi được bằng
 > một lệnh `UPDATE` gõ thẳng vào database. Endpoint làm đúng thay đổi đó (`RETRY_PENDING`, retry về `0`, tới hạn
@@ -114,7 +133,7 @@ and does not approve the external Sales contract.
 
 | Contract | Baseline | Current | Generated report |
 | --- | --- | --- | --- |
-| IVR-owned Target V1 draft | `1.0.0-draft.27` | `1.0.0-draft.32` | [IVR API changelog](api/changelog/ivr-order-confirmation.md) |
+| IVR-owned Target V1 draft | `1.0.0-draft.27` | `1.0.0-draft.33` | [IVR API changelog](api/changelog/ivr-order-confirmation.md) |
 | Sales callback Target V1 draft | `1.0.0-draft` | `1.0.0-draft` | [Sales callback changelog](api/changelog/order-core-ivr-callback.md) |
 
 `1.0.0-draft.3` (W-0095) added three read-only admin operations — `GET /dashboard`,

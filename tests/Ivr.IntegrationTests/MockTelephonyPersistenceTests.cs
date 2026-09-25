@@ -277,6 +277,75 @@ public sealed class MockTelephonyPersistenceTests(PostgresPersistenceFixture fix
     }
 
     /// <summary>
+    /// W-0354 / B16 (chief worklist 2026-09-25). An amount the speller refuses - here one past its
+    /// range, which intake does not bound - used to reach the gateway's generic catch arm, which
+    /// reports the channel unhealthy: the SIM went into quarantine for a fault in the order's data,
+    /// and three such orders in ten minutes disabled it. The renderer now names the fault as the
+    /// order's, so the attempt is an uncounted technical exception and the channel is handed back.
+    /// </summary>
+    [Fact]
+    [Trait("TestId", "IT-TEL-RENDER-DATA-09")]
+    public async Task AnOrderTheRendererRefusesLeavesTheChannelIdleAndUnquarantined()
+    {
+        await fixture.ResetAsync();
+        IDbContextFactory<IvrDbContext> factory = Factory();
+        await SeedMockDispatchAsync(
+            factory,
+            "TASK-TEL-09",
+            "JOB-TEL-09",
+            "SIM-MOCK-09",
+            totalAmount: 1_000_000_000_000m);
+        var scheduler = new PostgresSchedulerStore(factory, new FixedTimeProvider(Now));
+        SchedulerDispatchLease lease = Assert.IsType<SchedulerDispatchLease>(
+            await scheduler.TryClaimDueDispatchAsync(
+                "worker-render-data",
+                IvrOptions.MockExecutionMode,
+                TimeSpan.FromMinutes(2)));
+        var sim = new FakeSimGateway(
+            new Dictionary<string, FakeSimScenario>
+            {
+                [lease.AttemptId] = new(SimProviderDisposition.Answered, "1"),
+            },
+            timeProvider: new FixedTimeProvider(Now));
+        var clock = new FixedTimeProvider(Now);
+        IOptions<TtsProviderOptions> tts = Options.Create(new TtsProviderOptions
+        {
+            ExecutionMode = IvrOptions.MockExecutionMode,
+            Provider = TtsProviderOptions.FakeProvider,
+        });
+        using var scripts = new Ivr.Infrastructure.Scripts.InMemoryScriptRegistry(
+            new Ivr.Infrastructure.Audit.InMemoryAuditLogger(clock),
+            clock,
+            Options.Create(new Ivr.Infrastructure.Scripts.ScriptContentOptions()));
+        var approvedRenderer = new ApprovedVietnameseSpeechRenderer(
+            scripts,
+            new Ivr.Domain.Scripts.VietnameseOrderScriptRenderer(),
+            new RegionalVoiceMap(tts));
+        MockSchedulerDispatchGateway gateway = CreateGateway(
+            CreateStore(factory),
+            lease,
+            sim,
+            includeToken: true,
+            renderer: approvedRenderer);
+
+        await Assert.ThrowsAsync<SpeechRenderRejectedException>(() => gateway.DispatchAsync(lease));
+
+        await using IvrDbContext verification = await factory.CreateDbContextAsync();
+        CallAttemptEntity attempt = await verification.CallAttempts.AsNoTracking().SingleAsync();
+        RawCallEventEntity rawEvent = await verification.RawCallEvents.AsNoTracking().SingleAsync();
+        SimChannelEntity channel = await verification.SimChannels.AsNoTracking().SingleAsync();
+        Assert.False(attempt.IsCountedCustomerAttempt);
+        Assert.Equal(SpeechRenderRejectedException.TechnicalCode, attempt.TechnicalExceptionType);
+        Assert.Equal(SpeechRenderRejectedException.TechnicalCode, rawEvent.TechnicalErrorCode);
+        Assert.Equal("IDLE", channel.Status);
+        Assert.Equal(0, channel.FailCount);
+        Assert.Null(channel.QuarantineUntil);
+        Assert.Null(channel.LeaseToken);
+        // The refusal happens before anything touches the SIM.
+        Assert.Empty(sim.Events);
+    }
+
+    /// <summary>
     /// Cutting a call that is already in progress (W-0111).
     /// <para>
     /// The load-bearing assertion is not that the call stopped — it is what the attempt says
@@ -521,7 +590,8 @@ public sealed class MockTelephonyPersistenceTests(PostgresPersistenceFixture fix
         SchedulerDispatchLease lease,
         FakeSimGateway sim,
         bool includeToken,
-        int terminationPollMilliseconds = 500)
+        int terminationPollMilliseconds = 500,
+        ISpeechRenderer? renderer = null)
     {
         Dictionary<string, string> tokens = includeToken
             ? new Dictionary<string, string>
@@ -561,7 +631,7 @@ public sealed class MockTelephonyPersistenceTests(PostgresPersistenceFixture fix
         return new MockSchedulerDispatchGateway(
             store,
             new FakeDialTokenResolver(tokens, options.DestinationAllowlist),
-            new FakeSpeechRenderer(),
+            renderer ?? new FakeSpeechRenderer(),
             synthesis,
             sim,
             Options.Create(options),
@@ -579,7 +649,8 @@ public sealed class MockTelephonyPersistenceTests(PostgresPersistenceFixture fix
         IDbContextFactory<IvrDbContext> factory,
         string taskId,
         string jobId,
-        string channelId)
+        string channelId,
+        decimal totalAmount = 1_250_000)
     {
         DateTimeOffset deadline = Now.AddMinutes(5);
         string summaryJson = JsonSerializer.Serialize(new
@@ -590,7 +661,7 @@ public sealed class MockTelephonyPersistenceTests(PostgresPersistenceFixture fix
             {
                 new { public_name = "Sâm lát", quantity = 2, unit_label = "hộp" },
             },
-            total_amount = 1_250_000,
+            total_amount = totalAmount,
             currency = "VND",
             delivery_area_short = "Quận 7",
             program_display_name = "Giờ Vàng",

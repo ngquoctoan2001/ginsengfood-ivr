@@ -428,6 +428,70 @@ public sealed class TaskIntakePersistenceTests(PostgresPersistenceFixture fixtur
         }
     }
 
+    /// <summary>
+    /// W-0354 / C15 (chief worklist 2026-09-25). IR-07's correction of 25/09 tells Module 3 that a task
+    /// refused because the calling window is shut may be sent again from 08:00 under the same
+    /// task_id, with a new window and a new Idempotency-Key - because the refusal stores nothing.
+    /// That sentence is a promise to another team, so it is pinned here: the refused task leaves no
+    /// row, and the morning send of the same task_id is accepted.
+    /// </summary>
+    [Fact]
+    [Trait("TestId", "IT-INTAKE-NIGHT-REUSE-04")]
+    public async Task ANightTaskLeavesNoRowSoItsTaskIdIsAcceptedInTheMorningUnderANewKey()
+    {
+        await fixture.ResetAsync();
+        IDbContextFactory<IvrDbContext> factory = fixture.Services
+            .GetRequiredService<IDbContextFactory<IvrDbContext>>();
+        await SeedPoliciesAsync(factory);
+        DateTimeOffset night = new(2026, 8, 13, 16, 0, 0, TimeSpan.Zero);   // 23:00 in Vietnam
+        DateTimeOffset morning = new(2026, 8, 14, 1, 30, 0, TimeSpan.Zero); // 08:30 in Vietnam
+
+        TaskIntakeOutcome refused = await CreateService(
+                factory,
+                new FixedTimeProvider(night),
+                new UnavailableOpaqueValueProtector())
+            .IntakeAsync(new TaskIntakeCommand(
+                CreateTask(
+                    taskId: "TASK-PG-NIGHT",
+                    orderId: "ORDER-PG-NIGHT",
+                    includeToken: false,
+                    phoneE164: SentNumber,
+                    windowStart: night.AddMinutes(-1)),
+                "idem-pg-night-evening",
+                "corr-postgres-p2-1",
+                new string('7', 64),
+                ExecutionMode.Mock));
+
+        Assert.Equal(TaskIntakeDecisions.BlockedOperational, refused.Decision);
+        Assert.Contains("CALLING_WINDOW_CLOSED_FOR_WHOLE_CONFIRMATION_WINDOW", refused.BlockedReasons);
+        await using (IvrDbContext afterNight = await factory.CreateDbContextAsync())
+        {
+            Assert.Equal(0, await afterNight.ConfirmationTasks.CountAsync());
+            Assert.Equal(0, await afterNight.CallJobs.CountAsync());
+        }
+
+        TaskIntakeOutcome accepted = await CreateService(
+                factory,
+                new FixedTimeProvider(morning),
+                new UnavailableOpaqueValueProtector())
+            .IntakeAsync(new TaskIntakeCommand(
+                CreateTask(
+                    taskId: "TASK-PG-NIGHT",
+                    orderId: "ORDER-PG-NIGHT",
+                    includeToken: false,
+                    phoneE164: SentNumber,
+                    windowStart: morning.AddMinutes(-1)),
+                "idem-pg-night-morning",
+                "corr-postgres-p2-1",
+                new string('8', 64),
+                ExecutionMode.Mock));
+
+        Assert.Equal(TaskIntakeDecisions.AcceptedDryRunOnly, accepted.Decision);
+        await using IvrDbContext afterMorning = await factory.CreateDbContextAsync();
+        ConfirmationTaskEntity stored = await afterMorning.ConfirmationTasks.AsNoTracking().SingleAsync();
+        Assert.Equal("TASK-PG-NIGHT", stored.TaskId);
+    }
+
     private static string ExpectedDirectReference(string taskId) =>
         string.Concat(
             "enc:direct:",
@@ -532,9 +596,10 @@ public sealed class TaskIntakePersistenceTests(PostgresPersistenceFixture fixtur
         string? taskId = null,
         string? orderId = null,
         bool includeToken = true,
-        string? phoneE164 = null)
+        string? phoneE164 = null,
+        DateTimeOffset? windowStart = null)
     {
-        DateTimeOffset start = Now.AddMinutes(-1);
+        DateTimeOffset start = windowStart ?? Now.AddMinutes(-1);
         return new IvrConfirmationTaskV1
         {
             Contract_version = IvrConfirmationTaskV1Contract_version.IvrOrderConfirmation_v1,

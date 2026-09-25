@@ -120,11 +120,15 @@ export const SESSION_LENGTH = {
   sizedAgainst: "policy.windowSeconds",
 
   /**
-   * 45 minutes. Appears once in a §14.1 column header with nothing behind it; the spec's own note
-   * calls it an assumption rather than a decision. Recorded so it can be recognised and refused,
-   * never so it can be used as a default.
+   * 45 minutes. Until 2026-09-24 this appeared once in a §14.1 column header with nothing behind it,
+   * and the spec's own note called it an assumption. It now has a source: D07, the Tech Lead's
+   * decision that a Golden Hour session goes on air for 45 minutes, cut from a 70-minute master
+   * (chief worklist 2026-09-25, B1). A source for the LENGTH is still not an ARRIVAL PROFILE, and
+   * substituting one without the other is the 16 -> 2 collapse measured above. So the figure stays
+   * out of the arithmetic until arrivalProfile is decided beside it; it is never a default.
    */
-  unsourcedSpecCandidateSeconds: 2700,
+  candidateSessionSeconds: 2700,
+  candidateSource: "D07 — Tech Lead 2026-09-24: Golden Hour on air 45 min, cut from a 70 min master",
 };
 
 /**

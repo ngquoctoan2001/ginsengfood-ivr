@@ -29,7 +29,26 @@ public sealed record TelephonyDispatchContext(
     string ScriptTemplateId,
     string ScriptVersion,
     int MaxDialTokenResolves,
-    string? DirectPhoneE164 = null);
+    string? DirectPhoneE164 = null)
+{
+    /// <summary>
+    /// W-0354 / B15. Same reason as <c>DialTokenResolutionRequest.PrintMembers</c>: the generated
+    /// <c>ToString</c> would print <see cref="DirectPhoneE164"/> in the clear, so this context
+    /// prints a marker in its place and leaves every other member as the record would.
+    /// </summary>
+    private bool PrintMembers(System.Text.StringBuilder builder)
+    {
+        builder.Append("TaskId = ").Append(TaskId)
+            .Append(", DialToken = ").Append(DialToken)
+            .Append(", SpeechSummary = ").Append(SpeechSummary)
+            .Append(", ScriptTemplateId = ").Append(ScriptTemplateId)
+            .Append(", ScriptVersion = ").Append(ScriptVersion)
+            .Append(", MaxDialTokenResolves = ").Append(MaxDialTokenResolves)
+            .Append(", DirectPhoneE164 = ")
+            .Append(DirectPhoneE164 is null ? "null" : "[REDACTED_PHONE_E164]");
+        return true;
+    }
+}
 
 /// <summary>
 /// An operator's request to cut a call that is already in progress (W-0111).

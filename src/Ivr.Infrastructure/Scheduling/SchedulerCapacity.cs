@@ -324,7 +324,26 @@ public sealed record SchedulerCapacitySnapshot(
     string? ShortageReason,
     string EvidenceRef);
 
-public sealed record SchedulerExecutionContext(string ExecutionMode);
+public sealed record SchedulerExecutionContext(string ExecutionMode)
+{
+    /// <summary>
+    /// W-0354 / B13 (chief worklist 2026-09-25). The deployment's mode as the domain enum, for the
+    /// script registry and the speech service, which both decide what is allowed BY mode: a
+    /// production script needs production approval, and production speech needs the whitelist
+    /// record. PD-01 wired the production branch onto the lab gateway, which passed a hard-coded
+    /// LAB_REAL_SIM to both, so those two checks would have run as lab the day production dialled.
+    /// An unknown mode throws rather than falling back to one, for the same reason. Case is ignored,
+    /// as IvrOptionsValidator and the gateway's IsReady ignore it.
+    /// </summary>
+    public Ivr.Domain.Confirmation.ExecutionMode ToDomainMode() => ExecutionMode.ToUpperInvariant() switch
+    {
+        IvrOptions.MockExecutionMode => Ivr.Domain.Confirmation.ExecutionMode.Mock,
+        IvrOptions.LabRealSimExecutionMode => Ivr.Domain.Confirmation.ExecutionMode.LabRealSim,
+        IvrOptions.ProductionRealExecutionMode => Ivr.Domain.Confirmation.ExecutionMode.ProductionReal,
+        _ => throw new InvalidOperationException(
+            string.Concat("Unsupported IVR execution mode for dispatch: ", ExecutionMode, ".")),
+    };
+}
 
 public interface ISchedulerCapacityService
 {

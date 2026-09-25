@@ -98,17 +98,19 @@ X-Correlation-Id: <mã đối soát>
 Idempotency-Key: <khoá cho một lệnh>
 ```
 
-Thân là `IvrConfirmationTaskV1` — 23 trường bắt buộc, xem [IR-06 §3.4](./06-module-3-api-handover.md).
+Thân là `IvrConfirmationTaskV1` — 21 trường bắt buộc, xem [IR-06 §3.4](./06-module-3-api-handover.md). *(Sửa `25/09`, `W-0354`: bản trước ghi `23`; từ `draft.31`, cặp `dial_token` + `dial_token_expires_at` thành "cặp token **hoặc** `phone_e164`".)*
 
-### Ba cái bẫy làm mất buổi đầu tiên
+### Năm cái bẫy làm mất buổi đầu tiên
 
-Cả ba đều trả lỗi **chỉ sang chỗ khác**, nên ghi ra đây trước:
+Cả năm đều trả lỗi **chỉ sang chỗ khác**, nên ghi ra đây trước. *(Hai dòng cuối thêm `25/09`, `W-0354`.)*
 
 | Triệu chứng | Nguyên nhân thật | Cách sửa |
 | --- | --- | --- |
 | `422 IVR_STATE_NOT_CALLABLE` | Chép nguyên mẫu trong tài liệu, cửa sổ xác nhận là tháng 8/2026 nên đã hết hạn | Đặt `confirmation_window_*` về hiện tại. Bốn mốc `created_at`, `confirmation_window_started_at`, `confirmation_window_expires_at`, `dial_token_expires_at` phải dời **cùng một khoảng**, giữ nguyên khoảng cách giữa chúng |
 | `422 IVR_MISSING_TRACE` | `correlation_id` trong thân khác `X-Correlation-Id` trên header | Cho bằng nhau |
 | `200` nhưng `TASK_HELD_ADMIN_REVIEW`, lý do `ELIGIBILITY_SOURCE_VERSION_MISSING` | `eligibility_snapshot` thiếu trường bắt buộc | Xem [IR-06 §3.7](./06-module-3-api-handover.md): bắt buộc có `source_version` và `captured_at`; `captured_at` phải nằm **trong** cửa sổ xác nhận |
+| `200` nhưng `TASK_BLOCKED_OPERATIONAL`, lý do `CALLING_WINDOW_CLOSED_FOR_WHOLE_CONFIRMATION_WINDOW`, chỉ khi chạy ngoài `08:00–21:08` giờ Việt Nam | Sandbox dựng từ bản trước `W-0354` chỉ mở khung giờ cả ngày cho **worker**; API vẫn giữ `08:00–21:08` và chặn task ngay ở intake | Dựng lại từ bản hiện hành: `docker-compose.sandbox.yml` nay mở khung giờ cho cả `ivr-api`. Ở production, chặn này là hành vi **đúng**: M3 giữ đơn tới `08:00` rồi gửi task mới ([IR-07](./07-module-3-decision-sheet.md), đính chính `25/09`) |
+| `403 IVR_FORBIDDEN_CALLER` ở `GET /audit-evidence` hay một endpoint quản trị khác, dù token đúng tầng | Thiếu `X-Actor-Id`. Header này bắt buộc trên `31/33` endpoint quản trị, kể cả endpoint chỉ đọc | Thêm `X-Actor-Id` là **id đục** của nhân viên M3, không phải tên ([IR-06 §4A.2](./06-module-3-api-handover.md), Bẫy 2 và 3) |
 
 ---
 
@@ -236,8 +238,9 @@ Không mục nào chặn việc bạn đấu nối hôm nay: sandbox đủ để
 
 ## 11. Liên hệ
 
-Câu hỏi về hợp đồng: trả lời thẳng vào phiếu [IR-07](./07-module-3-decision-sheet.md) — **21 mục, đã
-gửi 10/09**. Đó là thứ đang chặn 5 cổng phát hành phía IVR.
+Câu hỏi về hợp đồng: trả lời thẳng vào phiếu [IR-07](./07-module-3-decision-sheet.md) — **30 câu**. *(Sửa `25/09`,
+`W-0354`: bản trước ghi "21 mục, đã gửi 10/09". Phiếu gộp `17/09` có `30` câu; repo ghi đã gửi `17/09`, nhưng anh
+Mạnh báo `25/09` chưa nhận, nên phiếu được gửi lại cùng đính chính `25/09`.)* Đó là thứ đang chặn 5 cổng phát hành phía IVR.
 
 Câu hỏi về sandbox này: nhắn owner Module 8. Nếu một ví dụ trong `pnpm sandbox:examples` đỏ trên máy
 bạn mà xanh ở đây, gửi kèm `.artifacts/sandbox/module-3-examples.json`.

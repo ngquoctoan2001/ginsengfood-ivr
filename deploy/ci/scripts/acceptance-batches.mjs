@@ -490,7 +490,8 @@ export function render({ head, dirtyNote, rows, judged, sweep, resultsNote, phas
   const lines = [];
   lines.push(`# Danh sách đề nghị nghiệm thu — \`${head}\``, "");
   lines.push("Script **chỉ đọc**: không sửa tracker. Chỉ Toàn chuyển một dòng sang `ACCEPTED`, sau khi");
-  lines.push("đọc bằng chứng — danh sách này không thay cho việc đọc.", "");
+  lines.push("đọc bằng chứng — danh sách này không thay cho việc đọc. `ACCEPTED` ở đây là **tự nghiệm thu** của dev M8,");
+  lines.push("không phải nghiệm thu độc lập, và không thay chữ ký của M3, Tech Lead hay Sếp.", "");
   if (dirtyNote) {
     lines.push(`> ⚠️ ${dirtyNote}`, "");
   }

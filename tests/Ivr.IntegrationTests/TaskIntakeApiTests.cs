@@ -268,6 +268,28 @@ public sealed class TaskIntakeApiTests
         Assert.Empty(app.Audit.Entries);
     }
 
+    /// <summary>
+    /// W-0354 / B16 (chief worklist 2026-09-25). total_amount is read aloud and VND has no spoken
+    /// subunit, so a fraction used to pass intake and fail at dial time, where the gateway took it
+    /// for a broken SIM. It is refused at the door now, before anything is stored.
+    /// </summary>
+    [Fact]
+    [Trait("TestId", "IT-INTAKE-AMOUNT-16")]
+    public async Task AFractionalTotalAmountIsMalformed()
+    {
+        await using TaskIntakeApiTestApplication app =
+            await TaskIntakeApiTestApplication.StartAsync();
+        JsonObject body = CreateBody();
+        body["privacy_safe_order_summary"]!["total_amount"] = 210636.8m;
+
+        using HttpResponseMessage response = await SendAsync(app.Client, body);
+
+        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+        Assert.Equal(IvrErrorCodes.MalformedRequest, await ErrorCodeAsync(response));
+        Assert.Equal(0, app.Store.CallJobCount);
+        Assert.Empty(app.Audit.Entries);
+    }
+
     [Fact]
     [Trait("TestId", "IT-INTAKE-PRIVACY-04")]
     public async Task SemanticStreetAddressIsPiiViolationAndDoesNotLeakToAudit()

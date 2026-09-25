@@ -184,7 +184,10 @@ Hai dòng cuối trùng nhau — vì chúng **là cùng một giả định**, c
 
 `SESSION_LENGTH` trong `tools/capacity-sim/capacity-model.mjs` khai báo input với
 `sessionSeconds: null`, `arrivalProfile: null`, `decisionId: "M8-OD-C"`, và ghi lại con số
-`2700s` **chỉ để nhận diện và từ chối**, không bao giờ để làm mặc định.
+`2700s` **chỉ để nhận diện và từ chối**, không bao giờ để làm mặc định. *(Sửa `25/09`, `W-0354`: con số này nay có
+nguồn — `D07`, Tech Lead chốt `24/09`: phiên Giờ Vàng lên sóng `45` phút, cắt từ master `70` phút — ghi ở
+`candidateSource`. Có nguồn cho **độ dài** phiên vẫn chưa phải quyết định về **cách đơn đến** trong phiên, nên nó vẫn
+nằm ngoài phép tính.)*
 
 `CAP-SESSION-06` canh:
 
@@ -193,8 +196,8 @@ Hai dòng cuối trùng nhau — vì chúng **là cùng một giả định**, c
   model đã đổi hình và phải suy lại;
 - đặt `sessionSeconds` mà `answered` vẫn `false` → đỏ;
 - đặt `sessionSeconds` mà **không có `arrivalProfile`** → đỏ, kèm đúng con số `16 → 2`;
-- đặt `sessionSeconds` = `2700` → đỏ, vì đó là con số ở tiêu đề cột §14.1 mà chính spec gọi là giả
-  định, không phải quyết định;
+- đặt `sessionSeconds` = `2700` mà không có quyết định nêu tên ở `candidateSource` → đỏ *(trước `25/09`: đỏ vô
+  điều kiện, vì khi đó con số chưa có nguồn)*;
 - và model phải còn đang sizing đúng như `sizedAgainst` khai — kiểm bằng cách chạy thật
   `poolForProgramme` rồi so, không tin lời khai.
 

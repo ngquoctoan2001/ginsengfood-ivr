@@ -38,7 +38,17 @@ public sealed class ApprovedVietnameseSpeechRenderer(
             ScriptRenderOptions.Default.WordsPerMinute,
             regionalVoices.FallbackRegion);
 
-        ScriptPreview preview = previewRenderer.Render(approved, summary, renderOptions);
+        ScriptPreview preview;
+        try
+        {
+            preview = previewRenderer.Render(approved, summary, renderOptions);
+        }
+        catch (ArgumentException exception)
+        {
+            // W-0354 / B16. A refusal here is about this order's values, not the channel about to
+            // dial it; SpeechRenderRejectedException keeps the SIM out of quarantine.
+            throw new SpeechRenderRejectedException(exception);
+        }
         int collapsed = Math.Max(
             0,
             summary.Items.Length - renderOptions.MaximumSpokenItems);

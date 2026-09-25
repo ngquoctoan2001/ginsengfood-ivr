@@ -75,6 +75,7 @@ Các mã dưới đây chi tiết hóa `TaskIntakeOutcome.BlockedReasons` ở se
 | Contact | `phone_ref` có hình dạng số điện thoại thô | `TASK_REJECTED_CONTACT_INVALID` | `PHONE_REF_LOOKS_LIKE_RAW_PHONE` | `422 IVR_CONTACT_INVALID` |
 | Contact | `dial_token` có hình dạng số điện thoại thô | `TASK_REJECTED_CONTACT_INVALID` | `DIAL_TOKEN_LOOKS_LIKE_RAW_PHONE` | `422 IVR_CONTACT_INVALID` |
 | Contact | opaque reference vi phạm privacy guard | `TASK_REJECTED_CONTACT_INVALID` | `CONTACT_FAILED_PRIVACY_GUARD` | `422 IVR_CONTACT_INVALID` |
+| Giờ gọi | không attempt nào của `attempt_policy` rơi vào giờ gọi `08:00–21:08`, trên **toàn bộ** confirmation window (`W-0298`, `16/09`) | `TASK_BLOCKED_OPERATIONAL` | `CALLING_WINDOW_CLOSED_FOR_WHOLE_CONFIRMATION_WINDOW` | `200` kèm `decision` và `blocked_reasons` — M3 **đọc được** reason này. Task **không** được lưu. **Không** retry trong cùng cửa sổ: kết quả không đổi. M3 giữ đơn `TWENTY_FOUR_SEVEN` (COD) tới `08:00` rồi gửi task mới với cửa sổ mới và `Idempotency-Key` mới (`IR-07`, đính chính `25/09`). *Thêm `25/09`, `W-0354`* |
 
 Compatibility:
 

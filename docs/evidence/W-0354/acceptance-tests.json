@@ -1,0 +1,32 @@
+{
+  "schema": "ivr-acceptance-tests/v1",
+  "workId": "W-0354",
+  "scope": "software",
+  "requiredTestIds": [
+    "UT-PHONE-TOSTRING-01",
+    "UT-PHONE-TOSTRING-02",
+    "UT-PHONE-TOSTRING-03",
+    "UT-RENDER-DATA-01",
+    "UT-RENDER-DATA-02",
+    "UT-RENDER-DATA-03",
+    "UT-CALLWINDOW-PARITY-01",
+    "UT-CALLWINDOW-PARITY-02",
+    "UT-DISPATCH-MODE-01",
+    "UT-DISPATCH-MODE-02",
+    "IT-PHONE-CONTAIN-01",
+    "IT-TEL-RENDER-DATA-09",
+    "IT-INTAKE-AMOUNT-16",
+    "IT-INTAKE-NIGHT-REUSE-04"
+  ],
+  "gates": [
+    "openapi-lint-gate.mjs",
+    "contract-freeze-verifier.mjs",
+    "openapi-contract-drift.mjs",
+    "docs-selftest.mjs",
+    "ci-config-selftest.mjs",
+    "capacity-selftest.mjs",
+    "dial-token-production-bundle-validator.mjs",
+    "acceptance-batches.mjs",
+    "gate-status.mjs"
+  ]
+}
