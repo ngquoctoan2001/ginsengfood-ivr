@@ -72,6 +72,20 @@ spec:
             {{- include "ivr.governanceEnv" . | nindent 12 }}
             {{- include "ivr.dbEnv" . | nindent 12 }}
             {{- include "ivr.observabilityEnv" (dict "root" . "serviceName" "ginsengfood-ivr-worker") | nindent 12 }}
+            {{- if .Values.worker.eligibilityPolling.enabled }}
+            # W-0360 / K-34. EligibilityPollingOptions refuses to start when enabled without an
+            # HTTP(S) API origin and the internal credential, and this pod carried neither: the
+            # token was wired to the API pod only. The origin is the chart's own API service.
+            - name: Ivr__EligibilityPolling__Enabled
+              value: "true"
+            - name: Ivr__EligibilityPolling__ApiBaseUrl
+              value: {{ printf "http://%s-api:8080" (include "ivr.fullname" .) | quote }}
+            - name: IVR_INTERNAL_SERVICE_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: {{ .Values.secrets.existingSecret }}
+                  key: {{ .Values.secrets.internalServiceTokenKey }}
+            {{- end }}
             {{- if .Values.worker.tts.enabled }}
             - name: Ivr__Speech__Tts__Provider
               value: EXTERNAL_CONFIGURABLE

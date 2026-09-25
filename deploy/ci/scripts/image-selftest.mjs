@@ -83,6 +83,25 @@ function buildAndCheckUser() {
       );
     }
 
+    if (image.name === "ivr-api") {
+      // W-0360 / K-35. appsettings.Development.json holds the published development tokens, Danger
+      // tier included, and nothing published reads it. In the image it only waits for a container
+      // started as Development. `docker cp` of a missing path fails, which is the pass here.
+      const probe = `ivr-k35-${process.pid}`;
+      docker(["create", "--name", probe, `${image.name}:${TAG}`]);
+      try {
+        let shipped = true;
+        try {
+          docker(["cp", `${probe}:/app/appsettings.Development.json`, "-"]);
+        } catch {
+          shipped = false;
+        }
+        assert(!shipped, "ivr-api ships appsettings.Development.json and the development tokens in it.");
+      } finally {
+        docker(["rm", "-f", probe]);
+      }
+    }
+
     const size = Number(docker(["image", "inspect", "--format", "{{.Size}}", `${image.name}:${TAG}`]).trim());
     process.stdout.write(`  ${image.name}: USER=${user}, ${Math.round(size / 1048576)} MB\n`);
   }

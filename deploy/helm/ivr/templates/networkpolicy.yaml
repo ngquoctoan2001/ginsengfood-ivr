@@ -88,8 +88,9 @@ spec:
       app.kubernetes.io/component: api
   policyTypes:
     - Ingress
-  {{- if .Values.networkPolicy.ingress.module3.enabled }}
+  {{- if or .Values.networkPolicy.ingress.module3.enabled .Values.worker.eligibilityPolling.enabled }}
   ingress:
+    {{- if .Values.networkPolicy.ingress.module3.enabled }}
     # Module 3's BFF is the only admin caller. Both selectors are owner/platform supplied.
     - from:
         - namespaceSelector:
@@ -101,7 +102,50 @@ spec:
       ports:
         - protocol: TCP
           port: 8080
+    {{- end }}
+    {{- if .Values.worker.eligibilityPolling.enabled }}
+    # W-0360 / K-34. This release's own worker, for the eligibility loop and nothing wider.
+    - from:
+        - podSelector:
+            matchLabels:
+              app.kubernetes.io/name: {{ include "ivr.name" . }}
+              app.kubernetes.io/instance: {{ .Release.Name }}
+              app.kubernetes.io/component: worker
+      ports:
+        - protocol: TCP
+          port: 8080
+    {{- end }}
   {{- else }}
   ingress: []
   {{- end }}
+{{- if .Values.worker.eligibilityPolling.enabled }}
+---
+# W-0360 / K-34. The other half of the same path: the worker may leave for this release's API on
+# its HTTP port. A separate policy rather than a rule in the shared egress policy above, which
+# selects every pod of the release and would hand the same path to the API pods too.
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: {{ include "ivr.fullname" . }}-worker-to-api
+  labels:
+    {{- include "ivr.labels" . | nindent 4 }}
+spec:
+  podSelector:
+    matchLabels:
+      app.kubernetes.io/name: {{ include "ivr.name" . }}
+      app.kubernetes.io/instance: {{ .Release.Name }}
+      app.kubernetes.io/component: worker
+  policyTypes:
+    - Egress
+  egress:
+    - to:
+        - podSelector:
+            matchLabels:
+              app.kubernetes.io/name: {{ include "ivr.name" . }}
+              app.kubernetes.io/instance: {{ .Release.Name }}
+              app.kubernetes.io/component: api
+      ports:
+        - protocol: TCP
+          port: 8080
+{{- end }}
 {{- end }}

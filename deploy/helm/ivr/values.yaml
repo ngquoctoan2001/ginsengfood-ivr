@@ -68,6 +68,14 @@ worker:
   resources:
     requests: { cpu: 100m, memory: 192Mi }
     limits: { cpu: 1000m, memory: 512Mi }
+  # W-0360 / K-34. The worker's eligibility loop (EligibilityJobHost) asks the API's internal
+  # endpoint to evaluate each accepted task; without it on, a task is only ever evaluated when a
+  # caller asks for it. Off by default, as in the worker's own appsettings. Turning it on renders
+  # the three things it needs and the chart could not express before: the API origin, the internal
+  # service token (only the API pod carried it), and a network path from the worker to the API
+  # through the default-deny policy.
+  eligibilityPolling:
+    enabled: false
   # W-0122 production candidate. Off by default and guarded at Helm render time. Lab uses the
   # explicit docker-compose.vieneu-tts.yml overlay; this block must never be enabled merely to
   # reproduce a laptop test.

@@ -45,7 +45,7 @@ export const EXTENDED_GATE_TESTS = Object.freeze({
   ...printedBy("image-selftest.mjs", "IT-IMG-BUILD-01", "IT-IMG-HEALTH-02", "IT-IMG-COMPOSE-03", "IT-IMG-SCAN-04",
     "IT-IMG-E2E-05", "IT-IMG-SBOM-06", "IT-OBS-TRACE-02", "IT-OBS-EXPORT-11", "IT-OBS-RESILIENCE-12"),
   ...printedBy("k8s-selftest.mjs", "IT-K8S-LINT-01", "IT-K8S-GATE-02", "IT-K8S-PROBE-03", "IT-K8S-NETPOL-04",
-    "IT-K8S-RETENTION-05", "IT-K8S-WORKER-06", "IT-K8S-ROTATE-07"),
+    "IT-K8S-RETENTION-05", "IT-K8S-WORKER-06", "IT-K8S-ROTATE-07", "IT-K8S-TTS-08", "IT-K8S-ELIG-09"),
   ...printedBy("security-scan.sh", "CT-CI-04"),
   ...printedBy("selftest-oasdiff.sh", "CT-DOC-02"),
 });

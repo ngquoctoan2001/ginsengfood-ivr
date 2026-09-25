@@ -16,51 +16,84 @@ namespace Ivr.Worker;
 /// </summary>
 public sealed partial class IvrHeartbeat(
     WorkerLiveness liveness,
-    ILogger<IvrHeartbeat> logger) : BackgroundService
+    ILogger<IvrHeartbeat> logger,
+    TimeProvider? timeProvider = null) : BackgroundService
 {
     private static readonly TimeSpan Interval = TimeSpan.FromSeconds(30);
 
+    /// <summary>
+    /// W-0360 / K-33. How long after start an empty registry is "not registered yet" rather than
+    /// "nothing will ever register". The first report runs at once, and the job hosts register as
+    /// they start, so every worker used to open its log with a false "loops have stopped ticking:
+    /// (none registered)". Past this, an empty registry is still reported: that is the defect
+    /// <see cref="WorkerLiveness"/> calls Stalled on purpose.
+    /// </summary>
+    internal static readonly TimeSpan StartupGrace = TimeSpan.FromSeconds(30);
+
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
+        TimeProvider clock = timeProvider ?? TimeProvider.System;
+        DateTimeOffset startedAt = clock.GetUtcNow();
         using var timer = new PeriodicTimer(Interval);
 
         do
         {
-            WorkerLivenessReport report = liveness.Read();
-            if (report.Status == WorkerLivenessStatus.Stalled)
-            {
-                LogStalled(
-                    logger,
-                    report.StaleLoops.Count > 0
-                        ? string.Join(", ", report.StaleLoops)
-                        : "(none registered)");
-            }
-            else if (report.Status == WorkerLivenessStatus.Idle)
-            {
-                LogIdle(logger, report.Loops.Count);
-            }
-            else
-            {
-                WorkerLoopHealth[] faulting = [.. report.Loops.Where(loop => loop.ConsecutiveFaults > 0)];
-                if (faulting.Length > 0)
-                {
-                    // Turning but failing. Not a restart signal -- restarting does not repair a
-                    // dependency -- so it is reported at a level that does not read as one.
-                    LogFaulting(
-                        logger,
-                        string.Join(
-                            ", ",
-                            faulting.Select(loop =>
-                                $"{loop.Loop}x{loop.ConsecutiveFaults}({loop.LastFaultKind})")));
-                }
-                else
-                {
-                    LogHealthy(logger, report.Loops.Count);
-                }
-            }
+            ReportOnce(clock.GetUtcNow() - startedAt);
         }
         while (await timer.WaitForNextTickAsync(stoppingToken));
     }
+
+    /// <summary>
+    /// One report. Separate from the loop so a test can drive a report without a timer: since
+    /// .NET 10 a BackgroundService runs ExecuteAsync on the thread pool, so StartAsync no longer
+    /// guarantees the first report has happened.
+    /// </summary>
+    internal void ReportOnce(TimeSpan sinceStart)
+    {
+        WorkerLivenessReport report = liveness.Read();
+        if (IsStillStarting(report, sinceStart))
+        {
+            return;
+        }
+
+        if (report.Status == WorkerLivenessStatus.Stalled)
+        {
+            LogStalled(
+                logger,
+                report.StaleLoops.Count > 0
+                    ? string.Join(", ", report.StaleLoops)
+                    : "(none registered)");
+        }
+        else if (report.Status == WorkerLivenessStatus.Idle)
+        {
+            LogIdle(logger, report.Loops.Count);
+        }
+        else
+        {
+            WorkerLoopHealth[] faulting = [.. report.Loops.Where(loop => loop.ConsecutiveFaults > 0)];
+            if (faulting.Length > 0)
+            {
+                // Turning but failing. Not a restart signal -- restarting does not repair a
+                // dependency -- so it is reported at a level that does not read as one.
+                LogFaulting(
+                    logger,
+                    string.Join(
+                        ", ",
+                        faulting.Select(loop =>
+                            $"{loop.Loop}x{loop.ConsecutiveFaults}({loop.LastFaultKind})")));
+            }
+            else
+            {
+                // W-0360 / K-33. Turning loops only: a loop configured off is not turning, and
+                // counting it made "5 loops turning" read the same with one loop running.
+                int turning = report.Loops.Count(loop => loop.Enabled);
+                LogHealthy(logger, turning);
+            }
+        }
+    }
+
+    internal static bool IsStillStarting(WorkerLivenessReport report, TimeSpan sinceStart) =>
+        report.Loops.Count == 0 && sinceStart < StartupGrace;
 
     [LoggerMessage(
         EventId = 1000,

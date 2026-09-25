@@ -73,7 +73,8 @@ when PostgreSQL is unreachable or the schema is behind. W-0040 implemented this
 behavior; it is no longer a bootstrap probe. Its `sales_callback` check reads
 the callback circuit only in a host that delivers callbacks, and the API does
 not (delivery runs in the worker), so on the API that check always reports
-`not_configured`.
+`not_configured`. The circuit's real state is under `callback_circuit` in the
+worker's `/healthz` body.
 
 ## Prerequisites
 

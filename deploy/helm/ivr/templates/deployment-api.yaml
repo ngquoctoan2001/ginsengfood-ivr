@@ -46,6 +46,15 @@ spec:
             {{- include "ivr.dbEnv" . | nindent 12 }}
             {{- include "ivr.appSecretEnv" . | nindent 12 }}
             {{- include "ivr.observabilityEnv" (dict "root" . "serviceName" "ginsengfood-ivr-api") | nindent 12 }}
+            {{- if ne .Values.governance.executionMode "MOCK" }}
+            # W-0360 / K-34. The API registers speech options and validates them at start, and its
+            # image bakes FAKE_DETERMINISTIC, which the validator refuses outside MOCK: without this
+            # the API pod never starts in LAB_REAL_SIM or PRODUCTION_REAL. The API never speaks,
+            # so the honest provider for it is UNSELECTED, the value a production-configured host
+            # already uses in the integration suite.
+            - name: Ivr__Speech__Tts__Provider
+              value: UNSELECTED
+            {{- end }}
           securityContext:
             allowPrivilegeEscalation: false
             readOnlyRootFilesystem: true

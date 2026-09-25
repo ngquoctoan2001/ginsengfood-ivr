@@ -3,6 +3,7 @@ using System.Text;
 using Ivr.Contracts.Sales;
 using Ivr.Infrastructure.Observability;
 using Ivr.Infrastructure.Persistence.Outbox;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
 namespace Ivr.Infrastructure.Callbacks;
@@ -14,14 +15,35 @@ public sealed record CallbackDispatchResult(
     int RetryCount,
     bool Persisted);
 
-public sealed class CallbackDispatcher(
+public sealed partial class CallbackDispatcher(
     ICallbackOutboxRepository outbox,
     ITargetV1CallbackTransport targetTransport,
     ICurrentGoldenHourCallbackTransport currentTransport,
     CallbackCircuitBreaker circuitBreaker,
     IOptions<CallbackDeliveryOptions> options,
-    TimeProvider timeProvider)
+    TimeProvider timeProvider,
+    ILogger<CallbackDispatcher>? logger = null)
 {
+    /// <summary>
+    /// W-0360 / K-32. The longest a server's Retry-After may hold the next attempt back: five
+    /// minutes, the longest wait between attempts <see cref="CallbackDeliveryOptionsValidator"/>
+    /// accepts for <c>MaxRetryDelayMilliseconds</c>. Not <c>MaxRetryDelayMilliseconds</c> itself:
+    /// that is the backoff ceiling (five seconds by default), and capping a 429 there would retry
+    /// long before the server asked, which UT-CALLBACK-RETRY-AFTER-09B forbids.
+    /// </summary>
+    internal static readonly TimeSpan ServerRetryAfterCeiling = TimeSpan.FromMinutes(5);
+
+    /// <summary>
+    /// W-0360 / K-31. The exception TYPE and the callback id, never the exception message: a
+    /// transport message can carry a response body or a header, and this line is written for every
+    /// callback that hits it.
+    /// </summary>
+    [LoggerMessage(
+        EventId = 2430,
+        Level = LogLevel.Error,
+        Message = "Callback transport threw {ExceptionType} for {CallbackId}; recorded as CALLBACK_TRANSPORT_UNEXPECTED_FAILURE and retried.")]
+    private static partial void LogUnexpectedTransportFailure(ILogger logger, string exceptionType, string callbackId);
+
     public async Task<IReadOnlyList<CallbackDispatchResult>> RunBatchAsync(
         CancellationToken cancellationToken = default)
     {
@@ -122,8 +144,16 @@ public sealed class CallbackDispatcher(
                     circuitBreaker.RecordProbeAborted();
                     throw;
                 }
-                catch (Exception)
+                catch (Exception exception)
                 {
+                    // W-0360 / K-31. Retried as before, but no longer silent: an unexpected throw is
+                    // a defect in our own code as often as a fault downstream, and the only trace
+                    // it left was a retry count climbing to RETRY_EXHAUSTED.
+                    if (logger is not null)
+                    {
+                        LogUnexpectedTransportFailure(logger, exception.GetType().FullName ?? "unknown", message.CallbackId);
+                    }
+
                     transportResult = new CallbackTransportResult(
                         CallbackTransportOutcome.TransientFailure,
                         null,
@@ -276,7 +306,11 @@ public sealed class CallbackDispatcher(
             settings);
         if (result.RetryAfter is { } serverDelay && serverDelay > retryDelay)
         {
-            retryDelay = serverDelay;
+            // W-0360 / K-32. The server's Retry-After is honoured (UT-CALLBACK-RETRY-AFTER-09B: no
+            // retry before it), but only up to ServerRetryAfterCeiling. Uncapped, one 429 carrying a
+            // Retry-After of a day parked a final result for a day, past the age a late callback is
+            // still worth delivering, and no setting on this side could shorten it.
+            retryDelay = serverDelay < ServerRetryAfterCeiling ? serverDelay : ServerRetryAfterCeiling;
         }
 
         return new CallbackDeliveryUpdate(

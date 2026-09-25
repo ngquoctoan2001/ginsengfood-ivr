@@ -1,0 +1,109 @@
+{
+  "schema": "ivr-mutation-results/v1",
+  "workId": "W-0360",
+  "captured_at": "2026-09-25",
+  "method": "Each check breaks one thing the lot fixed, in an isolated copy of 6b881f4 plus this lot, rebuilds, runs the named test or check, and writes the original bytes back (never git checkout, which would also drop the uncommitted fix). The named test must fail, its named neighbour must stay green, and a control run after restoring must be green. K-34 runs the render-only part of k8s-selftest.mjs (it stops before building a cluster); K-35 builds the API image with deploy/docker/Dockerfile.api the way image-selftest.mjs does and looks for the file in a created container.",
+  "results": [
+    {
+      "id": "K-32 the server's Retry-After is taken uncapped again",
+      "test": "UT-CALLBACK-RETRY-AFTER-17",
+      "summary": "Failed! - Failed: 1, Passed: 0, Skipped: 0, Total: 1, Duration: 1 s - Ivr.UnitTests.dll (net10.0)",
+      "neighbour": "UT-CALLBACK-RETRY-AFTER-09B",
+      "neighbourSummary": "Passed! - Failed: 0, Passed: 1, Skipped: 0, Total: 1, Duration: 186 ms - Ivr.UnitTests.dll (net10.0)",
+      "verdict": "RED_AS_EXPECTED"
+    },
+    {
+      "id": "K-31 the dispatcher's unexpected throw is silent again",
+      "test": "UT-CALLBACK-TRANSPORT-LOGGED-18",
+      "summary": "Failed! - Failed: 1, Passed: 0, Skipped: 0, Total: 1, Duration: 494 ms - Ivr.UnitTests.dll (net10.0)",
+      "neighbour": "UT-CALLBACK-TRANSPORT-INVALIDOP-14",
+      "neighbourSummary": "Passed! - Failed: 0, Passed: 1, Skipped: 0, Total: 1, Duration: 211 ms - Ivr.UnitTests.dll (net10.0)",
+      "verdict": "RED_AS_EXPECTED"
+    },
+    {
+      "id": "K-31 the audit-store check that throws is not counted again",
+      "test": "UT-OBS-FAILCLOSED-11",
+      "summary": "Failed! - Failed: 1, Passed: 0, Skipped: 0, Total: 1, Duration: 47 ms - Ivr.UnitTests.dll (net10.0)",
+      "neighbour": null,
+      "neighbourSummary": null,
+      "verdict": "RED_AS_EXPECTED"
+    },
+    {
+      "id": "CONTROL all files restored (unit tests)",
+      "summary": "Passed! - Failed: 0, Passed: 3, Skipped: 0, Total: 3, Duration: 209 ms - Ivr.UnitTests.dll (net10.0)",
+      "verdict": "GREEN_AS_EXPECTED"
+    },
+    {
+      "id": "K-36 the worker body never carries the callback circuit",
+      "test": "UT-WORKER-HEALTH-CIRCUIT-01",
+      "summary": "Failed! - Failed: 1, Passed: 0, Skipped: 0, Total: 1, Duration: 233 ms - Ivr.UnitTests.dll (net10.0)",
+      "neighbour": "UT-WORKER-HEALTH-CIRCUIT-02",
+      "neighbourSummary": "Passed! - Failed: 0, Passed: 1, Skipped: 0, Total: 1, Duration: 76 ms - Ivr.UnitTests.dll (net10.0)",
+      "verdict": "RED_AS_EXPECTED"
+    },
+    {
+      "id": "K-36 a worker with delivery off reports a circuit nothing trips",
+      "test": "UT-WORKER-HEALTH-CIRCUIT-02",
+      "summary": "Failed! - Failed: 1, Passed: 0, Skipped: 0, Total: 1, Duration: 24 ms - Ivr.UnitTests.dll (net10.0)",
+      "neighbour": "UT-WORKER-HEALTH-CIRCUIT-01",
+      "neighbourSummary": "Passed! - Failed: 0, Passed: 1, Skipped: 0, Total: 1, Duration: 73 ms - Ivr.UnitTests.dll (net10.0)",
+      "verdict": "RED_AS_EXPECTED"
+    },
+    {
+      "id": "K-33 an empty registry at start is reported as stalled again",
+      "test": "UT-WORKER-HEARTBEAT-01",
+      "summary": "Failed! - Failed: 1, Passed: 0, Skipped: 0, Total: 1, Duration: 29 ms - Ivr.UnitTests.dll (net10.0)",
+      "neighbour": "UT-WORKER-LOOP-01",
+      "neighbourSummary": "Passed! - Failed: 0, Passed: 1, Skipped: 0, Total: 1, Duration: 36 ms - Ivr.UnitTests.dll (net10.0)",
+      "verdict": "RED_AS_EXPECTED"
+    },
+    {
+      "id": "K-33 loops configured off are counted as turning again",
+      "test": "UT-WORKER-HEARTBEAT-02",
+      "summary": "Failed! - Failed: 1, Passed: 0, Skipped: 0, Total: 1, Duration: 52 ms - Ivr.UnitTests.dll (net10.0)",
+      "neighbour": "UT-WORKER-HEARTBEAT-01",
+      "neighbourSummary": "Passed! - Failed: 0, Passed: 1, Skipped: 0, Total: 1, Duration: 23 ms - Ivr.UnitTests.dll (net10.0)",
+      "verdict": "RED_AS_EXPECTED"
+    },
+    {
+      "id": "CONTROL all files restored (unit tests)",
+      "summary": "Passed! - Failed: 0, Passed: 4, Skipped: 0, Total: 4, Duration: 59 ms - Ivr.UnitTests.dll (net10.0)",
+      "verdict": "GREEN_AS_EXPECTED"
+    },
+    {
+      "id": "K-34 API renders no TTS provider outside MOCK",
+      "test": "IT-K8S-TTS-08",
+      "summary": "Error: LAB_REAL_SIM renders the API without Ivr__Speech__Tts__Provider=UNSELECTED; it would refuse to start on the baked FAKE provider.",
+      "verdict": "RED_AS_EXPECTED"
+    },
+    {
+      "id": "K-34 worker gets no internal service token",
+      "test": "IT-K8S-ELIG-09",
+      "summary": "Error: the worker does not get the internal service token from the secret.",
+      "verdict": "RED_AS_EXPECTED"
+    },
+    {
+      "id": "K-34 API ingress does not admit the worker",
+      "test": "IT-K8S-ELIG-09",
+      "summary": "Error: the API's ingress policy does not admit the release's worker on 8080.",
+      "verdict": "RED_AS_EXPECTED"
+    },
+    {
+      "id": "K-34 control: chart restored from its byte copy",
+      "summary": "the render checks of k8s-selftest.mjs pass",
+      "verdict": "GREEN_AS_EXPECTED"
+    },
+    {
+      "id": "K-35 control: the API image built from this lot carries appsettings.json and no appsettings.Development.json",
+      "test": "IT-IMG-BUILD-01",
+      "summary": "appsettings.Development.json in the image: false; appsettings.json in the image: true",
+      "verdict": "GREEN_AS_EXPECTED"
+    },
+    {
+      "id": "K-35 the csproj line removed: the API image ships appsettings.Development.json again",
+      "test": "IT-IMG-BUILD-01",
+      "summary": "appsettings.Development.json in the image: true",
+      "verdict": "RED_AS_EXPECTED"
+    }
+  ]
+}

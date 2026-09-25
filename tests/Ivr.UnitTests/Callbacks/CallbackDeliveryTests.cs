@@ -389,13 +389,22 @@ public sealed class CallbackDeliveryTests
         // W-0040 / P6-1 §6.2, DF-05. The correlation id the task arrived with has to survive to
         // the outbound boundary. Without it, investigating one order means guessing which of a
         // batch's log lines belong together.
+        // W-0360: the listener is process-wide, and other test classes run dispatchers in parallel,
+        // so the capture is locked and the assertion counts only this test's own callback. Counting
+        // every "ivr.callback.deliver" span failed whenever another class delivered at the same time.
         var captured = new List<System.Diagnostics.Activity>();
         using var listener = new System.Diagnostics.ActivityListener
         {
             ShouldListenTo = source => source.Name == Ivr.Infrastructure.Observability.IvrTelemetry.ServiceName,
             Sample = (ref System.Diagnostics.ActivityCreationOptions<System.Diagnostics.ActivityContext> _) =>
                 System.Diagnostics.ActivitySamplingResult.AllDataAndRecorded,
-            ActivityStopped = captured.Add,
+            ActivityStopped = activity =>
+            {
+                lock (captured)
+                {
+                    captured.Add(activity);
+                }
+            },
         };
         System.Diagnostics.ActivitySource.AddActivityListener(listener);
 
@@ -410,9 +419,18 @@ public sealed class CallbackDeliveryTests
 
         Assert.Single(await dispatcher.RunBatchAsync());
 
+        System.Diagnostics.Activity[] snapshot;
+        lock (captured)
+        {
+            snapshot = [.. captured];
+        }
+
         System.Diagnostics.Activity span = Assert.Single(
-            captured,
-            activity => activity.OperationName == "ivr.callback.deliver");
+            snapshot,
+            activity => activity.OperationName == "ivr.callback.deliver"
+                && Equals(
+                    activity.GetTagItem(Ivr.Infrastructure.Observability.TelemetryTags.CallbackId),
+                    message.CallbackId));
         Assert.Equal(
             message.CorrelationId,
             span.GetTagItem(Ivr.Infrastructure.Observability.TelemetryTags.CorrelationId));
@@ -542,6 +560,31 @@ public sealed class CallbackDeliveryTests
     }
 
     [Fact]
+    [Trait("TestId", "UT-CALLBACK-RETRY-AFTER-17")]
+    public async Task AServerRetryAfterBeyondTheCeilingIsHeldToFiveMinutes()
+    {
+        // W-0360 / K-32. UT-CALLBACK-RETRY-AFTER-09B holds the server's delay when it is longer than
+        // the backoff step; this holds the other edge. A Retry-After of a day must not park a final
+        // result for a day: five minutes, the longest wait the options allow, is the latest.
+        CallbackDeliveryOptions settings = CreateOptions();
+        var outbox = new MemoryOutbox(CreateMessage());
+        CallbackDispatcher dispatcher = CreateDispatcher(
+            outbox,
+            new StubTargetTransport(new CallbackTransportResult(
+                CallbackTransportOutcome.TransientFailure,
+                429,
+                "CALLBACK_RETRYABLE_RESPONSE",
+                "CALLBACK_RETRYABLE_RESPONSE",
+                TimeSpan.FromDays(1))),
+            settings);
+
+        await dispatcher.RunBatchAsync();
+
+        Assert.Equal("RETRY_PENDING", outbox.Update?.DeliveryStatus);
+        Assert.Equal(Now.AddMinutes(5), outbox.Update?.NextRetryAt);
+    }
+
+    [Fact]
     [Trait("TestId", "UT-CALLBACK-TOKEN-CIRCUIT-10")]
     public async Task MockTokenRefreshAndCircuitReadinessAreDeterministic()
     {
@@ -637,6 +680,38 @@ public sealed class CallbackDeliveryTests
         // The half of the defect that hid the other half: a terminal outcome resets the transient
         // streak, so the breaker never opened no matter how long this went on.
         Assert.Equal(1, circuit.Snapshot().ConsecutiveTransientFailures);
+    }
+
+    [Fact]
+    [Trait("TestId", "UT-CALLBACK-TRANSPORT-LOGGED-18")]
+    public async Task AnUnexpectedTransportThrowIsLoggedByTypeAndNeverByMessage()
+    {
+        // W-0360 / K-31. UT-CALLBACK-TRANSPORT-INVALIDOP-14 holds the outcome; this holds the trace.
+        // The catch used to leave none: a defect in our own transport showed only as a retry count
+        // climbing. The exception type is logged, the message is not, because a transport message
+        // can carry a response body.
+        CallbackDeliveryOptions settings = CreateOptions();
+        var clock = new MutableTimeProvider(Now);
+        var logger = new CapturingLogger<CallbackDispatcher>();
+        var outbox = new MemoryOutbox(CreateMessage());
+        var dispatcher = new CallbackDispatcher(
+            outbox,
+            new InvalidOperationTargetTransport(),
+            new StubCurrentTransport(),
+            new CallbackCircuitBreaker(clock, Options.Create(settings)),
+            Options.Create(settings),
+            clock,
+            logger);
+
+        CallbackDispatchResult result = Assert.Single(await dispatcher.RunBatchAsync());
+
+        Assert.Equal("CALLBACK_TRANSPORT_UNEXPECTED_FAILURE", result.ResponseCode);
+        (Microsoft.Extensions.Logging.LogLevel level, int eventId, string text) = Assert.Single(logger.Entries);
+        Assert.Equal(Microsoft.Extensions.Logging.LogLevel.Error, level);
+        Assert.Equal(2430, eventId);
+        Assert.Contains("System.InvalidOperationException", text, StringComparison.Ordinal);
+        Assert.Contains(result.CallbackId, text, StringComparison.Ordinal);
+        Assert.DoesNotContain("already open", text, StringComparison.Ordinal);
     }
 
     /// <summary>
@@ -1068,6 +1143,29 @@ public sealed class CallbackDeliveryTests
     /// pair. A transport raises it for a disposed handler, an EF "connection is already open", or
     /// a serializer in a bad state — all transient, none of them a contract problem.
     /// </summary>
+    private sealed class CapturingLogger<T> : Microsoft.Extensions.Logging.ILogger<T>
+    {
+        private readonly List<(Microsoft.Extensions.Logging.LogLevel Level, int EventId, string Text)> entries = [];
+
+        public IReadOnlyList<(Microsoft.Extensions.Logging.LogLevel Level, int EventId, string Text)> Entries => entries;
+
+        public IDisposable? BeginScope<TState>(TState state)
+            where TState : notnull => null;
+
+        public bool IsEnabled(Microsoft.Extensions.Logging.LogLevel logLevel) => true;
+
+        public void Log<TState>(
+            Microsoft.Extensions.Logging.LogLevel logLevel,
+            Microsoft.Extensions.Logging.EventId eventId,
+            TState state,
+            Exception? exception,
+            Func<TState, Exception?, string> formatter)
+        {
+            ArgumentNullException.ThrowIfNull(formatter);
+            entries.Add((logLevel, eventId.Id, formatter(state, exception)));
+        }
+    }
+
     private sealed class InvalidOperationTargetTransport : ITargetV1CallbackTransport
     {
         public Task<CallbackTransportResult> SendAsync(

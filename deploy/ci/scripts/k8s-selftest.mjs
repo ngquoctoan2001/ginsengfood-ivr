@@ -121,6 +121,66 @@ function gateRefusesToOpenTheLadder() {
   }
 }
 
+function renderWith(environment, overrides) {
+  return docker(["exec", HELMBOX, "helm", "template", "ivr", "/ivr", "-f", `/ivr/values-${environment}.yaml`,
+    ...overrides.flatMap((override) => ["--set", override])]);
+}
+
+/** One rendered object by kind and component, so an assertion is about that object alone. */
+function objectOf(manifest, kind, component) {
+  return manifest.split(/^---\s*$/mu).find((document) => new RegExp(`^kind: ${kind}$`, "mu").test(document)
+    && new RegExp(`app\\.kubernetes\\.io/component: ${component}\\b`, "u").test(document)) ?? "";
+}
+
+// ---------------------------------------------------------------- IT-K8S-TTS-08
+function apiNamesAProviderItMayHoldOutsideMock() {
+  // W-0360 / K-34. The API validates its speech options at start and its image bakes
+  // FAKE_DETERMINISTIC, which the validator refuses outside MOCK. Until this render case the API pod
+  // could not start in LAB_REAL_SIM or PRODUCTION_REAL at all, and nothing rendered a non-MOCK API
+  // to notice. In MOCK the baked fake provider is the one the validator demands, so nothing is set.
+  const lab = objectOf(renderWith("lab", [
+    "governance.executionMode=LAB_REAL_SIM",
+    "governance.labDestinationAllowlist={mock-destination-allowlisted}",
+  ]), "Deployment", "api");
+  assert(/name: Ivr__Speech__Tts__Provider\s+value: UNSELECTED/u.test(lab),
+    "LAB_REAL_SIM renders the API without Ivr__Speech__Tts__Provider=UNSELECTED; it would refuse to start on the baked FAKE provider.");
+  for (const environment of ENVIRONMENTS) {
+    const api = objectOf(render(environment), "Deployment", "api");
+    assert(api && !/Ivr__Speech__Tts__Provider/u.test(api),
+      `${environment} (MOCK) overrides the API's TTS provider; MOCK requires the baked fake one.`);
+  }
+  process.stdout.write("IT-K8S-TTS-08 PASS — outside MOCK the API names UNSELECTED; in MOCK it keeps the baked fake provider\n");
+}
+
+// ---------------------------------------------------------------- IT-K8S-ELIG-09
+function eligibilityPollingRendersWhatItNeeds() {
+  // W-0360 / K-34. The worker's eligibility loop refuses to start without an API origin and the
+  // internal credential, and the credential was wired to the API pod only; the default-deny policy
+  // had no path from the worker to the API either. Off, nothing of it renders; on, all three do.
+  for (const environment of ENVIRONMENTS) {
+    const manifest = render(environment);
+    assert(!/Ivr__EligibilityPolling__/u.test(manifest) && !/-worker-to-api\b/u.test(manifest),
+      `${environment} renders eligibility polling although it is off.`);
+  }
+
+  const manifest = renderWith("prod", ["worker.eligibilityPolling.enabled=true"]);
+  const worker = objectOf(manifest, "Deployment", "worker");
+  assert(/name: Ivr__EligibilityPolling__Enabled\s+value: "true"/u.test(worker), "the worker is not told to poll.");
+  assert(/name: Ivr__EligibilityPolling__ApiBaseUrl\s+value: "http:\/\/ivr-ivr-api:8080"/u.test(worker),
+    "the worker does not get the chart's own API service as its origin.");
+  assert(/name: IVR_INTERNAL_SERVICE_TOKEN\s+valueFrom:\s+secretKeyRef:/u.test(worker),
+    "the worker does not get the internal service token from the secret.");
+
+  const egress = manifest.split(/^---\s*$/mu).find((document) => /name: ivr-ivr-worker-to-api$/mu.test(document)) ?? "";
+  assert(/podSelector:\s+matchLabels:[\s\S]*?app\.kubernetes\.io\/component: worker/u.test(egress)
+      && /egress:[\s\S]*?app\.kubernetes\.io\/component: api[\s\S]*?port: 8080/u.test(egress),
+    "no egress policy lets the worker reach the API on 8080 through default-deny.");
+  const ingress = manifest.split(/^---\s*$/mu).find((document) => /name: ivr-ivr-ingress$/mu.test(document)) ?? "";
+  assert(/ingress:[\s\S]*?from:[\s\S]*?app\.kubernetes\.io\/component: worker[\s\S]*?port: 8080/u.test(ingress),
+    "the API's ingress policy does not admit the release's worker on 8080.");
+  process.stdout.write("IT-K8S-ELIG-09 PASS — off renders nothing; on renders the origin, the token and the worker-to-API path\n");
+}
+
 // ---------------------------------------------------------------- cluster
 function startCluster() {
   docker(["rm", "-f", CLUSTER], { stdio: ["ignore", "ignore", "ignore"] });
@@ -715,6 +775,8 @@ try {
 
   lintAndValidate();
   gateRefusesToOpenTheLadder();
+  apiNamesAProviderItMayHoldOutsideMock();
+  eligibilityPollingRendersWhatItNeeds();
 
   startCluster();
   loadImages();

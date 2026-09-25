@@ -1,0 +1,24 @@
+{
+  "schema": "ivr-acceptance-tests/v1",
+  "workId": "W-0360",
+  "scope": "software",
+  "requiredTestIds": [
+    "UT-CALLBACK-TRANSPORT-LOGGED-18",
+    "UT-OBS-FAILCLOSED-11",
+    "UT-CALLBACK-RETRY-AFTER-17",
+    "UT-CALLBACK-RETRY-AFTER-09B",
+    "UT-WORKER-HEARTBEAT-01",
+    "UT-WORKER-HEARTBEAT-02",
+    "UT-WORKER-HEALTH-CIRCUIT-01",
+    "UT-WORKER-HEALTH-CIRCUIT-02",
+    "UT-OBS-TRACE-02",
+    "IT-K8S-TTS-08",
+    "IT-K8S-ELIG-09",
+    "IT-IMG-BUILD-01"
+  ],
+  "gates": [
+    "docs-selftest.mjs",
+    "acceptance-batches.mjs",
+    "generate-test-traceability.mjs"
+  ]
+}

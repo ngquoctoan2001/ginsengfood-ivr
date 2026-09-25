@@ -11,4 +11,15 @@
     <ImplicitUsings>enable</ImplicitUsings>
   </PropertyGroup>
 
+  <!--
+    W-0360 / K-35. appsettings.Development.json carries the five published development tokens,
+    Danger tier included. `dotnet run` reads it from the build output; nothing published reads it:
+    the image sets ASPNETCORE_ENVIRONMENT=Production and every compose file passes its tokens as
+    environment variables. Published, it only waited for one container started as Development to
+    turn a token printed in this repository into a working Danger credential.
+  -->
+  <ItemGroup>
+    <Content Update="appsettings.Development.json" CopyToPublishDirectory="Never" />
+  </ItemGroup>
+
 </Project>

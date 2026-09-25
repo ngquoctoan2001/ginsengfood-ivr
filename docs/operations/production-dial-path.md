@@ -192,7 +192,9 @@ It is recorded here as observed behaviour. Do not discover it during an incident
       "stale": false, "consecutive_faults": 0, "last_fault_kind": null }
   ],
   "ari_controller": { "scope": "...", "status": "Held", "may_dial": true,
-                      "fencing_generation": 7, "observed_at": "..." }
+                      "fencing_generation": 7, "observed_at": "..." },
+  "callback_circuit": { "readiness": "READY", "open": false,
+                        "consecutive_transient_failures": 0, "open_until": null }
 }
 ```
 
@@ -212,10 +214,15 @@ this body.
 | `consecutive_faults` climbing | The loop is running and failing | Yes — it will not self-heal past a point |
 | `ari_controller` absent | No scheduler pass has answered yet, or the scheduler is off | Only if the scheduler should be on |
 | `may_dial: false` | **Not a fault.** See the ownership runbook | No — it is one of four states, two of which are healthy |
+| `callback_circuit.readiness` not `READY` | Sales stopped answering callbacks; results wait for bounded retry | Yes if it persists — Sales is the one to fix, not the worker |
+| `callback_circuit` is `null` | This worker has callback delivery switched off | Only if it should be on |
 
 `may_dial: false` is never reported in the status code, on purpose. Failing the probe would restart
 the worker, which cannot grant it the ARI application and would drop whatever calls it is still
-draining.
+draining. An open `callback_circuit` stays out of it for the same kind of reason: a restart cannot
+make Sales answer, and the circuit is held in memory, so a restart would close it and send the next
+batch straight back into the outage. The API's `/health/ready` cannot show this circuit at all; its
+`sales_callback` check always reads `not_configured` because the API delivers nothing.
 
 ### Metrics worth an alert
 

@@ -2,6 +2,7 @@ using System.Globalization;
 using System.Net;
 using System.Text;
 using System.Text.Json;
+using Ivr.Infrastructure.Callbacks;
 using Microsoft.Extensions.Options;
 
 namespace Ivr.Worker;
@@ -39,6 +40,8 @@ public sealed class WorkerHealthOptions
 public sealed partial class WorkerHealthEndpoint(
     WorkerLiveness liveness,
     SchedulerControllerStatus controllerStatus,
+    CallbackCircuitBreaker callbackCircuit,
+    IOptions<CallbackDeliveryOptions> callbackOptions,
     IOptions<WorkerHealthOptions> options,
     ILogger<WorkerHealthEndpoint> logger) : BackgroundService
 {
@@ -108,7 +111,8 @@ public sealed partial class WorkerHealthEndpoint(
     /// </summary>
     internal static (int StatusCode, byte[] Body) BuildResponse(
         WorkerLivenessReport report,
-        SchedulerControllerSnapshot? controller)
+        SchedulerControllerSnapshot? controller,
+        CallbackCircuitState? callbackCircuit = null)
     {
         ArgumentNullException.ThrowIfNull(report);
 
@@ -144,6 +148,20 @@ public sealed partial class WorkerHealthEndpoint(
                     fencing_generation = controller.FencingGeneration,
                     observed_at = controller.ObservedAt,
                 },
+
+                // W-0360 / K-36. The breaker lives in this process: the API runs no delivery, so its
+                // /health/ready can only ever say not_configured. Body only, like ari_controller.
+                // An open circuit means Sales is not answering, which a restart cannot fix, and the
+                // state is in memory: a restart would close it and send the next batch straight
+                // back into the outage the circuit exists to wait out. Null when this worker does
+                // not deliver callbacks, because a circuit nothing trips would read READY.
+                callback_circuit = callbackCircuit is null ? null : new
+                {
+                    readiness = callbackCircuit.Readiness,
+                    open = callbackCircuit.IsOpen,
+                    consecutive_transient_failures = callbackCircuit.ConsecutiveTransientFailures,
+                    open_until = callbackCircuit.OpenUntil,
+                },
             },
             Json));
 
@@ -154,12 +172,24 @@ public sealed partial class WorkerHealthEndpoint(
 
     private async Task RespondAsync(HttpListenerContext context)
     {
-        (int statusCode, byte[] body) = BuildResponse(liveness.Read(), controllerStatus.Current);
+        (int statusCode, byte[] body) = BuildResponse(
+            liveness.Read(),
+            controllerStatus.Current,
+            CircuitToReport(callbackOptions.Value, callbackCircuit));
         context.Response.StatusCode = statusCode;
         context.Response.ContentType = "application/json";
         context.Response.ContentLength64 = body.Length;
         await context.Response.OutputStream.WriteAsync(body);
         context.Response.Close();
+    }
+
+    internal static CallbackCircuitState? CircuitToReport(
+        CallbackDeliveryOptions delivery,
+        CallbackCircuitBreaker circuit)
+    {
+        ArgumentNullException.ThrowIfNull(delivery);
+        ArgumentNullException.ThrowIfNull(circuit);
+        return delivery.Enabled ? circuit.Snapshot() : null;
     }
 
     [LoggerMessage(

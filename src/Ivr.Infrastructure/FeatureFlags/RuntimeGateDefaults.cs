@@ -1,5 +1,6 @@
 namespace Ivr.Infrastructure.FeatureFlags;
 
+using Ivr.Infrastructure.Observability;
 using Ivr.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 
@@ -65,7 +66,14 @@ public sealed class PostgresRuntimeSafetyHealth(
         }
         catch (Exception)
         {
+            // W-0360 / K-31. Still "no" -- an audit store that cannot be asked is not a healthy
+            // one -- but counted, so an outage of the check itself is told apart from a store that
+            // is really missing. Both used to read as the same quiet false.
+            IvrTelemetry.RecordFailClosed((TelemetryTags.ReasonCode, AuditStoreUnreadable));
             return false;
         }
     }
+
+    /// <summary>The <c>ivr.reason_code</c> on <c>ivr_fail_closed_total</c> for a check that threw.</summary>
+    public const string AuditStoreUnreadable = "AUDIT_STORE_UNREADABLE";
 }
