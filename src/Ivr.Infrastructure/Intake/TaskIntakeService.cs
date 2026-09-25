@@ -177,12 +177,14 @@ public sealed class TaskIntakeService(
                 contactRejection);
         }
 
-        // W-0298 / C15. Refuse a task whose every attempt lands outside calling hours, rather than
-        // accepting it and reporting IVR_CONFIRMATION_WINDOW_EXPIRED once the window runs out
-        // without a single call. Checked after the contact gate on purpose: a malformed token is
-        // something Module 3 must fix, a shut calling window is not, so the fixable fault is the
-        // one that surfaces first.
-        if (!AnyAttemptFallsInsideCallingHours(window, policy))
+        // W-0298 / C15, remodelled for B17 (2026-09-25). Refuse a task whose confirmation window
+        // opens (T0) outside calling hours. The scheduler does not drop an attempt that falls due
+        // while the hours are shut - it dials it the moment they reopen - so the question is T0
+        // alone, the same rule Module 3 applies: it holds an order that arrives outside
+        // 08:00-21:08 and sends it again from 08:00 with a new window. Checked after the contact
+        // gate on purpose: a malformed token is something Module 3 must fix, a shut calling window
+        // is not, so the fixable fault is the one that surfaces first.
+        if (!ConfirmationWindowStartsInsideCallingHours(window))
         {
             return Rejected(
                 source,
@@ -859,15 +861,32 @@ public sealed class TaskIntakeService(
     }
 
     /// <summary>
-    /// W-0298 / C15. True when at least one scheduled attempt would be dialled — that is, it falls
-    /// inside the confirmation window <b>and</b> inside the hours a customer may be telephoned.
+    /// W-0298 / C15, remodelled for B17 (2026-09-25). True when the confirmation window opens —
+    /// its T0, <c>confirmation_window_started_at</c> — inside the hours a customer may be
+    /// telephoned.
     /// </summary>
     /// <remarks>
     /// <para>
-    /// The scheduler drops an attempt whose moment sits outside calling hours; it does not carry it
-    /// forward. So a task every one of whose attempts is out of hours receives no call at all, and
-    /// the only thing that eventually happens to it is the deadline sweep closing it as expired.
-    /// This answers the same question at intake, when it can still be said out loud.
+    /// This used to ask whether <em>any</em> attempt fell inside calling hours, on the belief that
+    /// the scheduler drops an attempt whose moment sits outside them. It does not. The claim in
+    /// <c>PostgresSchedulerStore.TryClaimDueDispatchAsync</c> takes any attempt whose moment has
+    /// passed while its window is still open, and <c>SchedulerRuntime</c> holds that claim back
+    /// only while the hours are shut. So an attempt that fell due before 08:00 is dialled the
+    /// moment they reopen, if its window has not expired, and the next attempt straight after it
+    /// if that one is due too. Asked per attempt, the guard refused tasks the scheduler would
+    /// still have called (T0 07:45:01–07:52:29 for 24/7, 07:55:01–07:57:29 for Golden Hour) and
+    /// admitted tasks whose first call slid to 08:00 and closed up on the second (T0
+    /// 07:52:30–07:59:59 for 24/7, 07:57:30–07:59:59 for Golden Hour; back to back at the start
+    /// of each range).
+    /// </para>
+    /// <para>
+    /// Asked about T0, intake and Module 3 apply one rule: Module 3 holds an order that arrives
+    /// outside 08:00–21:08 and sends it again from 08:00 with a new window, and this refuses
+    /// exactly that order. It is T0 that is tested, not the arrival, because the attempt schedule
+    /// is fixed from T0. A T0 before 08:00 is refused even when a later attempt would land inside
+    /// calling hours. The evening edge does not move: a T0 before 21:08 is still accepted, and
+    /// one late enough to push the second attempt past 21:08 has time for its first call only
+    /// (from 21:00:30 for 24/7, 21:05:30 for Golden Hour) — still an open decision (Q-22).
     /// </para>
     /// <para>
     /// <see cref="Ivr.Infrastructure.Scheduling.CallingWindow.Enabled"/> off means a deployment has
@@ -875,25 +894,14 @@ public sealed class TaskIntakeService(
     /// every task passes. That is the same reading the scheduler takes.
     /// </para>
     /// </remarks>
-    private bool AnyAttemptFallsInsideCallingHours(
-        ConfirmationWindow window,
-        AttemptPolicySnapshot policy)
+    private bool ConfirmationWindowStartsInsideCallingHours(ConfirmationWindow window)
     {
         if (!callingWindow.Enabled)
         {
             return true;
         }
 
-        foreach (TimeSpan offset in policy.AttemptOffsets)
-        {
-            DateTimeOffset attemptAt = window.StartedAt.Add(offset);
-            if (window.Contains(attemptAt) && callingWindow.Evaluate(attemptAt).Open)
-            {
-                return true;
-            }
-        }
-
-        return false;
+        return callingWindow.Evaluate(window.StartedAt).Open;
     }
 
     private static TaskIntakePersistencePlan Rejected(

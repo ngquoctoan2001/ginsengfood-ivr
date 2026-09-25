@@ -1,6 +1,6 @@
 # Đã xong — quyết định đã đóng của Module 8
 
-Cập nhật: **16/09/2026** · Thay thế 2 file ký riêng lẻ và ghi nhận các phần đã đóng của những gói khác.
+Cập nhật: **16/09/2026**, sửa **25/09** (đính chính `m8-17-fence-thu-hoi`) · Thay thế 2 file ký riêng lẻ và ghi nhận các phần đã đóng của những gói khác.
 
 Chỉ liệt kê những gì **không còn hành động nào phía Module 8**. Việc còn chờ ai đó nằm ở [00-CHUA-XONG.md](00-CHUA-XONG.md).
 
@@ -58,7 +58,9 @@ Hai fence đã cài đúng hai chỗ: lúc scheduler claim, và lần đọc tas
 - Migration `20260909034715_W0249OrderRevocationFence.cs` — 3 cột revoke
 - Test tái hiện revoke trước claim và revoke sau claim
 
-**Còn chặn:** `ENDPOINT_PENDING` — M3 chưa cấp endpoint thu hồi. Nằm ở [00-CHUA-XONG.md](00-CHUA-XONG.md#m8-17).
+**Còn chặn:** `ENDPOINT_PENDING` — ~~M3 chưa cấp endpoint thu hồi.~~ *Đính chính `25/09` (`K-13` của kế hoạch
+khắc phục `25/09`): endpoint do **IVR mở** theo `IR-07` `E-2`, sau khi Module 3 trả lời `M3-14` về shape; Module 3
+là bên gọi.* Nằm ở [00-CHUA-XONG.md](00-CHUA-XONG.md#m8-17).
 
 ### today-03-giong-doc
 

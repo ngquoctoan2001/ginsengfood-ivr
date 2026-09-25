@@ -99,6 +99,10 @@ const requiredSchemaNegativeIds = [
   "NEG-SCHEMA-CONTACT-ROUTE-01",
   "NEG-SCHEMA-TOKEN-PAIR-01",
   "NEG-SCHEMA-PHONE-E164-01",
+  // B16 (chief worklist 2026-09-25). total_amount is whole dong from 1.0.0-draft.33
+  // (multipleOf: 1). A fraction used to pass intake and fail only at dial time, where the gateway
+  // took it for a broken SIM channel and quarantined it.
+  "NEG-SCHEMA-AMOUNT-01",
 ];
 const schemaNegativeIds = new Set(seed.schema_negative.map((fixture) => fixture.id));
 for (const fixtureId of requiredSchemaNegativeIds) {

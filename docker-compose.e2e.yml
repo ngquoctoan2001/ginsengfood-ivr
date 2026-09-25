@@ -19,7 +19,8 @@ services:
     environment:
       # W-0354 / C15 (chief worklist 2026-09-25). The same whole-day calling window as the worker
       # below, and for the same reason, one process earlier. Since W-0298 the API refuses a task at
-      # INTAKE when none of its attempts lands inside calling hours
+      # INTAKE that falls outside calling hours - since B17 (2026-09-25), one whose window opens (T0)
+      # outside 08:00-21:08
       # (TASK_BLOCKED_OPERATIONAL / CALLING_WINDOW_CLOSED_FOR_WHOLE_CONFIRMATION_WINDOW), and the API
       # registers its own CallingWindow. This file used to widen the worker only, so outside
       # 08:00-21:08 Vietnam time every smoke task was refused at the door before the worker ever saw

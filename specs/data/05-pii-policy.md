@@ -9,15 +9,18 @@ Trạng thái: `SRS_DRAFT` · Sinh bởi: `p06` · Nguồn: `phase-8/02 §11`, `
 | **SENSITIVE** | `phone_masked`, `official_contact_id`, `customer_ref`, `risk_flags`, `call_restriction` | ref/masked | chỉ `phone_masked` | KHÔNG |
 | **INTERNAL** | order refs, `order_state`, program, result, evidence refs | có | có (masked view) | KHÔNG |
 | **PUBLIC-SAFE (current, narrow)** | `order_code_short`, `total_amount_display`, (opt) `customer_name_short`, `program_name` | có | có | ✅ ALLOWED |
-| **PUBLIC-SAFE (Target V1 — ✅ ĐÃ KÝ `2026-09-05`)** | thêm `items[].public_name`, `items[].quantity`, optional `items[].unit_label`, `delivery_area_short` (không bắt đầu bằng chữ số, không chứa `x/y`; đơn vị hành chính có số vẫn hợp lệ) | có | có | `OD-V1-15` đã ký (`W-0194`): bộ **rộng** được duyệt cho production. `ProductionTargetV1FieldsApproved` mặc định `NO` từ `W-0299` (`e72ca84`; `W-0195` từng đặt `YES`), chỉ bật qua biến môi trường `IVR_PRODUCTION_TARGET_V1_FIELDS_APPROVED` ở môi trường có chữ ký *(sửa `25/09`, `W-0354`)*. Quorum duyệt kịch bản **không** đổi: `PRODUCTION_REAL` vẫn cần `CONTENT` và `PRIVACY_LEGAL` từ hai actor khác nhau, và người tạo bản không được duyệt. |
+| **PUBLIC-SAFE (Target V1 — ✅ ĐÃ KÝ `2026-09-05`)** | thêm `items[].public_name`, `items[].quantity`, optional `items[].unit_label`, `delivery_area_short` (không bắt đầu bằng chữ số, không chứa `x/y`; đơn vị hành chính có số vẫn hợp lệ) | có | có | `OD-V1-15` đã ký (`W-0194`): bộ **rộng** được duyệt cho production. `ProductionTargetV1FieldsApproved` mặc định `NO` từ `W-0299` (`e72ca84`; `W-0195` từng đặt `YES`), chỉ bật qua biến môi trường `IVR_PRODUCTION_TARGET_V1_FIELDS_APPROVED` hoặc khoá cấu hình `Ivr:ProductionTargetV1FieldsApproved` (ví dụ biến môi trường `Ivr__ProductionTargetV1FieldsApproved` hoặc appsettings theo môi trường), ở môi trường có chữ ký. Giá trị `YES` là bật; biến `IVR_PRODUCTION_TARGET_V1_FIELDS_APPROVED`, nếu có, thắng khoá cấu hình (`src/Ivr.Infrastructure/Configuration/ServiceCollectionExtensions.cs:75-83`). Code không kiểm chữ ký *(sửa `25/09`, `W-0354`; thêm khoá cấu hình `25/09`)*. Quorum duyệt kịch bản **không** đổi: `PRODUCTION_REAL` vẫn cần `CONTENT` và `PRIVACY_LEGAL` từ hai actor khác nhau, và người tạo bản không được duyệt. |
 
 ## 2. Quy tắc P0 (phase-8/02 §11, /08)
 - ✅ Chỉ dùng `phone_ref`/`phone_masked`/`dial_token` để gọi; **cấm** raw phone trong log/UI/DB IVR
-  (D-05; P0-IVR-007). `OD-V1-17`/`OD-V1-05` đã ký 2026-09-05 (W-0199): token dùng lại được, gắn
+  (D-05; P0-IVR-007). `OD-V1-17`/`OD-V1-05` do owner IVR ký 2026-09-05 (W-0199): token dùng lại được, gắn
   `task_id`, TTL ≥ hết cửa sổ xác nhận, **trần số lần resolve** = `max_attempts` + trần technical
   retry, mỗi lần resolve ghi audit kèm `attempt_id`. Câu "one-use" của `W-0150` không còn đúng và
   không nên chép lại. Mapping/token key và raw E.164 phải nằm sau external
   resolver/gateway boundary, không ở IVR.
+  *Sửa `25/09` (theo chốt chief; đồng bộ với sổ quyết định): câu trên từng ghi “đã ký” như thể hai dòng
+  đã chốt. `OD-V1-17` nay phụ thuộc phương án B, chờ Sếp trả lời mục `B2` phiếu Sếp `25/09`; `OD-V1-05`
+  ở `M8_POSITION_SIGNED / M3_NOT_RECEIVED`, chờ Module 3 đối ký.*
 - ✅ **Cấm đọc/log**: full address, payment/COD detail, member tier, Diamond, order history, health/sensitive note, AI/CRM content (phase-8/02 §11; call script whitelist `functional/04`).
 - ✅ **Recording OFF** mặc định (DT-05); bật chỉ khi có consent + legal + retention (DF-07/DG-08); nếu bật chỉ lưu `recording_ref` + audit truy cập.
 - ✅ DTMF chỉ lưu **semantic** (`1`/`0`/none/invalid) — không lưu audio nhạy cảm (phase-8/12 §11).

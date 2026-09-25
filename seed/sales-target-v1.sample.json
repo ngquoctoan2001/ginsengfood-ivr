@@ -677,6 +677,15 @@
       "layer": "schema",
       "expect_http": 400,
       "expect_error_code": "IVR_MALFORMED_REQUEST"
+    },
+    {
+      "id": "NEG-SCHEMA-AMOUNT-01",
+      "from": "golden-hour-online-confirmable",
+      "replace": { "privacy_safe_order_summary.total_amount": 210636.8 },
+      "layer": "schema",
+      "expect_http": 400,
+      "expect_error_code": "IVR_MALFORMED_REQUEST",
+      "note": "total_amount is whole dong from 1.0.0-draft.33 (multipleOf: 1). A fraction used to pass intake and fail only at dial time, where the gateway took it for a broken SIM channel (B16)."
     }
   ],
   "domain_negative": [
@@ -887,7 +896,7 @@
       "expect_recommended_core_action": "CORE_NO_STATE_CHANGE_WAIT_FOR_TIMEOUT",
       "sales_ack_http": 200,
       "sales_ack_code": "ACCEPTED",
-      "note": "IVR never cancels. Core timeout worker decides."
+      "note": "IVR never cancels. The action is a label the IVR database pins for this result; Module 3 does not wait on it but handles the order per flow 04 (24/7 COD: cancel with IVR_NO_ANSWER_MAX; Golden Hour: confirmation expires) - IR-07 erratum 2026-09-25."
     },
     {
       "id": "CB-TECHNICAL-NOT-COUNTED",

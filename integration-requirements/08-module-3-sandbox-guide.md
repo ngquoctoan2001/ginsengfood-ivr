@@ -1,8 +1,8 @@
 # IR-08 — Môi trường thử cho Module 3
 
 **Chủ đề:** Cách Module 3 gọi vào IVR mà không cần chờ IVR có staging
-**Mốc triển khai:** `W-0283` · **Cập nhật:** `2026-09-14`
-**Trạng thái:** chạy được, đã chứng minh bằng một lượt chạy thật — `24/24` ví dụ đúng như mô tả
+**Mốc triển khai:** `W-0283` · **Cập nhật:** `2026-09-25`
+**Trạng thái:** chạy được, đã chứng minh bằng lượt chạy thật — `28/28` ví dụ đúng như mô tả (lượt gần nhất `18/09`, `W-0314`) *(sửa `25/09`: bản trước ghi `24/24`, số của `W-0283` trước khi có lượt gửi số `draft.31`)*
 
 > Tài liệu này **không** thay thế [IR-06](./06-module-3-api-handover.md). IR-06 nói hợp đồng có gì.
 > Cái này nói **làm sao chạy được nó hôm nay**, trên máy của bạn, trước khi có môi trường chung.
@@ -109,7 +109,7 @@ Cả năm đều trả lỗi **chỉ sang chỗ khác**, nên ghi ra đây trư�
 | `422 IVR_STATE_NOT_CALLABLE` | Chép nguyên mẫu trong tài liệu, cửa sổ xác nhận là tháng 8/2026 nên đã hết hạn | Đặt `confirmation_window_*` về hiện tại. Bốn mốc `created_at`, `confirmation_window_started_at`, `confirmation_window_expires_at`, `dial_token_expires_at` phải dời **cùng một khoảng**, giữ nguyên khoảng cách giữa chúng |
 | `422 IVR_MISSING_TRACE` | `correlation_id` trong thân khác `X-Correlation-Id` trên header | Cho bằng nhau |
 | `200` nhưng `TASK_HELD_ADMIN_REVIEW`, lý do `ELIGIBILITY_SOURCE_VERSION_MISSING` | `eligibility_snapshot` thiếu trường bắt buộc | Xem [IR-06 §3.7](./06-module-3-api-handover.md): bắt buộc có `source_version` và `captured_at`; `captured_at` phải nằm **trong** cửa sổ xác nhận |
-| `200` nhưng `TASK_BLOCKED_OPERATIONAL`, lý do `CALLING_WINDOW_CLOSED_FOR_WHOLE_CONFIRMATION_WINDOW`, chỉ khi chạy ngoài `08:00–21:08` giờ Việt Nam | Sandbox dựng từ bản trước `W-0354` chỉ mở khung giờ cả ngày cho **worker**; API vẫn giữ `08:00–21:08` và chặn task ngay ở intake | Dựng lại từ bản hiện hành: `docker-compose.sandbox.yml` nay mở khung giờ cho cả `ivr-api`. Ở production, chặn này là hành vi **đúng**: M3 giữ đơn tới `08:00` rồi gửi task mới ([IR-07](./07-module-3-decision-sheet.md), đính chính `25/09`) |
+| `200` nhưng `TASK_BLOCKED_OPERATIONAL`, lý do `CALLING_WINDOW_CLOSED_FOR_WHOLE_CONFIRMATION_WINDOW`, chỉ khi chạy ngoài `08:00–21:08` giờ Việt Nam | Sandbox dựng từ bản trước `W-0354` chỉ mở khung giờ cả ngày cho **worker**; API vẫn giữ `08:00–21:08` và chặn task ngay ở intake | Dựng lại từ bản hiện hành: `docker-compose.sandbox.yml` nay mở khung giờ cho cả `ivr-api`. Ở production, chặn này là hành vi **đúng**: M3 giữ đơn tới `08:00` rồi gửi lại — được dùng lại `task_id`, với cửa sổ mới và `Idempotency-Key` mới ([IR-07](./07-module-3-decision-sheet.md), đính chính `25/09`) |
 | `403 IVR_FORBIDDEN_CALLER` ở `GET /audit-evidence` hay một endpoint quản trị khác, dù token đúng tầng | Thiếu `X-Actor-Id`. Header này bắt buộc trên `31/33` endpoint quản trị, kể cả endpoint chỉ đọc | Thêm `X-Actor-Id` là **id đục** của nhân viên M3, không phải tên ([IR-06 §4A.2](./06-module-3-api-handover.md), Bẫy 2 và 3) |
 
 ---
@@ -160,7 +160,9 @@ Kết quả giả lập chọn theo **`task_id`**. Muốn tình huống nào th�
 
 **Gửi số thay cho token** (`draft.31`): `TASK-M3-NUMBER` chạy đúng như `TASK-M3-CONFIRM`, chỉ khác body
 mang `phone_e164` và **không có field token nào** — ra `IVR_CONFIRMED`, Module 3 **có** nhận. Đây không
-phải tình huống cuộc gọi thứ bảy, mà là cách gửi mà Module 3 sẽ dùng.
+phải tình huống cuộc gọi thứ bảy, mà là cách gửi của phương án B. *(Sửa `25/09`: bản trước ghi "cách gửi mà Module 3
+sẽ dùng". Phương án B đang chờ Sếp trả lời mục B2 phiếu `25/09`; tới lúc đó Module 3 chưa nối producer gửi số thật.
+Sandbox, như contract `draft.33`, vẫn nhận cả hai dạng — xem [IR-07](./07-module-3-decision-sheet.md), đính chính `25/09`.)*
 
 **Ba dòng "Không" là điều khoản hợp đồng, không phải thiếu sót.** Khi còn lượt gọi, IVR im lặng và sẽ
 gọi lại. Bên nào coi im lặng là thất bại rồi tự huỷ đơn là đang huỷ đơn mà IVR vẫn đang làm.
@@ -204,7 +206,8 @@ Trần này **đặt thấp có chủ ý**, không phải con số năng lực t
 Để thấp để client của bạn gặp `429` ở đây, chỗ rẻ, thay vì gặp lần đầu ở production.
 
 `retry_after_seconds` nằm trong `details` chứ không phải header `Retry-After`. Thêm header đó là một
-thay đổi hợp đồng trên cả 38 lệnh, sẽ đưa vào bản hợp đồng kế tiếp.
+thay đổi hợp đồng trên cả 40 lệnh; tới `draft.33` chưa bản nào thêm. *(Sửa `25/09`: bản trước ghi "38 lệnh", đếm trước
+`draft.29` và `draft.32`, và hứa đưa vào bản hợp đồng kế tiếp.)*
 
 ---
 
@@ -229,7 +232,7 @@ Bộ ví dụ cần một sandbox **sạch**: kết quả giả lập gắn cứ
 | --- | --- | --- |
 | Địa chỉ sandbox dùng chung | Cổng `G-PLATFORM`: chưa có cụm, CSDL, DNS/TLS cho staging | Hạ tầng |
 | Tích hợp M3 thật | Cần hợp đồng đã ký, địa chỉ và credential của M3 | Module 3 + Module 8 |
-| Xác thực bằng JWT thật | Sandbox dùng token tĩnh; `OD-V1-07` đã ký 05/09, còn thiếu issuer/JWKS và credential production được kiểm chứng (`G-AUTH`) | Chủ Module 8 + An ninh |
+| Xác thực bằng JWT thật | Sandbox dùng token tĩnh; `OD-V1-07` mới có chữ ký phía Module 8 (05/09) — theo chốt chief `25/09`, Tech Lead ký sau dòng ủy quyền N14 *(sửa `25/09`)*; còn thiếu issuer/JWKS và credential production được kiểm chứng (`G-AUTH`) | Tech Lead (ký `OD-V1-07`) + chủ Module 8 + An ninh |
 | Gọi ra số thật | Chưa có hợp đồng nhà mạng, chưa đo dung lượng | Chủ dự án |
 
 Không mục nào chặn việc bạn đấu nối hôm nay: sandbox đủ để viết và chứng minh client.
@@ -238,9 +241,10 @@ Không mục nào chặn việc bạn đấu nối hôm nay: sandbox đủ để
 
 ## 11. Liên hệ
 
-Câu hỏi về hợp đồng: trả lời thẳng vào phiếu [IR-07](./07-module-3-decision-sheet.md) — **30 câu**. *(Sửa `25/09`,
-`W-0354`: bản trước ghi "21 mục, đã gửi 10/09". Phiếu gộp `17/09` có `30` câu; repo ghi đã gửi `17/09`, nhưng anh
-Mạnh báo `25/09` chưa nhận, nên phiếu được gửi lại cùng đính chính `25/09`.)* Đó là thứ đang chặn 5 cổng phát hành phía IVR.
+Câu hỏi về hợp đồng: trả lời thẳng vào phiếu [IR-07](./07-module-3-decision-sheet.md) — **32 câu**, trong đó `M3-13` và
+`M3-30` đã rút. *(Sửa `25/09`: bản trước ghi "21 mục, đã gửi 10/09"; `W-0354` sửa thành `30` câu của phiếu gộp `17/09`;
+đính chính `25/09` thêm `M3-31`, `M3-32`. Repo ghi đã gửi `17/09`, nhưng anh Mạnh báo `25/09` chưa nhận, nên phiếu sẽ
+được gửi lại cùng đính chính `25/09`.)* Đó là thứ đang chặn 5 cổng phát hành phía IVR.
 
 Câu hỏi về sandbox này: nhắn owner Module 8. Nếu một ví dụ trong `pnpm sandbox:examples` đỏ trên máy
 bạn mà xanh ở đây, gửi kèm `.artifacts/sandbox/module-3-examples.json`.

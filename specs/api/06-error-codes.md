@@ -45,7 +45,7 @@ W-0129 khóa theo runtime hiện hành, không suy từ prefix của decision:
 | `IVR_CONTACT_INVALID` | 422 | phone/contact không hợp lệ | `TASK_REJECTED_CONTACT_INVALID` |
 | `IVR_SCRIPT_NOT_APPROVED` | 422 | script/version chưa duyệt | `TASK_REJECTED_SCRIPT_NOT_APPROVED` |
 | `IVR_PII_POLICY_VIOLATION` | 422 | payload/text chứa PII không được phép như phone hoặc địa chỉ đường phố đầy đủ | — |
-| `IVR_OPERATIONAL_BLOCKED` | 409 | blocker active (do-not-call, eligibility snapshot blocked) | `TASK_BLOCKED_OPERATIONAL` |
+| `IVR_OPERATIONAL_BLOCKED` | 409 | chặn vận hành đang active. Ở route intake chỉ có một ca: `call_restriction=true` (do-not-call). *Sửa `25/09`: bản trước ghi thêm "eligibility snapshot blocked" — không đường code nào phát mã này cho ca đó* | `TASK_BLOCKED_OPERATIONAL` ở tầng service (reason `PHONE_CALL_RESTRICTED`; M3 không đọc được reason qua envelope). **Không** phải mọi `TASK_BLOCKED_OPERATIONAL` đều là `409`: hai ca ở §2a — giờ gọi và `DIAL_TOKEN_PROTECTION_UNAVAILABLE` — trả `200` kèm `decision` và `blocked_reasons`. M3 rẽ nhánh theo HTTP trước (§1b). *Sửa `25/09`* |
 | `IVR_NOT_FOUND` | 404 | resource không tồn tại | — |
 | `IVR_RATE_LIMITED` | 429 | rate limit (nếu hỗ trợ) | — |
 | `IVR_INTERNAL_ERROR` | 500 | lỗi hệ thống (không che business) | — |
@@ -75,7 +75,9 @@ Các mã dưới đây chi tiết hóa `TaskIntakeOutcome.BlockedReasons` ở se
 | Contact | `phone_ref` có hình dạng số điện thoại thô | `TASK_REJECTED_CONTACT_INVALID` | `PHONE_REF_LOOKS_LIKE_RAW_PHONE` | `422 IVR_CONTACT_INVALID` |
 | Contact | `dial_token` có hình dạng số điện thoại thô | `TASK_REJECTED_CONTACT_INVALID` | `DIAL_TOKEN_LOOKS_LIKE_RAW_PHONE` | `422 IVR_CONTACT_INVALID` |
 | Contact | opaque reference vi phạm privacy guard | `TASK_REJECTED_CONTACT_INVALID` | `CONTACT_FAILED_PRIVACY_GUARD` | `422 IVR_CONTACT_INVALID` |
-| Giờ gọi | không attempt nào của `attempt_policy` rơi vào giờ gọi `08:00–21:08`, trên **toàn bộ** confirmation window (`W-0298`, `16/09`) | `TASK_BLOCKED_OPERATIONAL` | `CALLING_WINDOW_CLOSED_FOR_WHOLE_CONFIRMATION_WINDOW` | `200` kèm `decision` và `blocked_reasons` — M3 **đọc được** reason này. Task **không** được lưu. **Không** retry trong cùng cửa sổ: kết quả không đổi. M3 giữ đơn `TWENTY_FOUR_SEVEN` (COD) tới `08:00` rồi gửi task mới với cửa sổ mới và `Idempotency-Key` mới (`IR-07`, đính chính `25/09`). *Thêm `25/09`, `W-0354`* |
+| Giờ gọi | `T0` (`confirmation_window_started_at`) nằm ngoài giờ gọi `08:00–21:08` (giờ VN) — *từ `25/09` (`B17`); trước đó (`W-0298`, `16/09`): không attempt nào của `attempt_policy` rơi vào giờ gọi, trên toàn bộ confirmation window* | `TASK_BLOCKED_OPERATIONAL` | `CALLING_WINDOW_CLOSED_FOR_WHOLE_CONFIRMATION_WINDOW` (giữ tên dù điều kiện đổi) | `200` kèm `decision` và `blocked_reasons` — M3 **đọc được** reason này. Task **không** được lưu. **Không** retry trong cùng cửa sổ: kết quả không đổi. M3 giữ đơn `TWENTY_FOUR_SEVEN` (COD), rồi gửi lại từ `08:00` với cửa sổ mới và `Idempotency-Key` mới; được dùng lại `task_id` (`IR-07`, đính chính `25/09`). *Thêm `25/09`, `W-0354`; sửa `25/09` (`B17`): điều kiện theo `T0`, và "gửi task mới" thành "gửi lại, được dùng lại `task_id`"* |
+| Bảo vệ token | task gửi `dial_token` **không** kèm `phone_e164`, trên deployment ngoài MOCK chưa có bộ mã hoá dial token — production hiện chưa có (`UnavailableOpaqueValueProtector`); MOCK và lab bật Asterisk thì có. Hôm nay `IvrOptionsValidator` ép `REAL_CUSTOMER_CALL_ALLOWED=NO`, nên ở production task dừng sớm hơn, ở `TASK_HELD_ADMIN_REVIEW` (`REAL_CUSTOMER_CALL_ALLOWED_NO`) | `TASK_BLOCKED_OPERATIONAL` | `DIAL_TOKEN_PROTECTION_UNAVAILABLE` | `200` kèm `decision` và `blocked_reasons`. Task **không** được lưu. **Không** retry được với cùng payload: kết quả không đổi tới khi deployment có bộ mã hoá. Task kèm `phone_e164` không gặp ca này (`IR-06` §3.4.0). *Thêm `25/09`* |
+| Số tiền | `privacy_safe_order_summary.total_amount` có phần lẻ, ví dụ `210636.8` | *(không có — schema chặn trước service)* | *(không có)* | `400 IVR_MALFORMED_REQUEST` (từ `1.0.0-draft.33`, `W-0354`: `multipleOf: 1`). Trước đó intake nhận rồi hỏng lúc quay số. *Thêm `25/09`* |
 
 Compatibility:
 
@@ -93,7 +95,9 @@ Compatibility:
   hai dòng Policy ở bảng trên ghi đúng kiểu chặn này.
 - M3 **chưa nhìn thấy** mười mã chi tiết ở bảng trên qua public intake route theo mapping hiện hành. Muốn đưa
   safe reason vào error envelope hoặc đổi reject thành `200 decision` là thay đổi contract riêng,
-  cần owner/M3 ký; W-0129 không tự mở rộng quyền đó.
+  cần owner/M3 ký; W-0129 không tự mở rộng quyền đó. *Sửa `25/09`: "mười mã" là hai dòng Policy và
+  tám dòng Contact. Hai dòng `TASK_BLOCKED_OPERATIONAL` (giờ gọi, bảo vệ token) thì M3 **đọc được** qua
+  `blocked_reasons` của body `200`; dòng số tiền không có reason service.*
 
 ## 2b. Eligibility advisory codes cũ
 
@@ -114,5 +118,5 @@ emit nhóm advisory này. `risk_flags` chỉ còn dùng cho audit/scheduler prio
 - Error envelope thống nhất `{error:{code,message,details,correlationId}}` (đồng bộ ops — DO-06).
 
 ## Báo cáo (error)
-- HTTP mapping (8) + **response model rõ (200-decision vs 4xx-envelope)** + **danh mục 18 `code` ổn định** (§1c); intake taxonomy 12 (5 → 200 body, 7 → 4xx); result taxonomy 11; consume 8 mã ops-core (fail-closed).
+- HTTP mapping (8) + **response model rõ (200-decision vs 4xx-envelope)** + **danh mục 16 `code` ổn định** (§1c); intake taxonomy 12 (5 → 200 body, 7 → 4xx); result taxonomy 11; consume 8 mã ops-core (fail-closed). *Sửa `25/09`: bản trước ghi 18 — con số trước `W-0128`, lượt xoá `IVR_ACCOUNT_CONFLICT` và `IVR_ACCOUNT_POLICY_VIOLATION`. §1c, enum `ErrorCode` của OpenAPI và `IvrErrorCodes.cs` cùng có 16 mã, và `CT-CI-10` ghim đúng 16.*
 - ✅ Cập nhật review 2026-07-02: bổ sung §1b (response model) + §1c (stable code catalog) — gỡ nhập nhằng reject 4xx vs 200 và khai báo `code` cho envelope.

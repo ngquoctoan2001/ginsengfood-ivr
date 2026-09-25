@@ -32,13 +32,13 @@ ladder:
 # Why rung 1 is not attained, stated rather than left to inference.
 current_position:
   attained_rung: 0
-  reason: "288 of 345 work items are ACCEPTED; the rest are at most EVIDENCE_SUBMITTED, and submitted evidence is not accepted evidence (MASTER-05)"
+  reason: "288 of 346 work items are ACCEPTED; the rest are at most EVIDENCE_SUBMITTED, and submitted evidence is not accepted evidence (MASTER-05)"
   blocked_external_count: 19
   open_gate_count: 11
   # Rows whose evidence lives in the tracker row rather than in an evidence pack: unplanned
   # remediation work, which has no prompt and therefore no section 10 requirement. Counted so
   # the difference stays visible instead of being read as missing evidence.
-  rows_without_evidence_pack: 291
+  rows_without_evidence_pack: 292
 
 gates:
   - id: "G-CONTRACT"
@@ -91,8 +91,14 @@ open_decisions:
   - id: "OD-V1-02"
   - id: "OD-V1-03"
   - id: "OD-V1-05"
+  - id: "OD-V1-06"
+  - id: "OD-V1-07"
+  - id: "OD-V1-08"
   - id: "OD-V1-09"
   - id: "OD-V1-10"
+  - id: "OD-V1-16"
+  - id: "OD-V1-17"
+  - id: "OD-V1-18"
 
 go_no_go_inputs:
   - input: "two-program Sales flow"
@@ -1492,6 +1498,10 @@ work:
     prompt: "Lô L3 của kế hoạch khắc phục 25/09: tài liệu nội bộ nói sai code (Origin=UNPLANNED, owner: “rà soát tiếp việc cần làm nhé”; kế hoạch của Toàn)"
     status: "EVIDENCE_SUBMITTED"
     evidence: "docs/evidence/W-0357/README.md"
+  - id: "W-0358"
+    prompt: "Lô L2 của kế hoạch khắc phục 25/09: tài liệu gửi Module 3, sổ quyết định, guard biên buổi sáng (Origin=UNPLANNED, owner: “chốt theo khuyến nghị Q-01, Q-02, Q-03, Q-13 … triển khai l0, l1, l2”; kế hoạch của Toàn)"
+    status: "EVIDENCE_SUBMITTED"
+    evidence: "docs/evidence/W-0358/README.md"
 
 production_flag:
   real_customer_call_allowed: false

@@ -1,0 +1,22 @@
+{
+  "schema": "ivr-acceptance-tests/v1",
+  "workId": "W-0358",
+  "scope": "software",
+  "requiredTestIds": [
+    "UT-INTAKE-MORNING-01",
+    "UT-INTAKE-MORNING-02",
+    "UT-INTAKE-EVENING-01",
+    "UT-INTAKE-WINDOW-SWEEP-01"
+  ],
+  "gates": [
+    "contract-freeze-verifier.mjs",
+    "d06-revalidation-evidence-validator.mjs",
+    "dial-token-production-bundle-validator.mjs",
+    "opt-out-suppression-bundle-validator.mjs",
+    "upstream-session-signoff-validator.mjs",
+    "ci-config-selftest.mjs",
+    "validate-openapi.mjs",
+    "generate-test-traceability.mjs",
+    "gate-status.mjs"
+  ]
+}

@@ -61,8 +61,9 @@ services:
 
       # W-0354 / C15 (chief worklist 2026-09-25). The worker below has always had the whole-day
       # window; the API did not, and since W-0298 it is the API that refuses a task at intake when
-      # none of its attempts falls inside calling hours. So a partner rehearsing outside
-      # 08:00-21:08 Vietnam time had every task come back TASK_BLOCKED_OPERATIONAL /
+      # it falls outside calling hours (since B17, 2026-09-25: when its window opens outside them).
+      # So a partner rehearsing outside 08:00-21:08 Vietnam time had every task come back
+      # TASK_BLOCKED_OPERATIONAL /
       # CALLING_WINDOW_CLOSED_FOR_WHOLE_CONFIRMATION_WINDOW -- the sandbox answered by the clock of
       # whoever started it, which is what the worker's own comment says a sandbox must never do.
       # Keep this block equal to the worker's.

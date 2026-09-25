@@ -1,6 +1,6 @@
 # Chưa xong — việc còn mở của Module 8
 
-Cập nhật: **16/09/2026**, sửa **23/09** (mục `today-03` và bảng “đang chặn”) · Thay thế 25 file kế hoạch/phiếu hỏi riêng lẻ.
+Cập nhật: **16/09/2026**, sửa **23/09** (mục `today-03` và bảng “đang chặn”), **25/09** (đính chính `m8-17` và lời đọc lúc gọi ở production — nhóm A, `today-03`) · Thay thế 25 file kế hoạch/phiếu hỏi riêng lẻ.
 
 Phần đã đóng nằm ở [00-DA-XONG.md](00-DA-XONG.md). Quyết định nghiệp vụ đã ký nằm ở [decisions-log.md](decisions-log.md) — file đó **không dồn được** vì tài liệu của sếp trong `docs/documents/` đang trỏ vào.
 
@@ -10,7 +10,7 @@ Toàn văn các file đã xóa nằm trong lịch sử git: `git log --all --ful
 
 | Nhóm | Số mục | Ai đang chặn |
 | --- | --- | --- |
-| A — Phiếu hỏi | **`IR-07` đã gửi M3 `17/09`, chờ trả lời (gồm cả hai phiếu cũ, nhóm `B5`/`B6`) · phiếu Sếp đã trả lời `17/09` · `3` phiếu VieNeu đã chuyển về `S2`/`S5`** *(sửa `18/09`, `W-0316`)* | Sếp (tiền/người/rủi ro), M3 |
+| A — Phiếu hỏi | **`IR-07` ghi đã gửi M3 `17/09` nhưng anh Mạnh báo `25/09` chưa nhận — gửi lại kèm đính chính `25/09` (gồm cả hai phiếu cũ, nhóm `B5`/`B6`) · phiếu Sếp đã trả lời `17/09` · `3` phiếu VieNeu đã chuyển về `S2`/`S5`** *(sửa `18/09`, `W-0316`)* | Sếp (tiền/người/rủi ro), M3 |
 | B — M8 đã ký phần mình, chờ bên khác | 9 | M3, Product, CRM, Legal, Security, Platform |
 | C — Còn việc M8 phải làm | 5 | Chính mình, hoặc chờ dữ liệu |
 
@@ -56,6 +56,14 @@ Lô `4` của [vướng mắc `17/09`](vuong-mac-va-quyet-dinh-2026-09-17.md). T
 
 `deploy/helm/ivr/values-prod.yaml` vẫn đặt `tts.enabled: false`. Đó là trạng thái **chờ cổng**: chart
 tự từ chối render sidecar khi thiếu phê duyệt, image digest, bundle model hay manifest giọng.
+
+> **Đính chính `25/09` (`C23`; kế hoạch khắc phục `25/09`, `Q-02` phương án 2):** luật quá độ Tech Lead
+> `24/09` thắng `S4` cho production, theo thứ tự thắng của chief
+> ([danh sách chief `25/09`](../toan-viec-can-lam-m8-2026-09-25.md), mục `V6-16`). Production **không sinh
+> giọng lúc gọi**: lời thoại là audio dựng sẵn từ template đã duyệt; phần động (nếu có) ghép từ clip VieNeu
+> render trước, offline. Vẫn là “chỉ VieNeu”, không có giọng người — quyết định “chỉ VieNeu” của owner không
+> đổi. Phạm vi phần động Tech Lead đang chốt. Code hiện vẫn tổng hợp phần động lúc gọi; đổi theo luật này là
+> việc `N1`, chưa làm. “Chờ cổng” ở trên vì vậy không có nghĩa là sẽ bật sidecar tổng hợp lúc gọi ở production.
 
 ---
 
@@ -251,7 +259,11 @@ Phần đã dựng ghi ở [00-DA-XONG.md](00-DA-XONG.md#m8-15-so-cai-dung-luong
 
 Hai fence đã cài xong — chi tiết ở [00-DA-XONG.md](00-DA-XONG.md#m8-17-fence-thu-hoi).
 
-**Còn thiếu:** M3 chưa cấp endpoint thu hồi. Không tự dựng thay M3.
+**Còn thiếu:** ~~M3 chưa cấp endpoint thu hồi. Không tự dựng thay M3.~~ *Đính chính `25/09` (`K-13` của
+kế hoạch khắc phục `25/09`): câu gạch nói ngược `IR-07` `E-2`. Endpoint thu hồi do **IVR mở** (kèm OAS và
+changelog), sau khi Module 3 trả lời `M3-14` về shape (`task_id` + `order_version` + `reason`); Module 3 là
+bên **gọi** nó khi đơn bị hủy hoặc bật `sale_lock`. Thứ đang chờ là câu trả lời `M3-14`, không phải một
+endpoint phía Module 3.*
 
 ### today-03
 
@@ -263,6 +275,12 @@ Phần giọng đã chọn và manifest đã PASS — ghi ở [00-DA-XONG.md](00
 duy nhất, production lẫn lab: phần cố định của kịch bản do VieNeu render sẵn (`12` đoạn, ba giọng
 Owner duyệt `28/08`), món, tổng tiền và nơi giao do sidecar tổng hợp lúc gọi. Lab không còn audio nào
 khác VieNeu.
+
+> **Đính chính `25/09` (`C23`, `Q-02` phương án 2):** vế “món, tổng tiền và nơi giao do sidecar tổng hợp lúc
+> gọi” không còn là thiết kế production. Theo luật quá độ Tech Lead `24/09` (thắng `S4` cho production),
+> production phát audio dựng sẵn từ template đã duyệt; phần động (nếu có) ghép từ clip VieNeu render trước,
+> offline — vẫn chỉ VieNeu, không có giọng người. Phạm vi phần động Tech Lead đang chốt; đổi runtime là việc
+> `N1`. Xem đính chính cùng ngày ở nhóm A.
 
 **Còn thiếu trước khi bật ở production** (Lô `4` của [vướng mắc `17/09`](vuong-mac-va-quyet-dinh-2026-09-17.md)):
 

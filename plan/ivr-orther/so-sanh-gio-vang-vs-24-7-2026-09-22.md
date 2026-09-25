@@ -81,17 +81,27 @@ cùng một sự cố mạng, đơn 24/7 thường retry được, đơn Giờ V
 
 ## 4. Biên khung giờ 08:00 – 21:08 tác động khác nhau
 
-Intake từ chối thẳng nếu **mọi** lần gọi theo lịch đều rơi ngoài giờ, với lý do
-`CALLING_WINDOW_CLOSED_FOR_WHOLE_CONFIRMATION_WINDOW` — thay vì nhận đơn rồi để nó chết lặng lẽ thành
-"khách không xác nhận".
+Intake từ chối thẳng nếu `T0` nằm ngoài giờ gọi (từ `25/09`; trước đó: nếu **mọi** lần gọi theo lịch
+đều rơi ngoài giờ), với lý do `CALLING_WINDOW_CLOSED_FOR_WHOLE_CONFIRMATION_WINDOW` — thay vì nhận đơn
+rồi để nó chết lặng lẽ thành "khách không xác nhận".
 
 | Tình huống theo `T0` | Giờ Vàng | 24/7 |
 |---|---|---|
-| `T0` trước mốc này → **từ chối ngay** (buổi sáng) | trước **07:57:30** | trước **07:52:30** |
-| `T0` trong vùng này → nhận nhưng **chỉ gọi được 1 lần** (buổi sáng) | 07:57:30 → 07:59:59 | 07:52:30 → 07:59:59 |
+| `T0` trước mốc này → **từ chối ngay** (buổi sáng) | trước **08:00:00** | trước **08:00:00** |
 | `T0` bình thường, đủ cả 2 cuộc | 08:00:00 → 21:05:29 | 08:00:00 → 21:00:29 |
 | `T0` trong vùng này → nhận nhưng **chỉ gọi được 1 lần** (buổi tối) | 21:05:30 → 21:07:59 | 21:00:30 → 21:07:59 |
 | `T0` từ **21:08:00** trở đi | **từ chối ngay** | **từ chối ngay** |
+
+> **Đính chính `25/09` (mục `B17` trong danh sách chief).** Bảng cũ có hai dòng buổi sáng: 24/7 từ chối
+> `T0` trước **07:52:30** và ghi vùng `07:52:30 → 07:59:59` là "chỉ gọi được 1 lần" (Giờ Vàng: trước
+> **07:57:30**, và `07:57:30 → 07:59:59`). Dòng "1 lần" **sai với runtime**: scheduler **gọi bù** attempt
+> đã quá hạn ngay lúc `08:00` (câu claim trong `PostgresSchedulerStore` không xét giờ của lịch, chỉ
+> `SchedulerRuntime` chặn quay số khi đang ngoài giờ), nên vùng đó bị gọi **2 cuộc**, sát nhau hơn lịch
+> — ở đầu vùng thì gần như liền nhau.
+> Ngược lại, vùng 24/7 `07:45:01 → 07:52:29` (Giờ Vàng `07:55:01 → 07:57:29`) bị từ chối dù cửa sổ còn
+> mở qua `08:00`, tức vẫn gọi được. Từ `25/09` guard xét chính `T0`: mọi `T0` trước `08:00:00` bị từ
+> chối; đơn 24/7 (COD) thì Module 3 giữ lại rồi gửi từ `08:00` với cửa sổ mới, như đơn đêm. Biên tối
+> không đổi — vùng tối "1 lần" đang chờ chief quyết.
 
 Hai điều cần nhớ:
 
@@ -99,8 +109,10 @@ Hai điều cần nhớ:
    450 giây (khoảng cách A1→A2 của 24/7) ra 21:07:30, làm tròn lên phút thành 21:08. Trước khi sửa
    (`W-0220`), đơn 24/7 vào lúc 20:53 trở đi **âm thầm mất cuộc gọi thứ hai** và Sales nhận
    `IVR_CONFIRMATION_WINDOW_EXPIRED` thay vì `IVR_NO_ANSWER_FINAL`.
-2. **Vùng "chỉ gọi được 1 lần" của 24/7 rộng gấp 3 lần Giờ Vàng** ở cả hai đầu ngày (7 phút 30 so với
-   2 phút 30), đúng bằng tỉ lệ giữa hai khoảng cách attempt.
+2. **Vùng "chỉ gọi được 1 lần" của 24/7 rộng gấp 3 lần Giờ Vàng** (7 phút 30 so với 2 phút 30), đúng
+   bằng tỉ lệ giữa hai khoảng cách attempt. Vùng này **chỉ có ở buổi tối**. *Sửa `25/09`: bản trước ghi
+   "ở cả hai đầu ngày"; vùng buổi sáng thật ra bị gọi 2 cuộc sát nhau, và từ `25/09` bị từ chối — xem
+   đính chính dưới bảng.*
 
 Đơn đặt ban đêm (ví dụ 23:00) bị từ chối tại intake cho **cả hai** chương trình. IVR không tự dời
 sang sáng hôm sau: cửa sổ xác nhận và `dial_token` đều do Module 3 cấp sẵn, nên quyết định giữ đơn

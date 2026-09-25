@@ -74,8 +74,11 @@ public static class EligibilityReasonCodes
     public const string CapacityDeadlineUnavailable = "CAPACITY_DEADLINE_UNAVAILABLE";
 
     /// <summary>
-    /// W-0298. Every attempt this task would ever make falls outside the hours a customer may be
-    /// telephoned, so the confirmation window will expire without one call being placed.
+    /// W-0298, and since B17 (2026-09-25) decided by the moment the confirmation window opens: a task
+    /// whose window opens outside the hours a customer may be telephoned is refused. Before B17 the
+    /// test was that every attempt falls outside those hours; but the scheduler dials an overdue
+    /// attempt as soon as the hours open, so that test refused callable morning orders and let others
+    /// be rung twice within seconds at 08:00.
     /// <para>
     /// Before this existed the task was accepted, sat there, and produced
     /// <c>IVR_CONFIRMATION_WINDOW_EXPIRED</c> minutes later — a result that reads as "the customer

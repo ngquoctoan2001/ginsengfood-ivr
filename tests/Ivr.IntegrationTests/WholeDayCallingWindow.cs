@@ -4,7 +4,8 @@ namespace Ivr.IntegrationTests;
 
 /// <summary>
 /// W-0356 / K-05 (the chief's C15, found again in the test hosts). Since W-0298 the API refuses at
-/// intake a task none of whose attempts lands inside calling hours, and a host that keeps the
+/// intake a task that falls outside calling hours (since B17, 2026-09-25: one whose window opens
+/// outside them), and a host that keeps the
 /// default 08:00-21:08 window therefore refuses every task a test posts with real timestamps after
 /// 21:08 Vietnam time. <c>IT-API-MATRIX-38</c> and <c>IT-DEV-SEED-03/04</c> went red every night
 /// for that reason alone.

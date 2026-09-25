@@ -5,7 +5,8 @@ namespace Ivr.UnitTests.Scheduling;
 
 /// <summary>
 /// W-0354 / C15 (chief worklist 2026-09-25). Since W-0298 the calling window is enforced twice: the
-/// API refuses a task at intake when none of its attempts lands inside calling hours, and the
+/// API refuses a task at intake that falls outside calling hours (since B17, 2026-09-25: one whose
+/// window opens outside them), and the
 /// worker declines to dial outside them. The rehearsal stacks widened only the worker, so outside
 /// 08:00-21:08 Vietnam time every task was refused at the API before the worker could dial it - in
 /// the e2e smoke, in the sandbox Module 3 rehearses against, and in the local soak profile. Each

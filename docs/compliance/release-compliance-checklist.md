@@ -13,7 +13,7 @@ Bảng §2–§4 bên dưới là bản lịch sử. Khi xét hiện tại, dùn
 | T-06 | CLI đã có ở [W-0330](../evidence/W-0330/README.md), kèm COMP-DSAR-13..18 cho rollback audit, quyền OS, preview/một đơn/lặp lại và bảo toàn cấu hình kết nối. Bằng chứng local không thay lượt owner chạy trên môi trường được chọn. |
 | T-09/T-10 | Test backup/restore lịch sử vẫn có phạm vi riêng. S3 giữ vĩnh viễn; không suy “restore bị retention xử lý” thành chắc chắn dữ liệu DSAR biến mất. Owner phải chứng minh cách áp lại yêu cầu sau restore. |
 | S-02 | S3/W-0316 đã thay các kỳ hạn cũ; không điền số vào PeriodDays. S2/PIA và kiểm cấu hình của môi trường thật vẫn riêng. |
-| S-03/S-04 | OD-V1-15 đã chốt whitelist; OD-V1-08/16 đã chốt attempt policy. Quyết định không chứng minh client M3 hoặc production đã chạy đúng. |
+| S-03/S-04 | OD-V1-15 đã chốt whitelist; OD-V1-08/16 (attempt policy) ở `M8_POSITION_SIGNED`, chờ Sếp (phiếu Sếp 25/09 mục N16) — *sửa 25/09 theo chốt chief; bản 21/09 ghi “đã chốt”*. Quyết định không chứng minh client M3 hoặc production đã chạy đúng. |
 | S-07 | Permission đã có; DI đã dùng các verifier PostgreSQL thay Pending*. Kiểm bản ghi duyệt và nhiều actor ở môi trường đích; không còn mô tả production luôn từ chối do hard-code. |
 | S-01/S-05/S-06 và hạ tầng | Không có chữ ký PIA/go-live hoặc bằng chứng hạ tầng mới trong W-0330. Toàn/owner xử lý đầu vào thực tế; agent không tự tick. |
 

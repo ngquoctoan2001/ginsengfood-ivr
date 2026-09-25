@@ -15,7 +15,7 @@ Trạng thái: `SRS_DRAFT` · Sinh bởi: `p05` · Nguồn: `phase-8/06` (SIM ad
 
 ## 2. Ràng buộc (P0)
 - Adapter **KHÔNG** có credential ghi order, **không** gửi SMS (phase-8/02 FR-004; P0-IVR-005).
-- **Trust boundary `dial_token` (`OD-V1-18` — ✅ ĐÃ CHỐT `2026-09-05`, `W-0194`):** resolver nằm
+- **Trust boundary `dial_token` (`OD-V1-18` — ~~✅ ĐÃ CHỐT~~ owner IVR ký `2026-09-05`, `W-0194`; mở lại `25/09`, xem cuối mục):** resolver nằm
   **trong IVR**, bên trong biên adapter telephony. Ranh giới là `IVR task → dial_token → IVR
   resolver (trong tiến trình) → gateway`. Số E.164 tồn tại **chỉ trong bộ nhớ tiến trình** cho
   đúng một lần quay số: không ghi DB, không vào log, không vào evidence, không vào callback
@@ -29,9 +29,14 @@ Trạng thái: `SRS_DRAFT` · Sinh bởi: `p05` · Nguồn: `phase-8/06` (SIM ad
   `W-0150` audit nói đúng rằng ba tài liệu từng mâu thuẫn nhau ở điểm này; đoạn trên là bản đã ký
   và supersede các câu cũ. Vendor vẫn phải ký capability statement trước `LAB_REAL_SIM`, nhưng nó
   không còn là điều kiện để biết resolver nằm ở đâu.
+
+  *Sửa `25/09` (theo chốt chief; đồng bộ với sổ quyết định):* `OD-V1-18` không còn ở trạng thái đã
+  chốt — phụ thuộc phương án B, chờ Sếp trả lời mục `B2` phiếu Sếp `25/09`. Vế “không ghi DB” ở trên
+  đã bị phương án B (`W-0311`, `17/09`) thay: Module 3 gửi thẳng `phone_e164` và IVR lưu số đó. Sửa nội
+  dung đoạn này chờ hướng Sếp chọn (`B11`).
 - **Recording:** `dial()` phải mang tham số `recording: DISABLED` và adapter phải expose read-back qua `health()`; giá trị khác `DISABLED` bị từ chối fail-closed cho tới khi có legal sign-off (DT-05).
 - Chỉ dùng `dial_token`/`phone_ref`; **không** nhận/lưu raw phone (D-05; P0-IVR-007). TTL và
-  reuse **đã ký** `OD-V1-17`/`OD-V1-05` ngày 2026-09-05 (W-0199): token **dùng lại được**, gắn vào
+  reuse do owner IVR ký `OD-V1-17`/`OD-V1-05` ngày 2026-09-05 (W-0199): token **dùng lại được**, gắn vào
   `task_id` đầu tiên dùng nó, TTL ≥ hết cửa sổ xác nhận, và **trần số lần resolve** =
   `max_attempts` của policy + `TechnicalRetryLimit`. Trần đó thay cho "one-use": token rò rỉ vẫn
   không quay số quá số lần chính sách cho phép, trong khi one-use thì không thể thực thi được vì
@@ -39,6 +44,11 @@ Trạng thái: `SRS_DRAFT` · Sinh bởi: `p05` · Nguồn: `phase-8/06` (SIM ad
   `attempt_id`; quá hạn/sai task/quá trần đều bị từ chối kèm mã lý do
   (`DIAL_TOKEN_EXPIRED`/`TASK_MISMATCH`/`ATTEMPT_REPLAY`/`RESOLVE_LIMIT_EXCEEDED`), không im lặng
   bỏ qua.
+
+  *Sửa `25/09` (theo chốt chief; đồng bộ với sổ quyết định):* câu trên từng ghi “**đã ký**” như thể hai
+  dòng đã chốt; đó là chữ ký của owner IVR. `OD-V1-17` nay phụ thuộc phương án B, chờ Sếp trả lời mục
+  `B2` phiếu Sếp `25/09`; `OD-V1-05` ở `M8_POSITION_SIGNED / M3_NOT_RECEIVED` từ `16/09` (`W-0304`),
+  chờ Module 3 đối ký. Nội dung token không đổi.
 - `ONE_SIM_ONE_ACTIVE_CALL`; cooldown 5s; `fail_count≥3/10′` → disable+alert (DT-04).
 - Recording **OFF** mặc định (DT-05); nếu bật, chỉ lưu `recording_ref` + retention (DF-07 PENDING).
 

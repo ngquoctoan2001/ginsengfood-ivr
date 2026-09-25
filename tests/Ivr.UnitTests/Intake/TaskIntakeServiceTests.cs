@@ -414,9 +414,11 @@ public sealed class TaskIntakeServiceTests
             outcome.BlockedReasons);
     }
 
-    // The guard must not swallow a task that keeps even one callable attempt. Window opens 20:55
-    // Vietnam time: attempt one at +0s is inside calling hours, attempt two at +450s is at 21:02:30
-    // and also inside, because W-0220 moved the close to 21:08 for exactly this reason.
+    // A window that opens inside calling hours is accepted, even close to the evening shut. Window
+    // opens 20:55 Vietnam time: attempt one at +0s is inside calling hours, attempt two at +450s is
+    // at 21:02:30 and also inside, because W-0220 moved the close to 21:08 for exactly this reason.
+    // Since B17 (2026-09-25) the guard reads only the opening moment, so a window opening before
+    // 08:00 is refused even when a later attempt would be callable (UT-INTAKE-MORNING-01).
     [Fact]
     [Trait("TestId", "UT-INTAKE-NIGHT-03")]
     public async Task ATaskWithOneCallableAttemptBeforeTheWindowShutsIsAccepted()
