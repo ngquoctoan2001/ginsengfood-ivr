@@ -1,0 +1,11 @@
+{
+  "schema": "ivr-acceptance-tests/v1",
+  "workId": "W-0357",
+  "scope": "software",
+  "gates": [
+    "capacity-selftest.mjs",
+    "docs-selftest.mjs",
+    "ci-config-selftest.mjs",
+    "compliance-pack-selftest.mjs"
+  ]
+}

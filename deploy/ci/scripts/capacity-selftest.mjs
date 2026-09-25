@@ -419,6 +419,14 @@ function sessionLengthStaysUnansweredAndCannotBeSubstitutedQuietly() {
   assert.equal(SESSION_LENGTH.decisionId, "M8-OD-C",
     "the decision that would answer session length is no longer named.");
 
+  // W-0356 / K-21. The 45-minute figure keeps its source whether or not it is ever used. This was
+  // checked only inside the branch where sessionSeconds equals the figure, which is never taken
+  // while sessionSeconds is null, so the check could not fail.
+  assert.equal(SESSION_LENGTH.candidateSessionSeconds, 2700,
+    "the 45-minute candidate changed without the decision behind it changing.");
+  assert.match(SESSION_LENGTH.candidateSource ?? "", /\bD07\b/u,
+    "the 45-minute candidate no longer names its source, D07 (Tech Lead, 2026-09-24).");
+
   // The danger is measured here rather than described in a comment, so it fails if it stops being
   // true. Golden Hour branch of UNCALIBRATED_SCENARIO, sized both ways.
   const gh = UNCALIBRATED_SCENARIO.programmes.GOLDEN_HOUR;
@@ -455,12 +463,6 @@ function sessionLengthStaysUnansweredAndCannotBeSubstitutedQuietly() {
       + `Sizing against it instead of the ${gh.policy.windowSeconds}s confirmation window takes `
       + `Golden Hour from ${asWindow} channels to ${asSession}, which is only correct if orders `
       + "really do arrive evenly across the session. Decide that, or leave the window in place.");
-    if (SESSION_LENGTH.sessionSeconds === SESSION_LENGTH.candidateSessionSeconds) {
-      assert(
-        typeof SESSION_LENGTH.candidateSource === "string"
-          && SESSION_LENGTH.candidateSource.trim().length > 0,
-        "the session length was set to the 45-minute figure with no decision named as its source.");
-    }
   } else {
     assert.equal(SESSION_LENGTH.answered, false,
       "session length is declared answered but carries no value.");

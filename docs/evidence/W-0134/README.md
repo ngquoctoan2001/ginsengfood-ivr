@@ -36,6 +36,10 @@ Với một quyết định mua sắm, đây là chênh giữa mua **32 kênh** 
    `sessionSeconds: null`, `arrivalProfile: null`, `decisionId: "M8-OD-C"`,
    `sizedAgainst: "policy.windowSeconds"`, và `unsourcedSpecCandidateSeconds: 2700` — ghi lại
    **chỉ để nhận diện và từ chối**.
+
+   > *Sửa `25/09` (`W-0356`):* từ `W-0354` (`f3e26a6`) thuộc tính này tên `candidateSessionSeconds`, kèm
+   > `candidateSource` ghi nguồn `D07` (Tech Lead chốt `24/09`: Giờ Vàng lên sóng 45 phút). Con số vẫn
+   > đứng ngoài phép tính cho tới khi có `arrivalProfile`; phần trên giữ nguyên như lúc viết.
 2. Gate `CAP-SESSION-06` trong `deploy/ci/scripts/capacity-selftest.mjs`.
 3. `docs/capacity-model.md` §4b.
 4. `OD-19` trong `decisions-log.md` được bổ sung phát hiện arrival profile.

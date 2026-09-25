@@ -1,11 +1,12 @@
 # GinsengFood IVR
 
-[![GitLab pipeline](https://img.shields.io/badge/GitLab_pipeline-NOT_RUN-lightgrey)](deploy/ci/README.md#gitlab-project-settings--hosted-evidence)
+[![GitLab pipeline](https://img.shields.io/badge/GitLab_pipeline-runs%2C_not_green-orange)](deploy/ci/README.md#gitlab-project-settings--hosted-evidence)
 
 Standalone .NET 10 service for IVR order confirmation. The repository now
 contains the order-confirmation workflow, PostgreSQL persistence, background
-dispatch/callback/retention jobs, fail-closed runtime gates, and a Next.js
-operations console. Local development remains MOCK/fake by default; connection
+dispatch/callback/retention jobs and fail-closed runtime gates. The operations
+console belongs to Module 3 and is not in this repository (see the safety
+baseline below). Local development remains MOCK/fake by default; connection
 to the real Sales sandbox, a carrier/SIM provider, or a real customer still
 requires the separately governed external gates.
 
@@ -68,8 +69,11 @@ enum on this API live in `specs/ui/enum-labels.vi.json`, next to the screen spec
 in `specs/ui/`.
 
 `/health/ready` is a fail-closed dependency-readiness probe: it returns `503`
-when PostgreSQL is unreachable, the schema is behind, or the callback circuit
-is open. W-0040 implemented this behavior; it is no longer a bootstrap probe.
+when PostgreSQL is unreachable or the schema is behind. W-0040 implemented this
+behavior; it is no longer a bootstrap probe. Its `sales_callback` check reads
+the callback circuit only in a host that delivers callbacks, and the API does
+not (delivery runs in the worker), so on the API that check always reports
+`not_configured`.
 
 ## Prerequisites
 
@@ -84,10 +88,6 @@ The root `package.json` provides the canonical local commands. On first use:
 ```powershell
 pnpm setup
 ```
-
-Stop any running `pnpm dev` process before changing/installing frontend
-dependencies; Windows locks Next's native SWC binary while the dev server is
-running.
 
 Prepare PostgreSQL and apply every pending migration. This also stops the two
 Docker app containers so a host worker is never competing with a containerized
@@ -112,16 +112,15 @@ dry-run-only jobs; `TASK-TARGET-247-0005` remains safely blocked by its
 `call_restriction`. Re-running the command reports the existing jobs instead of
 duplicating them. Logs are written under `ci-artifacts/dev-bootstrap/`.
 
-Then use three PowerShell terminals:
+Then use two PowerShell terminals:
 
 ```powershell
-pnpm dev
 pnpm api:dev
 pnpm worker
 ```
 
-The frontend is available at `http://127.0.0.1:3005`, the API at
-`http://127.0.0.1:5005`, and PostgreSQL at `127.0.0.1:55433`.
+The API is available at `http://127.0.0.1:5005`, and PostgreSQL at
+`127.0.0.1:55433`.
 The worker's standalone HTTP health listener is disabled only in Development
 because Windows `HttpListener` requires a machine-level URLACL; container and
 deployment health configuration is unchanged.
@@ -226,6 +225,8 @@ docker compose -f docker-compose.dev.yml config --quiet
 Foundation test IDs include `UT-BOOT-01`, `IT-BOOT-02`, `UT-BOOT-03`, and the
 `UT-FND-*` suite for configuration, idempotency, tier authorization, service
 allowlisting, error envelopes, audit, and PII. CI is implemented by P0-2 using
-GitLab CI. Until W-0061 provisions the GitLab project, runner, protected branch,
-and merge checks, the badge and hosted evidence remain `NOT_RUN`; see [the CI
+GitLab CI. The hosted pipeline has run on the project's own runner since W-0292
+(2026-09-14) but has not been green: W-0121 records why, and
+`docs/evidence/W-0354/hosted-ci-diagnosis.json` the jobs that failed. Protected
+branch and merge checks still wait on W-0061; see [the CI
 runbook](deploy/ci/README.md).

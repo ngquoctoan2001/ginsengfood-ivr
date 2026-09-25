@@ -23,6 +23,9 @@ trọng: nếu đọc nhầm nó thành "IVR giữ mapping" thì sẽ kết lu�
 | Secret | Độ nhạy | Chủ sở hữu | TTL đề xuất | Trạng thái hôm nay |
 | --- | --- | --- | --- | --- |
 | `IVR_INTERNAL_SERVICE_TOKEN` | **cao** — mở admin API nội bộ | IVR | 90 ngày | env lúc chạy; app **từ chối boot** nếu thiếu |
+| `IVR_ADMIN_READ_TOKEN` | trung bình — tầng Read: dashboard, hàng đợi, call job, báo cáo, review, trạng thái kênh SIM | IVR + M3 (console) | 90 ngày | K8s Secret qua chart; thiếu thì tầng đó không xác thực được nhưng app vẫn boot; xoay chồng lấn: [runbook §7](secret-rotation-runbook.md) *(thêm `25/09`, `W-0356`)* |
+| `IVR_ADMIN_WRITE_TOKEN` | **cao** — tầng Write: tạo task, ghi kết quả, mở review | IVR + M3 (console) | 90 ngày | như dòng trên |
+| `IVR_ADMIN_DANGER_TOKEN` | **cao** — tầng Danger: kill switch, cắt cuộc gọi, tắt SIM, retry tay | IVR + M3 (console) | 30 ngày | như dòng trên; mỗi lệnh còn đòi người có tên (`X-Actor-Id`) và lý do (`X-Action-Reason`) |
 | `ORDER_CORE_SERVICE_TOKEN` | **cao** — cho phép tạo task | IVR + Sales | 90 ngày | chỉ compat; `TARGET_V1` **từ chối** hoàn toàn (W-0032) |
 | mật khẩu database | **cao** | Platform | 90 ngày | K8s Secret tham chiếu; chart không mang giá trị |
 | `CurrentGoldenHourInternalToken` | trung bình | IVR + Sales | 90 ngày | chỉ dùng ở lối compat |

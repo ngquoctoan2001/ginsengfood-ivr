@@ -116,3 +116,27 @@ Trước `2026-08-19` chart **không diễn đạt được** rotation này: `_h
 `ORDER_CORE_SERVICE_TOKEN`, không có `TOKEN_PREVIOUS` lẫn `TOKEN_PREVIOUS_RETIRES_AT`. Cơ chế
 overlap có trong code và có trong runbook này, còn trên Kubernetes hình dạng duy nhất khả dụng là
 **cắt cứng** — đúng cái cửa sổ mà `RotatingCredentialProvider` sinh ra để xoá.
+
+## 7. Rotate ba token admin — `IVR_ADMIN_READ_TOKEN`, `IVR_ADMIN_WRITE_TOKEN`, `IVR_ADMIN_DANGER_TOKEN`
+
+*Thêm `25/09` (`W-0356`, mục `K-23`).* Ba tầng của API admin (`IR-06` §4A.1) là ba token riêng, và
+Module 3 cầm cả ba cho console. Cách xoay giống §6, làm **từng tầng một**. Ví dụ tầng Danger:
+
+| Bước | Cấu hình | Trạng thái |
+| --- | --- | --- |
+| 1 | `IVR_ADMIN_DANGER_TOKEN=cũ` | ổn định |
+| 2 | secret giữ thêm một key mang giá trị cũ; chart đặt `secrets.adminDangerTokenPreviousKey=<key đó>` và `secrets.adminDangerTokenPreviousRetiresAt=<T>`; key chính mang `mới` → rolling restart | pod mới nhận **cả hai** |
+| 3 | M3 chuyển console sang `mới` | vẫn trong cửa sổ |
+| 4 | tới `<T>` | API **tự** từ chối `cũ` |
+| 5 | bỏ hai giá trị `...Previous...` ở lần deploy sau | dọn dẹp, không phải bước bảo mật |
+
+Ba điều riêng của ba token này:
+
+- **Không tầng nào dùng chung giá trị với tầng khác**, kể cả giá trị cũ đang trong cửa sổ: boot từ chối
+  cấu hình như vậy. Chia ba token là để lộ một cái không mở được hai cái kia.
+- Chart **từ chối render** khi chỉ có một trong hai giá trị `...PreviousKey` / `...PreviousRetiresAt`.
+- Thiếu token của một tầng thì tầng đó không xác thực được, còn API vẫn boot. Đừng dùng cách đó để
+  "tắt" một tầng lâu dài: M3 chỉ thấy lỗi xác thực, không thấy lý do.
+
+Nghi lộ: làm theo §2, không overlap. Với token Danger, trong lúc M3 chưa cập nhật thì lệnh Danger từ
+console bị từ chối; chấp nhận được, vì chúng là lệnh ít dùng và phải có người có tên đứng sau.

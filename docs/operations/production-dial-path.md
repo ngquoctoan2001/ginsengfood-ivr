@@ -23,6 +23,18 @@ So this page is written ahead of its subject. That is deliberate: the reasoning 
 is in hand now, and a runbook assembled the week a contract lands is a runbook assembled under time
 pressure by someone reading code they have forgotten.
 
+**Opening those three is not enough** *(added 2026-09-25, W-0356)*. A reading of the code turned up
+more that would stop or damage the first real call. None of them is a lock someone chose, so none of
+them shows up as a refusal at boot:
+
+| What | Where | What it means |
+| --- | --- | --- |
+| `DispatchGate` refuses every production destination | `DispatchGate.EvaluateAsync`: `PiiGuard.EnsureSafeText(destination)` runs first, and the lab allowlist is checked before the production branch | A production destination is `sip:<number>@<carrier host>` (`ProductionDialTokenVault`). The guard reads the number in it and throws, and no lab allowlist holds it. With every lock above open, production still dials nothing. This needs a decision on how the gate treats a production destination, not a configuration change. |
+| The gate is checked once, before the speech is prepared | `AsteriskSchedulerDispatchGateway.DispatchAsync`: gate, then render and synthesis, then `DialAsync` | A kill switch thrown while speech is being synthesized does not stop the dial that follows. The gate has to be asked again immediately before `DialAsync`. |
+| The number travels in the ARI request URL | `AsteriskAriSimGateway`: `POST /ari/channels` with `endpoint` as a query parameter | Asterisk's HTTP log and any proxy in front of ARI record the full number. Configure both before the first call, or the number lands in logs IVR does not control. |
+| How production speech is produced is not settled | Tech Lead's transitional rule of 2026-09-24: no speech synthesis at call time | The dial path renders and synthesizes speech for every attempt just before dialling. Until prerecorded audio replaces that, the production path cannot follow the rule. |
+| Who approves a production script | Pending decision on three distinct approvers (spec V6-2) | Until it is decided, nothing here enforces it. |
+
 Where a procedure below has not been executed against a real trunk, it says so. Do not read those
 sections as verified.
 

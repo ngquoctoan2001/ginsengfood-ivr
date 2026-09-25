@@ -49,9 +49,9 @@ USER 1654:1654
 
 # No EXPOSE and no HEALTHCHECK, deliberately.
 #
-# P7-1 section 6.2 assumes the worker keeps health/metrics on HTTP, but it currently opens no
-# socket: there is nothing to probe. A process-liveness check would be theatre -- if the host
-# process dies the container dies with it, so the check could never report anything the runtime
-# does not already know. Recorded as a gap in docs/evidence/W-0043 rather than papered over with a
-# probe that always passes.
+# The worker does open one socket: WorkerHealthEndpoint (W-0043 section 2), a bare HttpListener on
+# Ivr:Worker:Health (port 8081, /healthz by default) that reports each loop's last tick. The chart's
+# liveness probe reads it, so the orchestrator that restarts the pod is the one that asks; a
+# HEALTHCHECK here would be a second opinion Docker cannot act on in Kubernetes. (W-0356: this
+# comment said the worker opened no socket, which stopped being true when the endpoint landed.)
 ENTRYPOINT ["dotnet", "Ivr.Worker.dll"]

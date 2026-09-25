@@ -93,7 +93,8 @@ export const CALL_DURATION_ASSUMPTIONS = {
  * fraction of the day's eligible orders with nothing saying how long that 15% takes to arrive.
  *
  * M8-OD-C (spec §14.2) asks the business half -- how long a Golden Hour session runs, and how many
- * orders peak inside it. It is unanswered.
+ * orders peak inside it. The length has an answer since 2026-09-24 (D07, see candidateSource); how
+ * the peak orders arrive inside the session still has none, and that is the half the math needs.
  *
  * There is a third question nobody has asked, and it is the dangerous one. Substituting a session
  * length for the confirmation window does not merely rescale the model; it silently adopts a

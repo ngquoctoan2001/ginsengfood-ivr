@@ -177,6 +177,11 @@ SELECT to_regclass('public.ivr_console_accounts') IS NOT NULL
 `false` ⇒ đã chạy bản drop. Phép thử đứng được vì **không lối nào khác** làm hai bảng đó biến
 mất: chỉ `W0122` bản cũ drop chúng, và không migration nào sau đó tạo lại.
 
+> *Đính chính `25/09` (`W-0354`, `W-0356`):* hai ý *"trả lời dứt khoát"* và *"không migration nào sau đó tạo
+> lại"* sai từ `c8dc3c4`. `20260905120000_P03PreserveConsoleCompatibility`, cùng commit viết lại `W0122`, tạo
+> lại hai bảng bằng `CREATE TABLE IF NOT EXISTS`, nên câu SQL chỉ dứt khoát với database chưa áp `P03`. Cách
+> đọc hiện hành ở `deploy/ci/rollback.md` §3b. Phần trên giữ nguyên như lúc viết.
+
 ### 4.3. Kiểm
 
 Chạy trên database sạch vừa dựng ở mục `2`: trả **`t`** — đúng như tài liệu nói một database mới

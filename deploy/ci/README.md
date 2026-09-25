@@ -217,7 +217,8 @@ audit và four-eyes — pipeline mà lật được nó sẽ làm chữ ký sign
 của GitLab quyết, mà đó là cấu hình trong project chứ không nằm trong repo — nên file YAML **không**
 tự chứng minh được four-eyes. Ghi ở `docs/evidence/W-0045` thay vì ngụ ý ở đây.
 
-**Chưa lần nào chạy.** Không runner, không registry, không credential cluster (`W-0061`, `W-0063`).
+**Chưa lần nào deploy được.** Runner đã có từ `W-0292` (chạy trên máy dev), nên pipeline hosted có chạy; nhưng
+không registry, không credential cluster (`W-0061`, `W-0063`), nên job deploy không có nơi để tới.
 `cd-selftest.mjs` kiểm **hình dạng** pipeline; `P7-3` §10 cấm gọi YAML là deploy proof.
 
 Rollback: [`rollback.md`](rollback.md).

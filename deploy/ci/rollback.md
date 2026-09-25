@@ -80,7 +80,8 @@ thể, dữ liệu đã mất. Vì vậy sự khác biệt này **vĩnh viễn**
 | Nơi tạo chúng | `20260822120000_W0105ConsoleAccountAuth` |
 
 **Đừng tra danh sách — hỏi chính database.** Một danh sách môi trường chép tay sẽ sai ngay lần
-ai đó dựng thêm một stack mà không sửa tài liệu. Câu này trả lời dứt khoát:
+ai đó dựng thêm một stack mà không sửa tài liệu. Câu dưới trả lời dứt khoát **chỉ với database chưa áp
+`P03`**; đọc đính chính `25/09` ngay sau bảng kết quả trước khi dùng nó:
 
 ```sql
 SELECT to_regclass('public.ivr_console_accounts') IS NOT NULL
@@ -108,9 +109,12 @@ SELECT to_regclass('public.ivr_console_accounts') IS NOT NULL
 > | `false` | Phép thử `to_regclass` ở trên dùng được, đọc theo bảng kết quả ngay trên |
 > | `true` | Schema **không** phân biệt được. Chỉ một chiều còn đọc được: `ivr_console_accounts` **có hàng** ⇒ chưa từng drop, vì `P03` tạo bảng rỗng và từ `W-0128` không code nào ghi vào bảng này. **Không có hàng** ⇒ **không xác định được từ schema**. Khi đó dựa vào nhật ký triển khai hoặc backup từ trước `c8dc3c4`; không có thì ghi đúng câu "không xác định được từ schema", đừng đoán |
 >
-> Database dựng mới từ `c8dc3c4` trở đi rơi vào dòng `true` với bảng rỗng, và như vậy là đúng: chúng chưa từng
-> chạy bản drop. Việc phân biệt chỉ quan trọng với database sống qua cửa sổ `8` ngày. Diễn tập trên database
-> thật vẫn chờ có môi trường (`W-0063`).
+> *Sửa lại `25/09` (`W-0356`, mục `K-20`):* ở đây từng ghi database dựng mới từ `c8dc3c4` trở đi *"rơi vào dòng
+> `true` với bảng rỗng, và như vậy là đúng"*. Đọc theo chính bảng trên thì không: database đó có
+> `p03_applied = true` và bảng rỗng, tức rơi vào ô **không xác định được từ schema**. Nó chưa từng chạy bản
+> drop, nhưng điều đó biết được từ lần migrate đầu tiên của nó (nhật ký triển khai: lần đầu đã ở `c8dc3c4` trở
+> đi), không từ schema. Việc phân biệt chỉ quan trọng với database sống qua cửa sổ `8` ngày. Diễn tập trên
+> database thật vẫn chờ có môi trường (`W-0063`).
 
 **Môi trường đã biết, tính đến `2026-09-16`:**
 
@@ -119,11 +123,11 @@ SELECT to_regclass('public.ivr_console_accounts') IS NOT NULL
 | Cluster thật | **không tồn tại** | `W-0061`/`W-0063` `BLOCKED_EXTERNAL`; không có runner/registry/credential — xem đầu tài liệu này |
 | CI | **không** | Testcontainers và `image-selftest` dựng database rỗng mỗi lần chạy; không có volume nào sống qua đêm |
 | `docker compose` local | **có thể** | chỉ khi volume `ivr-postgres-data` được tạo và migrate trong cửa sổ đó và chưa `down -v` lần nào kể từ đó |
-| Máy smoke `audit-0907` | **có thể** | volume dài ngày, migrate nhiều đợt — chạy câu SQL trên trước khi kết luận |
+| Máy smoke `audit-0907` | **có thể** | volume dài ngày, migrate nhiều đợt, cả sau `c8dc3c4` — hỏi `p03_applied` trước, rồi đọc theo bảng hai chiều ở đính chính `25/09` |
 
 Hai dòng cuối ghi *"có thể"* chứ không ghi có/không, và đó là có chủ ý: trạng thái của chúng phụ
 thuộc vào việc ai đó có `down -v` hay không, mà việc đó không được ghi lại ở đâu cả. **Chép một
-câu trả lời vào đây sẽ là bịa.** Câu SQL mất hai giây và luôn đúng.
+câu trả lời vào đây sẽ là bịa.** Hai câu SQL mất vài giây; khi chúng không trả lời được thì ghi đúng như vậy.
 
 > **Nếu gặp `false`: đừng dựng lại hai bảng đó.** Không có code nào trong bản ship đọc chúng —
 > `W-0128` đã gỡ toàn bộ hệ thống tài khoản console khỏi code, database và tài liệu, và Module 3 sở
@@ -132,6 +136,10 @@ câu trả lời vào đây sẽ là bịa.** Câu SQL mất hai giây và luôn
 > nó **không** làm được là quay về release trước `W-0128`. Đó là về **thu hẹp cửa sổ rollback**, không
 > phải lỗi đang chạy — và cách đúng là ghi nhận nó, không phải `CREATE TABLE` một cấu trúc rỗng
 > để một truy vấn nào đó đọc ra `0` hàng và tưởng đó là sự thật.
+>
+> **Ghi kết quả vào nhật ký triển khai trước khi nâng cấp** *(`W-0356`, mục `K-20`)*. Một database báo `false`
+> là database chưa áp `P03`. Lần migrate kế tiếp sẽ tự chạy `P03`, tạo lại hai bảng rỗng, và từ đó câu SQL báo
+> `true`: dấu vết duy nhất của bản drop mất ở chính lần nâng cấp đó.
 
 ## 3a. Chiều còn lại — code mới trên schema cũ
 
