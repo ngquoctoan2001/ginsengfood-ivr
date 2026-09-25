@@ -2,7 +2,7 @@
   "schema": "ivr-mutation-results/v1",
   "workId": "W-0360",
   "captured_at": "2026-09-25",
-  "method": "Each check breaks one thing the lot fixed, in an isolated copy of 6b881f4 plus this lot, rebuilds, runs the named test or check, and writes the original bytes back (never git checkout, which would also drop the uncommitted fix). The named test must fail, its named neighbour must stay green, and a control run after restoring must be green. K-34 runs the render-only part of k8s-selftest.mjs (it stops before building a cluster); K-35 builds the API image with deploy/docker/Dockerfile.api the way image-selftest.mjs does and looks for the file in a created container.",
+  "method": "Each check breaks one thing the lot fixed, in an isolated copy of 6b881f4 plus this lot (the RuntimeGateApprovals.cs part of K-31: a copy of d989c31), rebuilds, runs the named test or check, and writes the original bytes back (never git checkout, which would also drop the uncommitted fix). The named test must fail, its named neighbour must stay green, and a control run after restoring must be green. K-34 runs the render-only part of k8s-selftest.mjs (it stops before building a cluster); K-35 builds the API image with deploy/docker/Dockerfile.api the way image-selftest.mjs does and looks for the file in a created container.",
   "results": [
     {
       "id": "K-32 the server's Retry-After is taken uncapped again",
@@ -104,6 +104,35 @@
       "test": "IT-IMG-BUILD-01",
       "summary": "appsettings.Development.json in the image: true",
       "verdict": "RED_AS_EXPECTED"
+    },
+    {
+      "id": "K-31 the release-gate approval read that throws is silent again",
+      "test": "UT-OBS-FAILCLOSED-12",
+      "summary": "Failed! - Failed: 1, Passed: 0, Skipped: 0, Total: 1, Duration: 78 ms - Ivr.UnitTests.dll (net10.0)",
+      "neighbour": "UT-OBS-FAILCLOSED-13",
+      "neighbourSummary": "Passed! - Failed: 0, Passed: 1, Skipped: 0, Total: 1, Duration: 128 ms - Ivr.UnitTests.dll (net10.0)",
+      "verdict": "RED_AS_EXPECTED"
+    },
+    {
+      "id": "K-31 the four-eyes lookup that throws is silent again",
+      "test": "UT-OBS-FAILCLOSED-13",
+      "summary": "Failed! - Failed: 1, Passed: 0, Skipped: 0, Total: 1, Duration: 56 ms - Ivr.UnitTests.dll (net10.0)",
+      "neighbour": "UT-OBS-FAILCLOSED-12",
+      "neighbourSummary": "Passed! - Failed: 0, Passed: 1, Skipped: 0, Total: 1, Duration: 93 ms - Ivr.UnitTests.dll (net10.0)",
+      "verdict": "RED_AS_EXPECTED"
+    },
+    {
+      "id": "K-31 a blank environment, refused before asking, is counted as an outage",
+      "test": "UT-OBS-FAILCLOSED-12",
+      "summary": "Failed! - Failed: 1, Passed: 0, Skipped: 0, Total: 1, Duration: 91 ms - Ivr.UnitTests.dll (net10.0)",
+      "neighbour": "UT-OBS-FAILCLOSED-13",
+      "neighbourSummary": "Passed! - Failed: 0, Passed: 1, Skipped: 0, Total: 1, Duration: 109 ms - Ivr.UnitTests.dll (net10.0)",
+      "verdict": "RED_AS_EXPECTED"
+    },
+    {
+      "id": "K-31 control: RuntimeGateApprovals.cs restored (unit tests)",
+      "summary": "Passed! - Failed: 0, Passed: 3, Skipped: 0, Total: 3, Duration: 121 ms - Ivr.UnitTests.dll (net10.0)",
+      "verdict": "GREEN_AS_EXPECTED"
     }
   ]
 }

@@ -9,13 +9,14 @@ Ngày 25/09/2026 · Claude, trong lượt *"rà soát tiếp việc cần làm"*
 Kế hoạch khắc phục `25/09` (`plan/ke-hoach-khac-phuc-m8-2026-09-25.md`) xếp lô `L5` gồm sáu mục `K-31`…`K-36`.
 Toàn giao lô này cho phiên đang chờ soak bốn giờ của `W-0037`, trong khi một phiên khác làm `L4` (`W-0359`).
 Lô được làm trên một bản sao tách riêng của `6b881f4` để không lẫn với phần `L4` đang sửa trong cùng cây, rồi mới
-đưa vào `main`. Mỗi khẳng định của kế hoạch được đọc lại trên code trước khi sửa.
+đưa vào `main` (`5aec684`). Phần `RuntimeGateApprovals.cs` của `K-31` làm sau, khi Toàn đã duyệt, trên bản sao của
+`d989c31`. Mỗi khẳng định của kế hoạch được đọc lại trên code trước khi sửa.
 
 ## Đã làm
 
 | Mục | Đã làm | Phép kiểm |
 | --- | --- | --- |
-| `K-31` | **Làm một phần.** `CallbackDispatcher`: một exception bất ngờ từ transport vẫn được thử lại như trước, nhưng nay ghi một dòng log `Error` (EventId 2430, khối riêng của class) nêu **loại** exception và mã callback, không bao giờ nêu message. Trước đây dấu vết duy nhất là số lần thử leo tới `RETRY_EXHAUSTED`. `PostgresRuntimeSafetyHealth`: kiểm audit store mà ném lỗi vẫn trả "không", nhưng nay được đếm trên `ivr_fail_closed_total` với lý do `AUDIT_STORE_UNREADABLE`, nên sự cố của chính phép kiểm tách được khỏi một bảng audit thật sự vắng. **Chưa làm:** ba khối `catch` ở `RuntimeGateApprovals.cs` biến truy vấn hỏng thành "không" im lặng. Phân tích tác động báo `AnyLiveForEnvironmentAsync` ở mức CRITICAL và `VerifyAsync` ở mức HIGH, nên theo luật của repo phần này chờ Toàn duyệt; câu hỏi đã gửi ngày 25/09. Phần `TryHangupAsync` ở hai gateway thuộc lô `L4` (`W-0359`) | `UT-CALLBACK-TRANSPORT-LOGGED-18`, `UT-OBS-FAILCLOSED-11` |
+| `K-31` | `CallbackDispatcher`: một exception bất ngờ từ transport vẫn được thử lại như trước, nhưng nay ghi một dòng log `Error` (EventId 2430, khối riêng của class) nêu **loại** exception và mã callback, không bao giờ nêu message. Trước đây dấu vết duy nhất là số lần thử leo tới `RETRY_EXHAUSTED`. `PostgresRuntimeSafetyHealth`: kiểm audit store mà ném lỗi vẫn trả "không", nhưng nay được đếm trên `ivr_fail_closed_total` với lý do `AUDIT_STORE_UNREADABLE`, nên sự cố của chính phép kiểm tách được khỏi một bảng audit thật sự vắng. **`RuntimeGateApprovals.cs`, làm sau khi Toàn duyệt tối 25/09:** phân tích tác động báo `AnyLiveForEnvironmentAsync` ở mức CRITICAL (cổng gọi production và quyền quản trị cổng cùng dùng nó) và `VerifyAsync` ở mức HIGH, nên phần này đã chờ duyệt. Hai khối `catch` còn sống nay đếm `RUNTIME_GATE_APPROVAL_UNREADABLE` và `FOUR_EYES_APPROVAL_UNREADABLE`. Giá trị trả về, chữ ký hàm và hành vi của cổng giữ nguyên; `RecordFailClosed` chỉ ném khi tag nằm ngoài allowlist, còn ở đây tag và giá trị đều là hằng trong allowlist, nên khối `catch` không thể thành chỗ ném mới. Environment trống vẫn bị từ chối trước khi hỏi và không bị đếm là sự cố. Khối thứ ba kế hoạch nêu, trong `AnyLiveAsync`, không sửa: từ SIP-04 không còn nơi nào gọi hàm đó. Phần `TryHangupAsync` ở hai gateway đã làm ở `W-0359` | `UT-CALLBACK-TRANSPORT-LOGGED-18`, `UT-OBS-FAILCLOSED-11`, `UT-OBS-FAILCLOSED-12`, `UT-OBS-FAILCLOSED-13` |
 | `K-32` | `Retry-After` của Sales vẫn được tôn trọng, không thử lại sớm hơn nó (`UT-CALLBACK-RETRY-AFTER-09B` giữ nguyên), nhưng bị chặn trần ở 5 phút. Trước đây một phản hồi 429 kèm `Retry-After` một ngày treo kết quả cuối một ngày, và không cấu hình nào phía IVR rút ngắn được. Kế hoạch đề xuất chặn ở `MaxRetryDelay`; không làm vậy vì đó là trần backoff (5 giây mặc định), chặn 429 ở đó là thử lại trước lúc máy chủ yêu cầu, điều `UT-CALLBACK-RETRY-AFTER-09B` cấm. 5 phút là mức chờ dài nhất giữa hai lần thử mà bộ validator chấp nhận cho `MaxRetryDelayMilliseconds`. Transport chỉ đọc header; trần đặt ở dispatcher, nơi duy nhất dùng giá trị đó | `UT-CALLBACK-RETRY-AFTER-17` |
 | `K-33` | Heartbeat của worker đọc registry ngay lúc khởi động, trước khi các job host kịp đăng ký, nên mọi worker mở log bằng cảnh báo giả "loops have stopped ticking: (none registered)". Nay registry rỗng trong 30 giây đầu là "chưa đăng ký", không phải "đã dừng"; quá 30 giây mà vẫn rỗng thì vẫn cảnh báo, vì đó đúng là lỗi `WorkerLiveness` cố ý gọi là Stalled. Dòng "N loops turning" nay chỉ đếm vòng đang bật. Phần báo cáo tách thành `ReportOnce` để test gọi thẳng: từ .NET 10 `BackgroundService` chạy `ExecuteAsync` trên thread pool, nên `StartAsync` không còn bảo đảm lượt báo cáo đầu đã xảy ra | `UT-WORKER-HEARTBEAT-01`, `UT-WORKER-HEARTBEAT-02` |
 | `K-34` | Chart Helm: ngoài `MOCK`, API nay được đặt `Ivr__Speech__Tts__Provider=UNSELECTED`; trước đây nó giữ `FAKE` bake sẵn trong ảnh và **từ chối khởi động**. Bật `worker.eligibilityPolling.enabled` (mặc định tắt, như appsettings của worker) nay render đủ ba thứ vòng eligibility cần mà chart trước đó không diễn đạt được: origin của API, token dịch vụ nội bộ lấy từ secret (trước chỉ pod API có), và luồng mạng worker → API cổng 8080 xuyên qua NetworkPolicy default-deny | `IT-K8S-TTS-08`, `IT-K8S-ELIG-09` (`k8s-selftest.mjs`) |
@@ -33,8 +34,9 @@ nó; ba lượt chạy liền đều xanh.
 
 Mỗi phép kiểm gỡ đúng một phần của bản sửa trong bản sao, build lại, chạy test được nêu, rồi ghi lại byte gốc (không bao
 giờ dùng `git checkout`). Test được nêu phải đỏ, test hàng xóm phải còn xanh, và lượt đối chứng sau khi khôi phục phải
-xanh. Mười một phép làm hỏng đều đỏ đúng chỗ, bốn lượt đối chứng đều xanh: `K-31` hai phép, `K-32` một, `K-33` hai,
-`K-34` ba, `K-35` một, `K-36` hai. `K-34` chạy phần render của `k8s-selftest.mjs`, dừng trước khi dựng cluster. `K-35`
+xanh. Mười bốn phép làm hỏng đều đỏ đúng chỗ, năm lượt đối chứng đều xanh: `K-31` năm phép, `K-32` một, `K-33` hai,
+`K-34` ba, `K-35` một, `K-36` hai. Ba phép sau của `K-31` là phần `RuntimeGateApprovals.cs`: bỏ lần đếm ở bộ đọc
+approval, bỏ lần đếm ở bộ xác minh bốn mắt, và đếm nhầm environment trống thành sự cố. `K-34` chạy phần render của `k8s-selftest.mjs`, dừng trước khi dựng cluster. `K-35`
 build ảnh API bằng `deploy/docker/Dockerfile.api` như `image-selftest.mjs`, rồi tìm file trong một container tạo từ ảnh;
 lượt đối chứng kiểm cả `appsettings.json` có mặt, để chắc phép dò nhìn đúng chỗ. Số liệu ở
 [mutation-results.json](mutation-results.json).
@@ -49,8 +51,10 @@ lượt đối chứng kiểm cả `appsettings.json` có mặt, để chắc ph
 | `acceptance-batches.mjs --self-test`: hai TestId mới của `k8s-selftest.mjs` giữ đúng runner mở rộng của nó | `ACCEPTANCE_BATCHES_SELFTEST_PASS`, 20 TestId giữ runner mở rộng (trước lô: 18) |
 | Traceability, `generate-test-traceability.mjs --check` | sinh lại, `882` dòng, `TEST_TRACEABILITY_CURRENT` |
 | Trên `main` sau khi đưa vào (`b7a0761` cộng lô này), 17:44–17:54 | build 0 cảnh báo; unit `839/839`, contract `24/24`, integration `412/412`, chaos `8/8`; `gate-status.mjs`, `generate-test-traceability.mjs --check`, `docs-selftest.mjs`, `acceptance-batches.mjs --self-test` đạt |
+| Phần `RuntimeGateApprovals.cs`, trên bản sao của `d989c31`, 20:36–20:45 | build 0 cảnh báo; unit `862/862`; integration phần approval, feature flag và cổng gọi production `29/29`; traceability sinh lại, `898` dòng, `TEST_TRACEABILITY_CURRENT` |
+| Phần đó trên `main` | Không chạy lại trên cây `main`: lúc đưa vào, phiên làm `L6` đang sửa và chạy test ngay trên cây đó. Mã nguồn của bản sao trùng với `main` tại commit đưa vào, vì từ `d989c31` tới đó chỉ có commit tài liệu của `W-0037` |
 
 Chaos có kịch bản Sales sập, giữ kết quả để thử lại có giới hạn: đó là năm luồng mà `detect_changes` báo lô này chạm tới,
 qua `CallbackDispatcher.RunBatchAsync`.
 
-Soak của `W-0037` đang chạy trên `b7a0761`, bản trước lô này, nên không đo gì của `L5`.
+Lượt soak thứ tư của `W-0037` chạy trên `d989c31`: đã có lô này, trừ phần `RuntimeGateApprovals.cs`.

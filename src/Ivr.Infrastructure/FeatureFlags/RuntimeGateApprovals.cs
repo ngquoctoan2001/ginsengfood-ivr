@@ -1,6 +1,7 @@
 using System.Globalization;
 using System.Security.Cryptography;
 using System.Text;
+using Ivr.Infrastructure.Observability;
 using Ivr.Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 
@@ -119,6 +120,13 @@ public static class RuntimeGateFingerprint
 internal static class RuntimeGateApprovalReader
 {
     /// <summary>
+    /// W-0360 / K-31. The <c>ivr.reason_code</c> on <c>ivr_fail_closed_total</c> when the approval
+    /// store could not be asked. The gate still answers "no"; the count is what tells an outage of
+    /// the store apart from an approval that really is not there.
+    /// </summary>
+    public const string ApprovalStoreUnreadable = "RUNTIME_GATE_APPROVAL_UNREADABLE";
+
+    /// <summary>
     /// True when at least one approval of <paramref name="kind"/> is granted, unrevoked and not
     /// expired. Any failure to answer is answered as <c>false</c>.
     /// </summary>
@@ -217,6 +225,11 @@ internal static class RuntimeGateApprovalReader
         }
         catch (Exception)
         {
+            // Still "no": saying "yes" because the question could not be asked is what every gate
+            // here exists to prevent. W-0360 / K-31: counted, because both callers are release
+            // gates (production dialling, runtime-gate administration) and an unreadable store
+            // used to look exactly like an approval nobody had granted.
+            IvrTelemetry.RecordFailClosed((TelemetryTags.ReasonCode, ApprovalStoreUnreadable));
             return false;
         }
     }
@@ -334,7 +347,16 @@ public sealed class PostgresFourEyesApprovalVerifier(
         }
         catch (Exception)
         {
+            // No approver, as before. W-0360 / K-31: counted, so a store that cannot be asked is
+            // told apart from a four-eyes approval that does not match the change.
+            IvrTelemetry.RecordFailClosed((TelemetryTags.ReasonCode, FourEyesStoreUnreadable));
             return null;
         }
     }
+
+    /// <summary>
+    /// W-0360 / K-31. The <c>ivr.reason_code</c> on <c>ivr_fail_closed_total</c> when the four-eyes
+    /// approval could not be looked up at all.
+    /// </summary>
+    public const string FourEyesStoreUnreadable = "FOUR_EYES_APPROVAL_UNREADABLE";
 }

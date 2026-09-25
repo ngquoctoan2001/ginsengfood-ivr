@@ -30,6 +30,65 @@ public sealed class SwallowedFailureTests
         Assert.Contains(PostgresRuntimeSafetyHealth.AuditStoreUnreadable, reasons);
     }
 
+    /// <summary>
+    /// W-0360 / K-31. The two release gates that read the approval store: production dialling and
+    /// runtime-gate administration. The literal is pinned on purpose: it is a metric label, and a
+    /// dashboard or an alert keys on it.
+    /// </summary>
+    [Fact]
+    [Trait("TestId", "UT-OBS-FAILCLOSED-12")]
+    public async Task BothReleaseGatesThatCannotAskStillSayNoAndAreCounted()
+    {
+        const string unreadable = "RUNTIME_GATE_APPROVAL_UNREADABLE";
+        List<string> reasons = [];
+        bool blank;
+        bool production;
+        bool administration;
+        int afterBlank;
+        using (MeterListener listener = ListenForFailClosed(reasons))
+        {
+            // A blank environment is refused before any question is asked: a refusal, not an
+            // outage, so it is not counted.
+            blank = await new PostgresProductionCallGate(new ThrowingFactory(), TimeProvider.System)
+                .IsApprovedAsync(" ");
+            lock (reasons)
+            {
+                afterBlank = reasons.Count(reason => reason == unreadable);
+            }
+
+            production = await new PostgresProductionCallGate(new ThrowingFactory(), TimeProvider.System)
+                .IsApprovedAsync(FeatureFlagEnvironments.Production);
+            administration = await new PostgresRuntimeGateAuthorization(new ThrowingFactory(), TimeProvider.System)
+                .IsApprovedAsync(FeatureFlagEnvironments.Production);
+            listener.RecordObservableInstruments();
+        }
+
+        Assert.False(blank);
+        Assert.Equal(0, afterBlank);
+        Assert.False(production);
+        Assert.False(administration);
+        Assert.Equal(2, reasons.Count(reason => reason == unreadable));
+    }
+
+    [Fact]
+    [Trait("TestId", "UT-OBS-FAILCLOSED-13")]
+    public async Task AFourEyesLookupThatCannotAskFindsNoApproverAndIsCounted()
+    {
+        FeatureFlagSnapshot before = FeatureFlagSnapshot.SafeDefault(FeatureFlagEnvironments.Lab);
+        FeatureFlagSnapshot after = before with { GlobalDialKillSwitch = false };
+        List<string> reasons = [];
+        string? approver;
+        using (MeterListener listener = ListenForFailClosed(reasons))
+        {
+            approver = await new PostgresFourEyesApprovalVerifier(new ThrowingFactory(), TimeProvider.System)
+                .VerifyAsync("APPROVAL-REF-1", "operator-a", before, after);
+            listener.RecordObservableInstruments();
+        }
+
+        Assert.Null(approver);
+        Assert.Contains("FOUR_EYES_APPROVAL_UNREADABLE", reasons);
+    }
+
     private static MeterListener ListenForFailClosed(List<string> reasons)
     {
         var listener = new MeterListener
