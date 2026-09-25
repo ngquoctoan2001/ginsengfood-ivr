@@ -100,8 +100,13 @@ những tiêu chí harness dùng, cùng ngưỡng, quý đầu so với quý cu�
 | Độ trễ đóng cửa sổ, trung vị (tệ nhất) | 0,086 → 0,068 giây (0,45 giây) | + 30 giây |
 | Độ dư trước hạn, trung vị | 130,6 → 131,0 giây | − 30 giây |
 
-Mọi tiêu chí tính được đều trong ngưỡng. Một tiêu chí **không tính được**: thời lượng vòng lõi, vì console chỉ in mỗi
-vòng thứ mười và các vòng được in ở đây đều là vòng extended; số liệu từng vòng nằm trong tiến trình harness đã bị dừng.
+Mọi tiêu chí tính được đều trong ngưỡng. Một tiêu chí **không tính được**: thời lượng vòng lõi. Console chỉ in vòng 1 và
+mỗi vòng thứ mười; vòng 1 là vòng lõi duy nhất được in, các vòng thứ mười đều là vòng extended, nên quý cuối không có vòng
+lõi nào để so. Số liệu từng vòng nằm trong tiến trình harness đã bị dừng.
+
+**Sửa 25/09, sau `31a967c`:** bản đầu ghi 112 vòng được in và tất cả là vòng extended. Thật ra có 113 vòng được in, vòng 1
+là vòng lõi (14 395 ms, ok): regex đọc console chỉ khớp dòng `extended` nên bỏ sót dòng `core`. Kết luận không đổi;
+[partial-soak-2026-09-25.json](partial-soak-2026-09-25.json) đã sửa số và ghi lần sửa ở `corrections`.
 
 **Soak không đo pipeline analytics.** Trong khi mọi chỉ số trên đạt, log hai worker cho thấy ETL analytics không hoàn
 tất lượt nào trong phần log còn giữ lúc 12:15, và normalizer ghi lỗi trùng khóa khi hai worker đua. Ba lỗi đó được sửa

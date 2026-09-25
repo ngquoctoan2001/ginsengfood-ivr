@@ -156,7 +156,13 @@
       "name": "core round duration (printed rounds only)",
       "limit": "last-quarter median <= 2 x first-quarter median",
       "observed": {
-        "note": "not computable from what was kept: the console prints only every tenth round and every printed round here was an extended one; per-round durations lived in the harness process, which was stopped before writing them"
+        "note": "not computable from what was kept: the console prints round 1 and every tenth round after it; round 1 was the only core round printed (14395 ms) and every tenth round was an extended one, so no core round falls in the last quarter; per-round durations lived in the harness process, which was stopped before writing them",
+        "printedCoreRounds": [
+          {
+            "round": 1,
+            "ms": 14395
+          }
+        ]
       },
       "ok": null
     },
@@ -164,9 +170,11 @@
       "name": "rounds (printed rounds only)",
       "limit": "every printed round ok",
       "observed": {
-        "printed": 112,
+        "printed": 113,
+        "core": 1,
+        "extended": 112,
         "failed": 0,
-        "note": "112 printed rounds, all ok; the unprinted ones are not known from the log"
+        "note": "113 printed rounds (round 1 core, the other 112 extended), all ok; the unprinted ones are not known from the log"
       },
       "ok": true
     }
@@ -174,5 +182,11 @@
   "computableCriteriaWithinLimits": true,
   "notComputed": [
     "core round duration (printed rounds only)"
+  ],
+  "corrections": [
+    {
+      "date": "2026-09-25",
+      "what": "printed rounds were 113, not 112, and round 1 was a core round (14395 ms, ok): the regex that read the console matched only lines marked extended. The core-round comparison stays not computable, since a single printed core round has no last quarter to compare with; every other figure is unchanged."
+    }
   ]
 }
