@@ -4,14 +4,24 @@ namespace Ivr.Domain.Privacy;
 
 public static class PiiGuard
 {
+    /// <summary>
+    /// Field names refused outright, compared after dropping everything but ASCII letters and
+    /// digits. <c>phonee164</c> and <c>msisdn</c> are W-0361 / K-37: since option B (W-0310) the
+    /// number itself travels as <c>phone_e164</c>, and carrier and analytics code call it
+    /// <c>msisdn</c>, so an audit row keyed by either used to be accepted. Exact names only: the
+    /// masked and reference forms (<c>phone_masked</c>, <c>phone_ref</c>) are what every log,
+    /// audit row and admin response is meant to carry, and they still pass.
+    /// </summary>
     private static readonly HashSet<string> RestrictedFields = new(StringComparer.Ordinal)
     {
         "address",
         "dialtoken",
         "fulladdress",
         "healthnote",
+        "msisdn",
         "paymentdetail",
         "phone",
+        "phonee164",
         "phonenumber",
         "rawphone",
         "recording",

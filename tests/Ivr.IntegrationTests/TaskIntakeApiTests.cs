@@ -1008,6 +1008,59 @@ public sealed class TaskIntakeApiTests
         Assert.Equal(["phone_e164"], patterned);
     }
 
+    /// <summary>
+    /// W-0361 / K-41 (B11 step 0, chief worklist 2026-09-25). IT-PHONE-CONTAIN-01 follows a number
+    /// from intake to the admin API on real PostgreSQL, but it enters through the service, so the
+    /// HTTP surface Module 3 actually calls was never searched. These are the four answers that
+    /// surface gives a number-only body - accepted, replayed, conflicting, malformed - and none of
+    /// them, no log line the host wrote and no audit row may give the number back.
+    /// </summary>
+    [Fact]
+    [Trait("TestId", "IT-PHONE-CONTAIN-02")]
+    public async Task NoAnswerOfTheIntakeEndpointGivesTheNumberBack()
+    {
+        // The national number: every spelling of the number sent contains it.
+        const string nsn = "900000001";
+        await using TaskIntakeApiTestApplication app =
+            await TaskIntakeApiTestApplication.StartAsync();
+        JsonObject sent = CreateBody();
+        sent.Remove("dial_token");
+        sent.Remove("dial_token_expires_at");
+        sent["phone_e164"] = SentNumber;
+        JsonObject changed = (JsonObject)sent.DeepClone();
+        changed["evidence_ref"] = "evidence://api/p2-1-resent";
+        JsonObject malformed = (JsonObject)sent.DeepClone();
+        malformed["phone_e164"] = SentNumber[1..];
+
+        (string Case, JsonObject Body, string Key, HttpStatusCode Expected)[] cases =
+        [
+            ("accepted", sent, "idem-contain-02", HttpStatusCode.OK),
+            ("replayed", sent, "idem-contain-02", HttpStatusCode.OK),
+            ("conflicting", changed, "idem-contain-02", HttpStatusCode.Conflict),
+            ("malformed", malformed, "idem-contain-02-malformed", HttpStatusCode.BadRequest),
+        ];
+        foreach ((string name, JsonObject body, string key, HttpStatusCode expected) in cases)
+        {
+            using HttpResponseMessage response = await SendAsync(app.Client, body, idempotencyKey: key);
+            string answer = await response.Content.ReadAsStringAsync();
+            Assert.True(response.StatusCode == expected, $"{name} answered {(int)response.StatusCode}: {answer}");
+            Assert.DoesNotContain(nsn, answer, StringComparison.Ordinal);
+            Assert.DoesNotContain(
+                response.Headers.Concat(response.Content.Headers).SelectMany(header => header.Value),
+                value => value.Contains(nsn, StringComparison.Ordinal));
+        }
+
+        // One task, from the first send; the replay and the conflict created nothing.
+        Assert.Equal(1, app.Store.TaskCount);
+        Assert.DoesNotContain(
+            app.Logs.Entries,
+            entry => entry.Contains(nsn, StringComparison.Ordinal));
+        Assert.NotEmpty(app.Audit.Entries);
+        Assert.DoesNotContain(
+            app.Audit.Entries,
+            entry => JsonSerializer.Serialize(entry).Contains(nsn, StringComparison.Ordinal));
+    }
+
     private static async Task<HttpResponseMessage> SendAsync(
         HttpClient client,
         JsonObject body,

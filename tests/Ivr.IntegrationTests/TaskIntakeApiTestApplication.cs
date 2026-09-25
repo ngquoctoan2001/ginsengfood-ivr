@@ -10,6 +10,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.TestHost;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 
 namespace Ivr.IntegrationTests;
 
@@ -20,10 +21,14 @@ internal sealed class TaskIntakeApiTestApplication : IAsyncDisposable
 
     private readonly WebApplication application;
 
-    private TaskIntakeApiTestApplication(WebApplication application, HttpClient client)
+    private TaskIntakeApiTestApplication(
+        WebApplication application,
+        HttpClient client,
+        InternalAdminApiTestApplication.RecordingLoggerProvider logs)
     {
         this.application = application;
         Client = client;
+        Logs = logs;
         Store = application.Services.GetRequiredService<InMemoryTaskIntakeStore>();
         Audit = application.Services.GetRequiredService<InMemoryAuditLogger>();
     }
@@ -34,6 +39,9 @@ internal sealed class TaskIntakeApiTestApplication : IAsyncDisposable
 
     public InMemoryAuditLogger Audit { get; }
 
+    /// <summary>W-0361 / K-41. Everything the host logged, exceptions whole.</summary>
+    public InternalAdminApiTestApplication.RecordingLoggerProvider Logs { get; }
+
     public IServiceProvider Services => application.Services;
 
     public static async Task<TaskIntakeApiTestApplication> StartAsync()
@@ -41,6 +49,8 @@ internal sealed class TaskIntakeApiTestApplication : IAsyncDisposable
         WebApplicationBuilder builder = WebApplication.CreateBuilder(
             new WebApplicationOptions { EnvironmentName = "Testing" });
         builder.WebHost.UseTestServer();
+        var logs = new InternalAdminApiTestApplication.RecordingLoggerProvider();
+        builder.Logging.AddProvider(logs);
         builder.Configuration.AddInMemoryCollection(
             new Dictionary<string, string?>
             {
@@ -67,7 +77,7 @@ internal sealed class TaskIntakeApiTestApplication : IAsyncDisposable
         app.UseIvrApiFoundation();
         app.MapIvrTaskIntakeEndpoint();
         await app.StartAsync();
-        return new TaskIntakeApiTestApplication(app, app.GetTestClient());
+        return new TaskIntakeApiTestApplication(app, app.GetTestClient(), logs);
     }
 
     public async ValueTask DisposeAsync()

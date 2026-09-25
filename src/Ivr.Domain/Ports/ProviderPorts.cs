@@ -64,8 +64,9 @@ public interface IDialTokenResolver
 /// the ledger to count against, not a secret to decrypt.
 /// </para>
 /// <para>
-/// Null for every task sent the old way, and null in MOCK and lab regardless: those dial their own
-/// allowlisted destinations and never a customer, so the number is stored and simply not read.
+/// Null for every task sent the old way, and null in MOCK and lab: those dial their own allowlisted
+/// destinations and never a customer, and since W-0361 / K-40 intake stores the number only in
+/// <c>PRODUCTION_REAL</c>.
 /// </para>
 /// </param>
 public sealed record DialTokenResolutionRequest(
@@ -73,14 +74,15 @@ public sealed record DialTokenResolutionRequest(
     AttemptId AttemptId,
     TaskId TaskId,
     int MaxResolves,
-    string? DirectPhoneE164 = null)
+    [property: System.Text.Json.Serialization.JsonIgnore] string? DirectPhoneE164 = null)
 {
     /// <summary>
     /// W-0354 / B15. The compiler-generated <c>ToString</c> of a record prints every public
     /// property, and <see cref="DirectPhoneE164"/> is a customer's number in the clear. Every other
     /// type on this port already redacts itself (<see cref="DialAuthorization"/>,
     /// <see cref="DialTokenReference"/>), so this one does too: one structured log of the whole
-    /// request would otherwise put the number in a log line.
+    /// request would otherwise put the number in a log line. A serializer reads properties, not
+    /// <c>ToString</c>, so the number is also left out of JSON (W-0361 / K-38).
     /// </summary>
     private bool PrintMembers(System.Text.StringBuilder builder)
     {

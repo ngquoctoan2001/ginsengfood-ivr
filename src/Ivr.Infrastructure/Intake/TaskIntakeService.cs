@@ -811,7 +811,15 @@ public sealed class TaskIntakeService(
             // Both shapes are written during the cutover because both can arrive. Which one the
             // dial uses is decided at dial time by PostgresTelephonyDispatchStore, not here -- a
             // task accepted today may be dialled by a worker that rolled out after it.
-            PhoneE164 = source.Phone_e164,
+            //
+            // W-0361 / K-40. Kept in PRODUCTION_REAL only. MOCK and LAB dial their own allowlisted
+            // destinations and never read this column - ProductionDialTokenVault is its one reader -
+            // so storing it there made one more readable copy of a customer's number to guard and
+            // to erase, in every sandbox and lab database, for nothing. The pattern check above ran
+            // on what arrived either way.
+            PhoneE164 = command.ExecutionMode == ExecutionMode.ProductionReal
+                ? source.Phone_e164
+                : null,
             PrivacySafeOrderSummaryJson = summaryJson,
             CallScriptTemplateId = approvedScript.Version.Key.TemplateId,
             CallScriptVersion = approvedScript.Version.Key.Version,

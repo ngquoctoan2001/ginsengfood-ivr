@@ -29,12 +29,13 @@ public sealed record TelephonyDispatchContext(
     string ScriptTemplateId,
     string ScriptVersion,
     int MaxDialTokenResolves,
-    string? DirectPhoneE164 = null)
+    [property: System.Text.Json.Serialization.JsonIgnore] string? DirectPhoneE164 = null)
 {
     /// <summary>
     /// W-0354 / B15. Same reason as <c>DialTokenResolutionRequest.PrintMembers</c>: the generated
     /// <c>ToString</c> would print <see cref="DirectPhoneE164"/> in the clear, so this context
-    /// prints a marker in its place and leaves every other member as the record would.
+    /// prints a marker in its place and leaves every other member as the record would. It is left
+    /// out of JSON for the same reason (W-0361 / K-38).
     /// </summary>
     private bool PrintMembers(System.Text.StringBuilder builder)
     {

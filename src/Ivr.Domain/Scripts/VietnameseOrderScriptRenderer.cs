@@ -74,7 +74,16 @@ public sealed record ScriptInputSnapshot(
     string DeliveryAreaShort,
     string ProgramDisplayName,
     string Locale,
-    string InputHash);
+    string InputHash)
+{
+    /// <summary>
+    /// W-0361 / K-38. The generated <c>ToString</c> printed every member, the customer's display
+    /// name and delivery area among them, so one structured log of a snapshot wrote both into a log
+    /// line. Same convention as <c>RenderedSpeech</c> and <c>SpeechSegment</c>: a type that carries
+    /// what the customer will hear prints a marker instead of the content.
+    /// </summary>
+    public override string ToString() => "[REDACTED_SCRIPT_INPUT_SNAPSHOT]";
+}
 
 public sealed record ScriptPreview(
     string ScriptReference,
@@ -89,6 +98,13 @@ public sealed record ScriptPreview(
     /// built by an older renderer; consumers treat empty as "speak the whole text in one piece".
     /// </summary>
     public ImmutableArray<SpeechSegment> Segments { get; init; } = [];
+
+    /// <summary>
+    /// W-0361 / K-38. The generated <c>ToString</c> printed the exact text the customer will hear
+    /// and the input snapshot behind it. Redacted for the same reason as
+    /// <see cref="ScriptInputSnapshot"/>.
+    /// </summary>
+    public override string ToString() => "[REDACTED_SCRIPT_PREVIEW]";
 }
 
 public interface IScriptPreviewRenderer

@@ -5,6 +5,8 @@ using Ivr.Api.Auth;
 using Ivr.Contracts.Generated.IvrServer.V1;
 using Ivr.Domain.Confirmation;
 using Ivr.Domain.Ports;
+using Ivr.Domain.Privacy;
+using Ivr.Infrastructure.Analytics;
 using Ivr.Infrastructure.Configuration;
 using Ivr.Infrastructure.Intake;
 using Ivr.Infrastructure.Persistence;
@@ -30,28 +32,37 @@ namespace Ivr.IntegrationTests.Governance;
 /// stored": log lines, callbacks and the admin API carry only <c>phone_masked</c>, and the number is
 /// used in exactly one place. Until now that was checked by hand, once, on the chief's smoke server.
 /// <para>
-/// This runs a number-only task through intake, a MOCK dial, normalisation and the callback
-/// outbox on real PostgreSQL, reads it back through the admin API, and then looks for the number
-/// everywhere it could have gone: every text column of every table, every admin response, every log
-/// line the API wrote. The one place it is allowed to be is the column it was put in. The check
-/// holds whichever way the owner decides option B (phiếu Sếp 25/09, mục B2), which is why it does
-/// not wait for that answer.
+/// This runs a number-only task through intake, a MOCK dial, normalisation, the callback outbox
+/// and the analytics ETL on real PostgreSQL, reads it back through the admin and internal APIs, and
+/// then looks for the number everywhere it could have gone: every text cell of every table, every
+/// response, every log line the API wrote. Since W-0361 / K-40 MOCK does not keep the number at all,
+/// so there is no place it is allowed to be. The check holds whichever way the owner decides option
+/// B (phiếu Sếp 25/09, mục B2), which is why it does not wait for that answer.
+/// </para>
+/// <para>
+/// W-0361 / K-41 widened it: the search is for the national number <c>900000001</c>, which every
+/// spelling contains; the full guard runs over every text cell, for the reformatted spellings a
+/// plain search misses; the warehouse, the SIM, script, integration and feature-flag reads and the
+/// worker's own call-job read are searched too; and the log recorder keeps whole exceptions.
+/// The HTTP intake surface is IT-PHONE-CONTAIN-02 in <c>TaskIntakeApiTests</c>. The production dial
+/// path is <c>Q-28.2</c>.
 /// </para>
 /// </summary>
 [Collection(PostgresPersistenceTestGroup.Name)]
 public sealed class PhoneNumberContainmentTests(PostgresPersistenceFixture fixture)
 {
-    // A number of the contract's shape; MOCK never dials it. Searched without its '+', so a copy
-    // that lost the prefix, or was re-formatted, is still found.
+    // A number of the contract's shape; MOCK never dials it. Searched as the national number,
+    // without the '+' or the country code, so a copy that lost either, or gained a leading zero,
+    // is still found.
     private const string SentNumber = "+84900000001";
-    private const string Digits = "84900000001";
+    private const string Nsn = "900000001";
     private const string TaskIdValue = "TASK-PHONE-CONTAIN";
     private const string ChannelId = "SIM-MOCK-CONTAIN";
 
 
     [Fact]
     [Trait("TestId", "IT-PHONE-CONTAIN-01")]
-    public async Task ANumberSentByModule3IsFoundOnlyInTheColumnItWasPutIn()
+    public async Task ANumberSentByModule3IsNeitherKeptNorRepeatedAnywhereInMock()
     {
         // The admin API evaluates eligibility on the real clock, so the whole run is anchored to
         // it; the calling window is opened to the whole day so the test does not depend on the hour.
@@ -75,19 +86,15 @@ public sealed class PhoneNumberContainmentTests(PostgresPersistenceFixture fixtu
         Assert.Equal(TaskIntakeDecisions.AcceptedDryRunOnly, outcome.Decision);
 
         // 2. Eligibility, the way the worker asks for it: through the internal API.
-        using (HttpRequestMessage eligibility = new(
+        using (HttpRequestMessage eligibility = InternalRequest(
             HttpMethod.Post, "/v1/ivr/order-confirmation/eligibility-checks"))
         {
-            eligibility.Headers.Authorization = new("Bearer", InternalAdminApiTestApplication.InternalToken);
-            eligibility.Headers.Add("X-Source-System", "ivr-worker");
-            eligibility.Headers.Add("X-Service-Scope", Ivr.Api.Internal.InternalServiceOptions.RequiredScope);
-            eligibility.Headers.Add("X-Correlation-Id", "corr-phone-contain");
             eligibility.Headers.Add("Idempotency-Key", "idem-phone-contain-eligibility");
             eligibility.Content = JsonContent.Create(new Ivr.Api.Internal.EligibilityLifecycleRequest(TaskIdValue));
             using HttpResponseMessage answered = await app.Client.SendAsync(eligibility);
             string body = await answered.Content.ReadAsStringAsync();
             Assert.True(answered.StatusCode == HttpStatusCode.OK, $"eligibility answered {(int)answered.StatusCode}: {body}");
-            Assert.DoesNotContain(Digits, body, StringComparison.Ordinal);
+            Assert.DoesNotContain(Nsn, body, StringComparison.Ordinal);
         }
 
         // 3. A MOCK dial of it, answered with "1".
@@ -123,7 +130,15 @@ public sealed class PhoneNumberContainmentTests(PostgresPersistenceFixture fixtu
             jobId = (await context.CallJobs.AsNoTracking().SingleAsync()).IvrCallJobId;
         }
 
-        // 5. The admin surface an operator would open for this order.
+        // 5. W-0361 / K-41. The analytics warehouse, filled the way the worker fills it, so its
+        //    tables are searched with this order in them rather than empty.
+        AnalyticsEtlRunReport etl = await new AnalyticsEtlJob(factory, new FixedTimeProvider(now.AddMinutes(1)))
+            .RunAsync(
+                new AnalyticsEtlRunOptions { RebuildAggregates = true, Now = now.AddMinutes(1) },
+                CancellationToken.None);
+        Assert.True(etl.LoadedRows > 0, $"the ETL loaded nothing: {etl}");
+
+        // 6. Every surface an operator or the worker would open for this order.
         string[] routes =
         [
             $"/v1/ivr/order-confirmation/call-jobs/{jobId}/detail",
@@ -131,6 +146,10 @@ public sealed class PhoneNumberContainmentTests(PostgresPersistenceFixture fixtu
             "/v1/ivr/order-confirmation/queue",
             "/v1/ivr/order-confirmation/dashboard",
             "/v1/ivr/order-confirmation/review-items",
+            "/v1/ivr/order-confirmation/sim-channels",
+            "/v1/ivr/order-confirmation/scripts",
+            "/v1/ivr/order-confirmation/integration-status",
+            "/v1/ivr/order-confirmation/feature-flags/dev",
             "/v1/ivr/order-confirmation/audit-evidence"
                 + $"?target_type=confirmation-task&target_id={TaskIdValue}"
                 + $"&reason={Uri.EscapeDataString("phone containment check")}",
@@ -143,17 +162,42 @@ public sealed class PhoneNumberContainmentTests(PostgresPersistenceFixture fixtu
             using HttpResponseMessage response = await app.Client.SendAsync(request);
             string body = await response.Content.ReadAsStringAsync();
             Assert.True(response.StatusCode == HttpStatusCode.OK, $"{route} answered {(int)response.StatusCode}: {body}");
-            Assert.DoesNotContain(Digits, body, StringComparison.Ordinal);
+            Assert.DoesNotContain(Nsn, body, StringComparison.Ordinal);
         }
 
-        // 6. Every text column in the database, after all of the above has written what it writes.
-        IReadOnlyList<string> holders = await ColumnsHoldingAsync(Digits);
-        Assert.Equal(["public.ivr_confirmation_tasks.phone_e164"], holders);
+        using (HttpRequestMessage internalRead = InternalRequest(
+            HttpMethod.Get, $"/v1/ivr/order-confirmation/call-jobs/{jobId}"))
+        {
+            using HttpResponseMessage response = await app.Client.SendAsync(internalRead);
+            string body = await response.Content.ReadAsStringAsync();
+            Assert.True(response.StatusCode == HttpStatusCode.OK, $"internal call-job read answered {(int)response.StatusCode}: {body}");
+            Assert.DoesNotContain(Nsn, body, StringComparison.Ordinal);
+        }
 
-        // 7. Everything the API logged: the eligibility call and every read, audit-evidence included.
+        // 7. Every text cell in the database, after all of the above has written what it writes.
+        //    Since W-0361 / K-40 MOCK keeps no copy at all, so the number is in no column, and no
+        //    cell holds anything the guard reads as a phone number or an address either - which
+        //    catches a copy re-spaced or re-punctuated past the plain search.
+        Assert.Empty(await ColumnsHoldingAsync(Nsn));
+        Assert.Empty(await CellsTheGuardRefusesAsync());
+
+        // 8. Everything the API logged, exception text included.
         Assert.DoesNotContain(
             app.Logs.Entries,
-            entry => entry.Contains(Digits, StringComparison.Ordinal));
+            entry => entry.Contains(Nsn, StringComparison.Ordinal));
+    }
+
+    /// <summary>
+    /// The worker's side of the internal API: its token, source system, scope and a correlation id.
+    /// </summary>
+    private static HttpRequestMessage InternalRequest(HttpMethod method, string route)
+    {
+        HttpRequestMessage request = new(method, route);
+        request.Headers.Authorization = new("Bearer", InternalAdminApiTestApplication.InternalToken);
+        request.Headers.Add("X-Source-System", "ivr-worker");
+        request.Headers.Add("X-Service-Scope", Ivr.Api.Internal.InternalServiceOptions.RequiredScope);
+        request.Headers.Add("X-Correlation-Id", "corr-phone-contain");
+        return request;
     }
 
     /// <summary>
@@ -165,6 +209,54 @@ public sealed class PhoneNumberContainmentTests(PostgresPersistenceFixture fixtu
         var holders = new List<string>();
         await using var connection = new NpgsqlConnection(fixture.ConnectionString);
         await connection.OpenAsync();
+        foreach ((string schema, string table, string column) in await TextColumnsAsync(connection))
+        {
+            await using var probe = new NpgsqlCommand(
+                $"SELECT COUNT(*) FROM \"{schema}\".\"{table}\" WHERE \"{column}\"::text LIKE @pattern",
+                connection);
+            probe.Parameters.AddWithValue("pattern", string.Concat("%", value, "%"));
+            long count = (long)(await probe.ExecuteScalarAsync())!;
+            if (count > 0)
+            {
+                holders.Add($"{schema}.{table}.{column}");
+            }
+        }
+
+        return holders;
+    }
+
+    /// <summary>
+    /// W-0361 / K-41. Every text cell the full guard refuses, as <c>schema.table.column</c>. The plain
+    /// search above finds the digits as sent; this finds the shapes the guard knows - grouped, dotted,
+    /// with a leading zero - which is how a copy that was reformatted on the way would look.
+    /// </summary>
+    private async Task<IReadOnlyList<string>> CellsTheGuardRefusesAsync()
+    {
+        var refused = new List<string>();
+        await using var connection = new NpgsqlConnection(fixture.ConnectionString);
+        await connection.OpenAsync();
+        foreach ((string schema, string table, string column) in await TextColumnsAsync(connection))
+        {
+            await using var read = new NpgsqlCommand(
+                $"SELECT \"{column}\"::text FROM \"{schema}\".\"{table}\" WHERE \"{column}\" IS NOT NULL",
+                connection);
+            await using NpgsqlDataReader cells = await read.ExecuteReaderAsync();
+            while (await cells.ReadAsync())
+            {
+                if (!PiiGuard.IsSafeText(cells.GetString(0)))
+                {
+                    refused.Add($"{schema}.{table}.{column}");
+                    break;
+                }
+            }
+        }
+
+        return refused;
+    }
+
+    private static async Task<IReadOnlyList<(string Schema, string Table, string Column)>> TextColumnsAsync(
+        NpgsqlConnection connection)
+    {
         var columns = new List<(string Schema, string Table, string Column)>();
         await using (var catalogue = new NpgsqlCommand(
             """
@@ -187,20 +279,7 @@ public sealed class PhoneNumberContainmentTests(PostgresPersistenceFixture fixtu
         }
 
         Assert.NotEmpty(columns);
-        foreach ((string schema, string table, string column) in columns)
-        {
-            await using var probe = new NpgsqlCommand(
-                $"SELECT COUNT(*) FROM \"{schema}\".\"{table}\" WHERE \"{column}\"::text LIKE @pattern",
-                connection);
-            probe.Parameters.AddWithValue("pattern", string.Concat("%", value, "%"));
-            long count = (long)(await probe.ExecuteScalarAsync())!;
-            if (count > 0)
-            {
-                holders.Add($"{schema}.{table}.{column}");
-            }
-        }
-
-        return holders;
+        return columns;
     }
 
     private static TaskIntakeService CreateIntake(

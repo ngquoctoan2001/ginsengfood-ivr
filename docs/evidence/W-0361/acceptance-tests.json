@@ -1,0 +1,29 @@
+{
+  "schema": "ivr-acceptance-tests/v1",
+  "workId": "W-0361",
+  "scope": "software",
+  "requiredTestIds": [
+    "UT-PII-FIELD-01",
+    "UT-PII-FIELD-02",
+    "UT-PHONE-TOSTRING-01",
+    "UT-PHONE-TOSTRING-02",
+    "UT-PHONE-TOSTRING-03",
+    "UT-PHONE-TOSTRING-04",
+    "UT-PHONE-TOSTRING-05",
+    "UT-SCRIPT-TOSTRING-01",
+    "SEC-ROT-05",
+    "IT-INTAKE-NUMBER-DB-01",
+    "IT-INTAKE-NUMBER-DB-02",
+    "IT-INTAKE-NUMBER-DB-03",
+    "IT-INTAKE-NUMBER-DB-05",
+    "IT-PHONE-CONTAIN-01",
+    "IT-PHONE-CONTAIN-02"
+  ],
+  "gates": [
+    "dial-token-production-bundle-validator.mjs",
+    "opt-out-suppression-bundle-validator.mjs",
+    "compliance-pack-selftest.mjs",
+    "generate-test-traceability.mjs",
+    "gate-status.mjs"
+  ]
+}

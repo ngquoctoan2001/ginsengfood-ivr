@@ -5,6 +5,7 @@ using Ivr.Contracts.Generated.IvrServer.V1;
 using Ivr.Domain.Confirmation;
 using Ivr.Domain.Policies;
 using Ivr.Domain.Ports;
+using Ivr.Domain.Scripts;
 using Ivr.Infrastructure.Configuration;
 using Ivr.Infrastructure.Intake;
 using Ivr.Infrastructure.Observability;
@@ -268,7 +269,7 @@ public sealed class TaskIntakePersistenceTests(PostgresPersistenceFixture fixtur
 
     [Fact]
     [Trait("TestId", "IT-INTAKE-NUMBER-DB-01")]
-    public async Task ANumberOnlyTaskPersistsItsNumberAndItsOwnDirectDialReference()
+    public async Task ANumberOnlyTaskPersistsItsOwnDirectDialReference()
     {
         await fixture.ResetAsync();
         IDbContextFactory<IvrDbContext> factory = fixture.Services
@@ -295,7 +296,8 @@ public sealed class TaskIntakePersistenceTests(PostgresPersistenceFixture fixtur
         ConfirmationTaskEntity task = await verification.ConfirmationTasks
             .AsNoTracking()
             .SingleAsync();
-        Assert.Equal(SentNumber, task.PhoneE164);
+        // W-0361 / K-40. MOCK never reads the number, so it keeps none (IT-INTAKE-NUMBER-DB-05).
+        Assert.Null(task.PhoneE164);
         Assert.Equal(ExpectedDirectReference("TASK-PG-NUMBER"), task.DialTokenCiphertext);
         Assert.Equal(source.Confirmation_window_expires_at, task.DialTokenExpiresAt);
     }
@@ -335,7 +337,7 @@ public sealed class TaskIntakePersistenceTests(PostgresPersistenceFixture fixtur
             .SingleAsync();
         Assert.Equal(ExpectedDirectReference("TASK-PG-NUMBER-TOKEN"), task.DialTokenCiphertext);
         Assert.DoesNotContain(source.Dial_token!, task.DialTokenCiphertext, StringComparison.Ordinal);
-        Assert.Equal(SentNumber, task.PhoneE164);
+        Assert.Null(task.PhoneE164);
     }
 
     /// <summary>
@@ -368,7 +370,137 @@ public sealed class TaskIntakePersistenceTests(PostgresPersistenceFixture fixtur
             .AsNoTracking()
             .SingleAsync();
         Assert.StartsWith("enc:mock-sha256:", task.DialTokenCiphertext, StringComparison.Ordinal);
-        Assert.Equal(SentNumber, task.PhoneE164);
+        Assert.Null(task.PhoneE164);
+    }
+
+    /// <summary>
+    /// W-0361 / K-40 (remediation plan 2026-09-25). The number is kept where it is dialled and
+    /// nowhere else. <c>ProductionDialTokenVault</c> is the only reader of <c>phone_e164</c>; MOCK and
+    /// LAB dial their own allowlisted destinations, so a MOCK or LAB database used to hold a readable
+    /// copy of every customer's number for nothing. The same number-only task goes through intake in
+    /// each mode, with a policy and a script approved for that mode, and only production keeps it.
+    /// </summary>
+    [Theory]
+    [InlineData(IvrOptions.MockExecutionMode)]
+    [InlineData(IvrOptions.LabRealSimExecutionMode)]
+    [InlineData(IvrOptions.ProductionRealExecutionMode)]
+    [Trait("TestId", "IT-INTAKE-NUMBER-DB-05")]
+    public async Task OnlyProductionKeepsTheNumberItWillDial(string mode)
+    {
+        await fixture.ResetAsync();
+        IDbContextFactory<IvrDbContext> factory = fixture.Services
+            .GetRequiredService<IDbContextFactory<IvrDbContext>>();
+        await SeedPoliciesAsync(factory);
+        await using (IvrDbContext policies = await factory.CreateDbContextAsync())
+        {
+            policies.AttemptPolicies.Add(new AttemptPolicyEntity
+            {
+                PolicyVersion = ProductionPolicyVersion,
+                ProgramType = "GOLDEN_HOUR",
+                MaxAttempts = 2,
+                AttemptOffsetsSecondsJson = "[0,150]",
+                ConfirmationWindowSeconds = 300,
+                AllowedExecutionModesJson = "[\"PRODUCTION_REAL\"]",
+                ApprovedForProduction = true,
+                CreatedAt = Now,
+            });
+            await policies.SaveChangesAsync();
+        }
+
+        var clock = new FixedTimeProvider(Now);
+        var scripts = new PostgresScriptRegistry(
+            factory,
+            clock,
+            Options.Create(new ScriptContentOptions { ProductionTargetV1FieldsApproved = true }));
+        ScriptVersionKey script = await ApproveForEveryModeAsync(scripts);
+        bool production = mode == IvrOptions.ProductionRealExecutionMode;
+        var service = new TaskIntakeService(
+            new PostgresTaskIntakeStore(factory, clock),
+            new PostgresAttemptPolicyRegistry(factory),
+            scripts,
+            new UnavailableOpaqueValueProtector(),
+            SpeechSummaryLimits.Create(100, 100),
+            clock,
+            new CallingWindow(Options.Create(new CallingWindowOptions())),
+            Options.Create(new IvrOptions
+            {
+                ExecutionMode = mode,
+                SalesProvider = "FAKE_TARGET_V1",
+                SimProvider = "MOCK",
+                RealCustomerCallAllowed = production,
+            }));
+        IvrConfirmationTaskV1 source = CreateTask(
+            policyVersion: production ? ProductionPolicyVersion : CandidateAttemptPolicies.Version,
+            taskId: "TASK-PG-NUMBER-MODE",
+            includeToken: false,
+            phoneE164: SentNumber,
+            scriptTemplateId: script.TemplateId,
+            scriptVersion: script.Version,
+            evidencePolicyVersion: "evidence-v1",
+            privacyPolicyVersion: "privacy-v1");
+
+        TaskIntakeOutcome outcome = await service.IntakeAsync(new TaskIntakeCommand(
+            source,
+            "idem-pg-number-mode",
+            source.Correlation_id!,
+            new string('5', 64),
+            mode switch
+            {
+                IvrOptions.MockExecutionMode => ExecutionMode.Mock,
+                IvrOptions.LabRealSimExecutionMode => ExecutionMode.LabRealSim,
+                _ => ExecutionMode.ProductionReal,
+            }));
+
+        Assert.Equal(
+            mode == IvrOptions.MockExecutionMode
+                ? TaskIntakeDecisions.AcceptedDryRunOnly
+                : TaskIntakeDecisions.AcceptedCallJobCreated,
+            outcome.Decision);
+        await using IvrDbContext verification = await factory.CreateDbContextAsync();
+        ConfirmationTaskEntity task = await verification.ConfirmationTasks.AsNoTracking().SingleAsync();
+        Assert.Equal(production ? SentNumber : null, task.PhoneE164);
+
+        // Whichever the mode, the task keeps its own direct-dial reference, which is all MOCK and
+        // LAB ever use.
+        Assert.Equal(ExpectedDirectReference("TASK-PG-NUMBER-MODE"), task.DialTokenCiphertext);
+    }
+
+    private const string ProductionPolicyVersion = "k40-prod-v1";
+
+    private static async Task<ScriptVersionKey> ApproveForEveryModeAsync(PostgresScriptRegistry scripts)
+    {
+        ScriptDraftDefinition definition = ScriptDraftDefinition.Create(
+            TargetV1SpeechPolicy.MockTemplateId,
+            "v-k40-every-mode",
+            TargetV1SpeechPolicy.CanonicalVietnameseTemplate);
+        await scripts.CreateDraftAsync(
+            definition,
+            ScriptActor.Create("k40-author", [ScriptPermissions.Edit]),
+            "Create the K-40 fixture",
+            "corr-k40-create");
+        await scripts.SubmitForReviewAsync(
+            definition.Key,
+            ScriptActor.Create("k40-reviewer", [ScriptPermissions.Review]),
+            "Review the K-40 fixture",
+            "corr-k40-review");
+        (ScriptApprovalType Type, string Actor, string Permission)[] approvals =
+        [
+            (ScriptApprovalType.MockTest, "k40-mock", ScriptPermissions.ApproveMock),
+            (ScriptApprovalType.Lab, "k40-lab", ScriptPermissions.ApproveLab),
+            (ScriptApprovalType.Content, "k40-content", ScriptPermissions.ApproveContent),
+            (ScriptApprovalType.PrivacyLegal, "k40-privacy", ScriptPermissions.ApprovePrivacyLegal),
+        ];
+        foreach ((ScriptApprovalType type, string actor, string permission) in approvals)
+        {
+            await scripts.ApproveAsync(
+                definition.Key,
+                type,
+                ScriptActor.Create(actor, [permission]),
+                "Approve the K-40 fixture",
+                string.Concat("corr-k40-", actor));
+        }
+
+        return definition.Key;
     }
 
     /// <summary>
@@ -597,7 +729,11 @@ public sealed class TaskIntakePersistenceTests(PostgresPersistenceFixture fixtur
         string? orderId = null,
         bool includeToken = true,
         string? phoneE164 = null,
-        DateTimeOffset? windowStart = null)
+        DateTimeOffset? windowStart = null,
+        string? scriptTemplateId = null,
+        string? scriptVersion = null,
+        string? evidencePolicyVersion = null,
+        string? privacyPolicyVersion = null)
     {
         DateTimeOffset start = windowStart ?? Now.AddMinutes(-1);
         return new IvrConfirmationTaskV1
@@ -647,6 +783,10 @@ public sealed class TaskIntakePersistenceTests(PostgresPersistenceFixture fixtur
                 Program_display_name = "Giờ Vàng",
                 Locale = PrivacySafeOrderSummaryLocale.ViVN,
             },
+            Call_script_template_id = scriptTemplateId,
+            Call_script_version = scriptVersion,
+            Evidence_policy_version = evidencePolicyVersion,
+            Privacy_policy_version = privacyPolicyVersion,
             Call_restriction = callRestriction,
             Eligibility_snapshot = new { decision = "ELIGIBLE", source = "postgres-test" },
             Evidence_ref = "evidence://postgres/p2-1",

@@ -129,7 +129,8 @@ public static class PersonalDataInventory
                 + "Module 3 sends the number instead of a dial token, which removed the key store "
                 + "and three open decisions; this row is the other side of that choice. Read on "
                 + "exactly one path - the dial - while phone_masked remains what every log, audit "
-                + "row, callback and admin response uses.",
+                + "row, callback and admin response uses. Kept in PRODUCTION_REAL only since W-0361 "
+                + "(K-40): MOCK, lab and the sandbox store NULL, because nothing there reads it.",
             PersonalDataLegalBasis.ContractPerformance,
             "Replaced with a redacted value (NULL). Unlike the token, this one does not expire on its "
                 + "own, so erasure is the only thing that removes it. Until W-0314 the shared "

@@ -172,7 +172,9 @@ internal sealed class InternalAdminApiTestApplication : IAsyncDisposable
                 entries.Enqueue(formatter(state, exception));
                 if (exception is not null)
                 {
-                    entries.Enqueue(exception.GetType().Name);
+                    // W-0361 / K-41. The whole exception - type, message, stack and inner
+                    // exceptions - because a number in an exception message is a log line too.
+                    entries.Enqueue(exception.ToString());
                 }
             }
         }

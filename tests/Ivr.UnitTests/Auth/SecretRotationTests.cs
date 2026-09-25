@@ -1,6 +1,8 @@
 using System.Reflection;
 using Ivr.Infrastructure.Auth;
-using Ivr.Infrastructure.Persistence.Entities;
+using Ivr.Infrastructure.Persistence;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata;
 
 namespace Ivr.UnitTests.Auth;
 
@@ -212,38 +214,43 @@ public sealed class SecretRotationTests
 
     [Fact]
     [Trait("TestId", "SEC-ROT-05")]
-    public void NoPersistedColumnCanHoldADialTokenToNumberMapping()
+    public void NoPersistedColumnHoldsANumberExceptTheOneOptionBAdded()
     {
         // D-05 / OD-V1-18. The mapping from a dial token to a real number lives at the token-vault
-        // boundary OUTSIDE IVR. IVR persists an opaque ciphertext, a reference and a masked form --
-        // and holds no key that could turn any of them back into a number.
+        // boundary OUTSIDE IVR, and IVR holds no key that could turn a token back into a number.
+        // There is one stated exception: option B (W-0310, owner 2026-09-17) has Module 3 send the
+        // number itself, stored in ivr_confirmation_tasks.phone_e164, in PRODUCTION_REAL only since
+        // W-0361, and read on the dial path only. Whether it stays readable is Q-32.
         //
-        // Asserted over the persistence model by reflection rather than over a list someone
-        // maintains: a new column added tomorrow is exactly the case a hand-kept list misses.
-        PropertyInfo[] persisted = typeof(ConfirmationTaskEntity).GetProperties();
-        string[] names = [.. persisted.Select(property => property.Name)];
+        // W-0361 / K-39. This test used to filter the names of one entity for PhoneNumber, RawPhone,
+        // Msisdn and Destination. phone_e164 matched none of them, so the test stayed green from the
+        // day the number arrived without ever seeing it. It now reads every column of every table
+        // in the EF model, and a column named like a number must be on the list below with the
+        // reason it is not one - so a second number column fails here, by name.
+        IModel model = BuildModel();
+        HashSet<string> columns = [.. model.GetEntityTypes()
+            .Where(entity => entity.GetTableName() is not null)
+            .SelectMany(entity => entity.GetProperties()
+                .Select(property => $"{entity.GetTableName()}.{property.GetColumnName()}"))];
 
-        Assert.Contains("DialTokenCiphertext", names);
-        Assert.Contains("PhoneMasked", names);
-        Assert.Contains("PhoneRef", names);
+        Assert.Contains(TheNumber, columns);
+        Assert.Contains("ivr_confirmation_tasks.dial_token_ciphertext", columns);
+        Assert.Contains("ivr_confirmation_tasks.phone_masked", columns);
+        Assert.Contains("ivr_confirmation_tasks.phone_ref", columns);
 
-        // Nothing that would be a plaintext destination, and nothing that would decrypt one.
-        foreach (PropertyInfo property in persisted)
+        string[] numberLike = [.. columns.Where(LooksLikeANumber).Order(StringComparer.Ordinal)];
+        Assert.Equal(NumberLikeColumnsThatAreNotANumber.Keys.Append(TheNumber).Order(StringComparer.Ordinal), numberLike);
+
+        // Nothing that would decrypt a token.
+        foreach (string column in columns)
         {
-            string name = property.Name;
+            string name = column[(column.IndexOf('.', StringComparison.Ordinal) + 1)..];
             Assert.False(
-                name.Contains("PhoneNumber", StringComparison.OrdinalIgnoreCase)
-                    || name.Contains("RawPhone", StringComparison.OrdinalIgnoreCase)
-                    || name.Contains("Msisdn", StringComparison.OrdinalIgnoreCase)
-                    || name.Contains("Destination", StringComparison.OrdinalIgnoreCase),
-                $"{name} looks like a plaintext destination on a persisted entity (D-05).");
-
-            Assert.False(
-                (name.Contains("DialToken", StringComparison.OrdinalIgnoreCase)
-                    || name.Contains("Vault", StringComparison.OrdinalIgnoreCase))
-                    && (name.Contains("Key", StringComparison.OrdinalIgnoreCase)
-                        || name.Contains("Secret", StringComparison.OrdinalIgnoreCase)),
-                $"{name} looks like token-vault key material inside IVR, which OD-V1-18 places outside it.");
+                (name.Contains("dial_token", StringComparison.Ordinal)
+                    || name.Contains("vault", StringComparison.Ordinal))
+                    && (name.Contains("key", StringComparison.Ordinal)
+                        || name.Contains("secret", StringComparison.Ordinal)),
+                $"{column} looks like token-vault key material inside IVR, which OD-V1-18 places outside it.");
         }
 
         // The rotation provider is for credentials only. If it ever grew a way to hold a mapping,
@@ -251,6 +258,47 @@ public sealed class SecretRotationTests
         Assert.DoesNotContain(
             typeof(RotatingCredentialProvider).GetProperties(),
             property => property.Name.Contains("Destination", StringComparison.OrdinalIgnoreCase));
+    }
+
+    /// <summary>The one column that holds a customer's number in the clear (W-0310, option B).</summary>
+    private const string TheNumber = "ivr_confirmation_tasks.phone_e164";
+
+    /// <summary>
+    /// Every other column whose name reads like a number, and why it is not one. Keyed like the
+    /// personal-data inventory, <c>table.column</c>.
+    /// </summary>
+    private static readonly Dictionary<string, string> NumberLikeColumnsThatAreNotANumber = new(StringComparer.Ordinal)
+    {
+        ["ivr_confirmation_tasks.phone_ref"] = "Opaque reference the SIM adapter resolves; IVR never resolves it (D-05).",
+        ["ivr_confirmation_tasks.phone_masked"] = "Display form with the middle digits replaced, what every log and response carries.",
+        ["ivr_confirmation_tasks.phone_validation_status"] = "Sales' verdict on the number, a status label.",
+        ["ivr_call_attempts.attempt_number"] = "Which attempt this is, a counter.",
+        ["ivr_call_attempts.invalid_phone"] = "Outcome flag: the carrier rejected the number. A boolean.",
+        ["ivr_sim_channels.sim_number_ref"] = "Reference to a SIM the business owns, never a subscriber (D-05).",
+        ["fact_call_outcome.counted_attempt_number"] = "The attempt counter, copied into the analytics fact.",
+        ["agg_kpi_daily.invalid_phone_count"] = "How many results were IVR_INVALID_PHONE_FINAL, an integer.",
+    };
+
+    /// <summary>Column-name fragments that read like a number, or somewhere to dial.</summary>
+    private static readonly string[] NumberFragments =
+        ["phone", "e164", "msisdn", "destination", "callee", "caller", "subscriber", "number"];
+
+    private static bool LooksLikeANumber(string column)
+    {
+        string name = column[(column.IndexOf('.', StringComparison.Ordinal) + 1)..];
+        return NumberFragments.Any(fragment => name.Contains(fragment, StringComparison.Ordinal));
+    }
+
+    /// <summary>
+    /// Offline, like <c>AnalyticsWarehousePrivacyTests</c>: building the model opens no connection.
+    /// </summary>
+    private static IModel BuildModel()
+    {
+        DbContextOptions<IvrDbContext> options = new DbContextOptionsBuilder<IvrDbContext>()
+            .UseNpgsql("Host=127.0.0.1;Port=1;Database=model_only;Username=none;Password=none")
+            .Options;
+        using var context = new IvrDbContext(options);
+        return context.Model;
     }
 
     private sealed class MutableClock(DateTimeOffset start) : TimeProvider
