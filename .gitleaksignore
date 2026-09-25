@@ -408,3 +408,7 @@ ca8d13b6498d7b5f819980f95de2d3ea0a0acda0:src/Ivr.Infrastructure/Persistence/Migr
 d21d97b23d467f65a33bc642cbeff736dd6f0814:docs/api/portal-manifest.json:generic-api-key:27
 d21d97b23d467f65a33bc642cbeff736dd6f0814:docs/api/ivr-order-confirmation-v1.html:generic-api-key:1272
 d21d97b23d467f65a33bc642cbeff736dd6f0814:docs/api/ivr-order-confirmation-v1.html:generic-api-key:1302
+# W-0353. The closeout rewrote W-0205's register row (its status cell), so gitleaks reads the whole
+# line again. The row quotes the EF model snapshot line that seeds the feature flag named
+# v1NotificationEnabled: the same false positive as the Designer lines above. Same commit/file/rule/line pinning.
+02d22fc15ee99d2bf17789370655e72c51689a34:prompt/_execution/prompt-execution-tracker.md:generic-api-key:301
