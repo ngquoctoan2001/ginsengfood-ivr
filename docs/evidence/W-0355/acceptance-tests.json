@@ -1,0 +1,12 @@
+{
+  "schema": "ivr-acceptance-tests/v1",
+  "workId": "W-0355",
+  "scope": "software",
+  "requiredTestIds": [
+    "IT-NORM-CONCURRENCY-05",
+    "IT-NORM-CONCURRENCY-06",
+    "BI-CONCURRENT-07",
+    "BI-DRIFT-06",
+    "BI-DRIFT-08"
+  ]
+}

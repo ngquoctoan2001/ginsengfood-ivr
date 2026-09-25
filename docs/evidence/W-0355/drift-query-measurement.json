@@ -1,0 +1,32 @@
+{
+  "schema": "ivr-w0355-drift-query-measurement/v1",
+  "captured_at": "2026-09-25T12:11:44+07:00",
+  "database": "ginsengfood-ivr-dev-postgres-1 (PostgreSQL 16.14), the database the PT-SOAK-02 run was writing to at the time; read-only statements only",
+  "data_at_measurement": {
+    "analytics.fact_call_job": 7623,
+    "ivr_call_jobs": 9175,
+    "ivr_call_attempts_counted_groups": 7267
+  },
+  "query": "The drift comparison of AnalyticsEtlJob.SyncJobFactsAsync as the refresh issues it (ORDER BY job id, LIMIT 5000). It runs twice per ETL run: once to fetch the drifted facts, once to count what is left after the refresh.",
+  "before": {
+    "source": "SQL captured from pg_stat_activity while a worker ran it (e95ba64, W-0353)",
+    "shape": "three correlated count subqueries per job fact (SubPlan 1 in the projection, SubPlan 2 and 3 in the join filter), each a sequential scan of ivr_call_attempts",
+    "why_no_index": "The only index leading with ivr_call_job_id is IX_ivr_call_attempts_ivr_call_job_id_attempt_number, partial WHERE (is_counted_customer_attempt IS TRUE); the planner does not prove that predicate from the bare boolean filter EF writes",
+    "execution_ms": 34471.849,
+    "rows": 19
+  },
+  "after": {
+    "source": "The W-0355 shape: counted attempts grouped once (GROUP BY ivr_call_job_id) and left-joined; written by hand to match the EF translation, whose own plan BI-DRIFT-08 checks",
+    "shape": "Hash Join of facts and jobs, Hash Left Join to one aggregate over ivr_call_attempts; no SubPlan",
+    "execution_ms": 19.197,
+    "rows": 19
+  },
+  "same_rows": {
+    "method": "md5 over string_agg of every output row ordered by job id, each query in its own REPEATABLE READ READ ONLY transaction",
+    "before_rows": 19,
+    "after_rows": 19,
+    "digests_equal": true
+  },
+  "command_timeout_seconds": 30,
+  "consequence_before": "At this size the query alone exceeds the 30-second command timeout, so the run fails with 'Timeout during reading attempt'. In the retained worker logs at 12:15 no ETL run had completed on either worker (soak-log-counts.json)."
+}

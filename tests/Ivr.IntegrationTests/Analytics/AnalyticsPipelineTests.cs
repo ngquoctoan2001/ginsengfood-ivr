@@ -387,6 +387,101 @@ public sealed class AnalyticsPipelineTests(PostgresPersistenceFixture fixture)
         Assert.Equal([AnalyticsEtlRunOutcome.Failed], outcomes);
     }
 
+    // ------------------------------------------------------------ BI-CONCURRENT-07
+
+    [Fact]
+    [Trait("TestId", "BI-CONCURRENT-07")]
+    public async Task ARunThatFindsAnotherWorkerRunningDoesNothingAndIsNotCounted()
+    {
+        // W-0355. The anti-join is exactly-once against earlier runs, not against a run beside
+        // it: in the two-worker soak of 2026-09-25 both workers loaded the same results and the
+        // slower one failed on PK_fact_call_outcome and was counted FAILED. The other worker is
+        // played here by a session that holds the run lock, the way a run in progress does.
+        await fixture.ResetAsync();
+        await SeedAsync();
+
+        await using IvrDbContext otherWorker = await Factory().CreateDbContextAsync();
+        await otherWorker.Database.OpenConnectionAsync();
+        try
+        {
+            Assert.True(await TryTakeRunLockAsync(otherWorker));
+
+            List<string> outcomes = [];
+            AnalyticsEtlRunReport skipped;
+            using (MeterListener listener = ListenForEtlRuns(outcomes))
+            {
+                skipped = await RunEtlAsync();
+            }
+
+            // Nothing read, nothing written, not even a checkpoint, and no verdict on the counter
+            // the two analytics alerts read: the run beside it is the one doing the work.
+            Assert.True(skipped.Skipped);
+            Assert.Equal(0, skipped.LoadedRows);
+            Assert.Equal(AnalyticsReconcileStatus.NotRun, skipped.ReconcileStatus);
+            Assert.Equal(0, await CountFactsAsync());
+            Assert.Empty(outcomes);
+            await using (IvrDbContext check = await Factory().CreateDbContextAsync())
+            {
+                Assert.Empty(await check.AnalyticsCheckpoints.AsNoTracking().ToListAsync());
+            }
+
+            await ReleaseRunLocksAsync(otherWorker);
+
+            AnalyticsEtlRunReport next = await RunEtlAsync();
+            Assert.False(next.Skipped);
+            Assert.Equal(SeededResults, next.LoadedRows);
+            Assert.Equal(AnalyticsReconcileStatus.Complete, next.ReconcileStatus);
+
+            // And the run gave the lock back, so the other worker's next tick is not skipped too.
+            Assert.True(await TryTakeRunLockAsync(otherWorker));
+        }
+        finally
+        {
+            // A pooled connection keeps a session lock until the pool resets it, and every later
+            // ETL test in this collection would then be skipped.
+            await ReleaseRunLocksAsync(otherWorker);
+        }
+    }
+
+    [Fact]
+    [Trait("TestId", "BI-DRIFT-08")]
+    public async Task TheDriftComparisonReadsTheAttemptsOnceRatherThanOncePerJobFact()
+    {
+        // W-0355. BI-DRIFT-06 holds what the comparison finds; this holds what it costs. Counted per
+        // job inside the projection, the count compiled to a correlated subquery that scanned
+        // ivr_call_attempts three times for every job fact: about thirty seconds at 7,500 job facts
+        // in the soak of 2026-09-25, where runs began to hit the 30-second command timeout. A
+        // timing would pass on a small table; the plan does not depend on size. A correlated count
+        // shows as a SubPlan whatever the data, and the grouped join reads the attempts once.
+        await fixture.ResetAsync();
+        await SeedAsync();
+
+        await using IvrDbContext context = await Factory().CreateDbContextAsync();
+        string sql = AnalyticsEtlJob.DriftedJobFactsSql(context);
+        List<string> plan = [];
+        await context.Database.OpenConnectionAsync();
+        await using (var command = context.Database.GetDbConnection().CreateCommand())
+        {
+            command.CommandText = "EXPLAIN " + sql;
+            await using var reader = await command.ExecuteReaderAsync();
+            while (await reader.ReadAsync())
+            {
+                plan.Add(reader.GetString(0));
+            }
+        }
+
+        Assert.DoesNotContain(plan, line => line.Contains("SubPlan", StringComparison.Ordinal));
+        Assert.Single(plan, line => line.Contains(" on ivr_call_attempts", StringComparison.Ordinal));
+    }
+
+    private static async Task<bool> TryTakeRunLockAsync(IvrDbContext session) =>
+        await session.Database.SqlQuery<bool>(
+            $"SELECT pg_try_advisory_lock(hashtextextended({AnalyticsEtlJob.RunLockName}, 0)) AS \"Value\"")
+            .SingleAsync();
+
+    private static async Task ReleaseRunLocksAsync(IvrDbContext session) =>
+        await session.Database.ExecuteSqlRawAsync("SELECT pg_advisory_unlock_all()");
+
     // ------------------------------------------------------------------ helpers
 
     private static MeterListener ListenForEtlRuns(List<string> outcomes)

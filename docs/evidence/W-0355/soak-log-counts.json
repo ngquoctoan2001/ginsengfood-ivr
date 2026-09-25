@@ -1,0 +1,33 @@
+{
+  "schema": "ivr-w0355-soak-log-counts/v1",
+  "captured_at": "2026-09-25T05:14:56.608Z",
+  "source": "ci-artifacts/local-mock-e2e/worker-1.log and worker-2.log of the PT-SOAK-02 run started 2026-09-25 10:06 (UTC+7), two workers",
+  "caveat": "tools/dev/Invoke-LocalMockE2E.mjs rewrites each worker log from a rolling buffer of its most recent output, so these are counts in the retained window, lower bounds for the run.",
+  "not_counted_here": "Scheduler dispatch failures ('The fake SIM adapter injected an audio error' / 'a DTMF error') are faults the soak scenarios inject on purpose; they are shown only as injected_dispatch_faults.",
+  "workers": {
+    "worker-1": {
+      "retained_log_lines": 8538,
+      "normalizer_failed_closed": 3,
+      "normalizer_on_pk_ivr_call_results": 3,
+      "etl_run_failed": 5,
+      "etl_on_pk_fact_call_outcome": 0,
+      "etl_on_command_timeout": 5,
+      "heartbeat_warnings_naming_analytics": 46,
+      "heartbeat_warnings_naming_other_loops": 0,
+      "etl_completed_duration_ms": [],
+      "injected_dispatch_faults": 149
+    },
+    "worker-2": {
+      "retained_log_lines": 14327,
+      "normalizer_failed_closed": 0,
+      "normalizer_on_pk_ivr_call_results": 0,
+      "etl_run_failed": 5,
+      "etl_on_pk_fact_call_outcome": 5,
+      "etl_on_command_timeout": 0,
+      "heartbeat_warnings_naming_analytics": 54,
+      "heartbeat_warnings_naming_other_loops": 0,
+      "etl_completed_duration_ms": [],
+      "injected_dispatch_faults": 155
+    }
+  }
+}

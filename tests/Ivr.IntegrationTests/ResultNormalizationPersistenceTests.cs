@@ -285,6 +285,69 @@ public sealed class ResultNormalizationPersistenceTests(PostgresPersistenceFixtu
     }
 
     [Fact]
+    [Trait("TestId", "IT-NORM-CONCURRENCY-06")]
+    public async Task ANormalizerLeavesAloneAnAttemptAnotherWorkerIsFinishing()
+    {
+        // W-0355. IT-NORM-CONCURRENCY-05 races two normalizers and passes whenever the second
+        // one is simply too early or too late, which is nearly always. The window that fails is
+        // narrow: the second worker's claim reads the attempt as pending in a snapshot taken
+        // before the first worker commits, then takes the raw event once that commit releases it.
+        // The two-worker soak of 2026-09-25 hit it over and over, each a PK_ivr_call_results failure.
+        //
+        // This holds the window open instead of hoping to land in it. Worker A is played by a
+        // transaction that has moved the attempt on and not yet committed; worker B starts
+        // inside it. B must leave the attempt alone, both while A holds it and after A commits.
+        await fixture.ResetAsync();
+        IDbContextFactory<IvrDbContext> factory = Factory();
+        await SeedPendingAsync(factory, "BUSY", null);
+
+        await using IvrDbContext workerA = await factory.CreateDbContextAsync();
+        await using var finishing = await workerA.Database.BeginTransactionAsync();
+        await workerA.Database.ExecuteSqlRawAsync("""
+            UPDATE ivr_call_attempts
+            SET status = 'NORMALIZED_ATTEMPT_COMPLETE'
+            WHERE ivr_call_attempt_id = 'ATTEMPT-NORM-001'
+            """);
+        int workerAProcess = await workerA.Database
+            .SqlQueryRaw<int>("SELECT pg_backend_pid() AS \"Value\"")
+            .SingleAsync();
+
+        Task<NormalizationPersistenceResult?> workerB =
+            Repository(factory).NormalizeNextAsync("normalizer-concurrent-b");
+
+        // Either B has already given up on the attempt, or it is queued behind A's lock. Only
+        // then does A commit, so B's claim is known to have run while A held the row.
+        DateTimeOffset giveUpAt = DateTimeOffset.UtcNow.AddSeconds(30);
+        while (!workerB.IsCompleted && !await IsBlockedByAsync(factory, workerAProcess))
+        {
+            Assert.True(DateTimeOffset.UtcNow < giveUpAt, "worker B neither finished nor queued behind worker A");
+            await Task.Delay(TimeSpan.FromMilliseconds(50));
+        }
+
+        await finishing.CommitAsync();
+
+        Assert.Null(await workerB);
+        await using IvrDbContext verification = await factory.CreateDbContextAsync();
+        Assert.Equal(0, await verification.CallResults.CountAsync());
+        Assert.Empty(await verification.AuditLog.AsNoTracking()
+            .Where(entry => entry.Action == "IVR_RESULT_NORMALIZED")
+            .ToListAsync());
+    }
+
+    private static async Task<bool> IsBlockedByAsync(
+        IDbContextFactory<IvrDbContext> factory,
+        int blockingProcess)
+    {
+        await using IvrDbContext observer = await factory.CreateDbContextAsync();
+        return await observer.Database.SqlQuery<bool>($"""
+            SELECT EXISTS (
+                SELECT 1
+                FROM pg_stat_activity
+                WHERE {blockingProcess} = ANY (pg_blocking_pids(pid))) AS "Value"
+            """).SingleAsync();
+    }
+
+    [Fact]
     [Trait("TestId", "E2E-FLOW-CONFIRM-01")]
     // W-0347: P5-2 §8 IDs this test satisfies, per the W-0036 mapping.
     [Trait("TestId", "E2E-CONFIRM-01")]

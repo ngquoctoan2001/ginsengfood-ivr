@@ -1,0 +1,54 @@
+{
+  "schema": "ivr-mutation-results/v1",
+  "workId": "W-0355",
+  "captured_at": "2026-09-25",
+  "method": "Each mutation undoes one part of the fix in the working tree, the integration project is rebuilt, the named test runs, and the original bytes are written back (fresh mtime, so MSBuild never reuses the mutated build). A control run after restoring must be green.",
+  "results": [
+    {
+      "id": "M1 the claim locks the raw event only (the pre-fix query)",
+      "test": "ANormalizerLeavesAloneAnAttemptAnotherWorkerIsFinishing",
+      "outcome": "Failed!  - Failed:     1, Passed:     0, Skipped:     0, Total:     1, Duration: 5 s - Ivr.IntegrationTests.dll (net10.0)",
+      "verdict": "RED_AS_EXPECTED"
+    },
+    {
+      "id": "M2 the ETL runs without taking the run lock",
+      "test": "ARunThatFindsAnotherWorkerRunningDoesNothingAndIsNotCounted",
+      "outcome": "Failed!  - Failed:     1, Passed:     0, Skipped:     0, Total:     1, Duration: 5 s - Ivr.IntegrationTests.dll (net10.0)",
+      "verdict": "RED_AS_EXPECTED"
+    },
+    {
+      "id": "M3 a skipped run is counted on ivr_analytics_etl_runs_total",
+      "test": "ARunThatFindsAnotherWorkerRunningDoesNothingAndIsNotCounted",
+      "outcome": "Failed!  - Failed:     1, Passed:     0, Skipped:     0, Total:     1, Duration: 4 s - Ivr.IntegrationTests.dll (net10.0)",
+      "verdict": "RED_AS_EXPECTED"
+    },
+    {
+      "id": "M4 a finished run keeps the run lock",
+      "test": "ARunThatFindsAnotherWorkerRunningDoesNothingAndIsNotCounted",
+      "outcome": "Failed!  - Failed:     1, Passed:     0, Skipped:     0, Total:     1, Duration: 4 s - Ivr.IntegrationTests.dll (net10.0)",
+      "verdict": "RED_AS_EXPECTED"
+    },
+    {
+      "id": "CONTROL all files restored",
+      "outcome": "Passed!  - Failed:     0, Passed:     2, Skipped:     0, Total:     2, Duration: 5 s - Ivr.IntegrationTests.dll (net10.0)",
+      "verdict": "GREEN_AS_EXPECTED"
+    },
+    {
+      "id": "M5 the drift projection counts attempts per job again",
+      "test": "BI-DRIFT-08",
+      "outcome": "Failed!  - Failed:     1, Passed:     0, Skipped:     0, Total:     1, Duration: 4 s - Ivr.IntegrationTests.dll (net10.0)",
+      "verdict": "RED_AS_EXPECTED"
+    },
+    {
+      "id": "M5 same mutation, the rows found",
+      "test": "BI-DRIFT-06",
+      "outcome": "Passed!  - Failed:     0, Passed:     2, Skipped:     0, Total:     2, Duration: 6 s - Ivr.IntegrationTests.dll (net10.0)",
+      "verdict": "GREEN_AS_EXPECTED"
+    },
+    {
+      "id": "CONTROL file restored",
+      "outcome": "Passed!  - Failed:     0, Passed:     3, Skipped:     0, Total:     3, Duration: 7 s - Ivr.IntegrationTests.dll (net10.0)",
+      "verdict": "GREEN_AS_EXPECTED"
+    }
+  ]
+}

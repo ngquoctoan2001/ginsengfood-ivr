@@ -74,6 +74,15 @@ public sealed class ResultRepository(
         await using var transaction = await context.Database.BeginTransactionAsync(
             IsolationLevel.ReadCommitted,
             cancellationToken);
+
+        // W-0355. The attempt row is locked here too, not only the raw event. The pending status
+        // and the NOT EXISTS below are read in this statement's snapshot, and the worker that
+        // normalises an event changes the attempt row, never the raw event. Locking the raw event
+        // alone let a second worker whose snapshot predated the first worker's commit take the
+        // event the moment that commit released it, then fail on PK_ivr_call_results, over and
+        // over in the two-worker soak of 2026-09-25. Holding the attempt makes PostgreSQL
+        // re-check the status against the committed row before handing the event over, and
+        // SKIP LOCKED passes over an attempt another worker is still finishing.
         RawCallEventEntity? rawEvent = await context.RawCallEvents.FromSqlRaw("""
             SELECT raw_event.*
             FROM ivr_raw_call_events raw_event
@@ -87,7 +96,7 @@ public sealed class ResultRepository(
                   WHERE result.ivr_call_result_id = CONCAT('RESULT-', raw_event.raw_event_id)
               )
             ORDER BY raw_event.received_at, raw_event.raw_event_id
-            FOR UPDATE OF raw_event SKIP LOCKED
+            FOR UPDATE OF raw_event, attempt SKIP LOCKED
             LIMIT 1
             """).SingleOrDefaultAsync(cancellationToken);
         if (rawEvent is null)

@@ -40,6 +40,13 @@ internal sealed partial class AnalyticsEtlJobHost(
             },
             cancellationToken);
 
+        if (report.Skipped)
+        {
+            // W-0355. Another worker is running the pipeline; its run is the one that counts.
+            LogSkipped(logger);
+            return;
+        }
+
         LogCompleted(
             logger,
             report.LoadedRows,
@@ -118,6 +125,12 @@ internal sealed partial class AnalyticsEtlJobHost(
         ILogger logger,
         Exception exception,
         int consecutiveFailures);
+
+    [LoggerMessage(
+        EventId = 1205,
+        Level = LogLevel.Debug,
+        Message = "Analytics ETL skipped this tick; another worker holds the run")]
+    private static partial void LogSkipped(ILogger logger);
 
     [LoggerMessage(
         EventId = 1204,

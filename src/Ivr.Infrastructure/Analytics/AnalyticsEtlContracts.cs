@@ -60,6 +60,11 @@ public sealed record AnalyticsEtlRunOptions
 /// Job facts that still disagree with their source job after the refresh, in the same snapshot.
 /// Zero on a healthy run by construction; anything else is the refresh failing to do its job.
 /// </param>
+/// <param name="Skipped">
+/// W-0355. Another worker held the run lock, so this run read nothing, wrote nothing -- not even a
+/// checkpoint -- and is not counted on <c>ivr_analytics_etl_runs_total</c>. Its status stays
+/// <see cref="AnalyticsReconcileStatus.NotRun"/>, which is a value the reporting API already knows.
+/// </param>
 public sealed record AnalyticsEtlRunReport(
     int LoadedRows,
     int RejectedRows,
@@ -74,7 +79,8 @@ public sealed record AnalyticsEtlRunReport(
     int SourceJobCount = 0,
     int JobFactCount = 0,
     int JobRowsRejected = 0,
-    int JobFactsDrifted = 0)
+    int JobFactsDrifted = 0,
+    bool Skipped = false)
 {
     /// <summary>True when the batch cap stopped the run before the source was exhausted.</summary>
     public bool HasBacklog =>

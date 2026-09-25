@@ -46,6 +46,13 @@ public sealed class AnalyticsEtlJob(
 {
     public const string PipelineName = "call_outcome";
 
+    /// <summary>
+    /// W-0355. The advisory lock every run takes first, keyed like the other locks in this
+    /// codebase through <c>hashtextextended</c>. Public so a test can hold it the way a second
+    /// worker would.
+    /// </summary>
+    public const string RunLockName = "ivr:analytics-etl:" + PipelineName;
+
     private const string UnknownVariant = "UNKNOWN";
 
     /// <summary>
@@ -103,7 +110,11 @@ public sealed class AnalyticsEtlJob(
             throw;
         }
 
-        IvrTelemetry.RecordAnalyticsEtlRun(report.ReconcileStatus);
+        if (!report.Skipped)
+        {
+            IvrTelemetry.RecordAnalyticsEtlRun(report.ReconcileStatus);
+        }
+
         return report;
     }
 
@@ -125,6 +136,76 @@ public sealed class AnalyticsEtlJob(
         await using IvrDbContext context = await dbContextFactory
             .CreateDbContextAsync(cancellationToken);
 
+        // W-0355. One run at a time across every worker. The anti-join makes a run exactly-once
+        // against the runs before it, not against a run beside it: two workers read the same
+        // missing results and both insert them, and the slower one fails on PK_fact_call_outcome
+        // and is counted FAILED, as the two-worker soak of 2026-09-25 kept doing. A session lock,
+        // because a run spans several transactions; the connection stays open so the lock and the
+        // work share one session. A run that finds the lock taken does nothing, not even a
+        // checkpoint, and is not counted: the run beside it is the one doing the work.
+        await context.Database.OpenConnectionAsync(cancellationToken);
+        if (!await TryTakeRunLockAsync(context, cancellationToken))
+        {
+            return new AnalyticsEtlRunReport(
+                0,
+                0,
+                0,
+                0,
+                0,
+                0,
+                AnalyticsReconcileStatus.NotRun,
+                (long)Stopwatch.GetElapsedTime(startedTicks).TotalMilliseconds,
+                Skipped: true);
+        }
+
+        try
+        {
+            return await RunLockedAsync(context, options, startedTicks, now, cancellationToken);
+        }
+        finally
+        {
+            await ReleaseRunLockAsync(context);
+        }
+    }
+
+    private static async Task<bool> TryTakeRunLockAsync(
+        IvrDbContext context,
+        CancellationToken cancellationToken) =>
+        await context.Database.SqlQuery<bool>(
+            $"SELECT pg_try_advisory_lock(hashtextextended({RunLockName}, 0)) AS \"Value\"")
+            .SingleAsync(cancellationToken);
+
+    /// <summary>
+    /// Not cancellable: a run stopped at shutdown still gives the lock back. A connection that is
+    /// no longer open took its session with it, and the server released the lock then; failing
+    /// here would only hide the exception that broke the run.
+    /// </summary>
+    private static async Task ReleaseRunLockAsync(IvrDbContext context)
+    {
+        if (context.Database.GetDbConnection().State != ConnectionState.Open)
+        {
+            return;
+        }
+
+        try
+        {
+            await context.Database.SqlQuery<bool>(
+                $"SELECT pg_advisory_unlock(hashtextextended({RunLockName}, 0)) AS \"Value\"")
+                .SingleAsync(CancellationToken.None);
+        }
+        catch (Npgsql.NpgsqlException)
+        {
+            // The session broke between the run and this call; the lock ended with it.
+        }
+    }
+
+    private static async Task<AnalyticsEtlRunReport> RunLockedAsync(
+        IvrDbContext context,
+        AnalyticsEtlRunOptions options,
+        long startedTicks,
+        DateTimeOffset now,
+        CancellationToken cancellationToken)
+    {
         (List<AnalyticsFactCallOutcomeEntity> loaded, int rejected) =
             await ExtractAsync(context, options.BatchSize, now, cancellationToken);
 
@@ -330,28 +411,55 @@ public sealed class AnalyticsEtlJob(
     /// Every job fact paired with what its source job holds now, keeping the pairs that
     /// disagree. The refresh fixes what this returns and the reconcile counts what is left,
     /// so the two cannot come to mean different things by drift.
+    ///
+    /// <para><b>One pass over the attempts</b> (<c>W-0355</c>). The counts are grouped once and
+    /// joined, not counted per job inside the projection. Counted per job, the query compiled to a
+    /// correlated subquery that PostgreSQL ran three times for every job fact -- once for the
+    /// projection, twice for the filter -- each time as a sequential scan of
+    /// <c>ivr_call_attempts</c>: the one index that leads with the job id is partial
+    /// (<c>WHERE is_counted_customer_attempt IS TRUE</c>), and the planner does not prove that
+    /// predicate from the bare boolean filter EF writes. Quadratic in the data, it took about thirty
+    /// seconds at 7,500 job facts in the soak of 2026-09-25, so runs began to hit the 30-second
+    /// command timeout. <see cref="DriftedJobFactsSql"/> lets a test hold the plan to this shape.</para>
     /// </summary>
-    private static IQueryable<JobFactAgainstSource> DriftedJobFacts(IvrDbContext context) =>
-        context.AnalyticsJobFacts
-            .Join(
-                context.CallJobs,
-                fact => fact.IvrCallJobId,
-                job => job.IvrCallJobId,
-                (fact, job) => new JobFactAgainstSource
-                {
-                    Fact = fact,
-                    Eligible = job.Eligible,
-                    Closed = job.ClosedAt != null,
+    private static IQueryable<JobFactAgainstSource> DriftedJobFacts(IvrDbContext context)
+    {
+        // Counted customer attempts only, as at insert: a technical retry is not a second attempt
+        // at the customer (DT-02).
+        var countedByJob = context.CallAttempts
+            .Where(attempt => attempt.IsCountedCustomerAttempt)
+            .GroupBy(attempt => attempt.IvrCallJobId)
+            .Select(group => new { JobId = group.Key, Count = group.Count() });
 
-                    // Counted customer attempts only, as at insert: a technical retry is not a
-                    // second attempt at the customer (DT-02).
-                    CountedAttempts = context.CallAttempts.Count(attempt =>
-                        attempt.IvrCallJobId == job.IvrCallJobId
-                        && attempt.IsCountedCustomerAttempt),
-                })
-            .Where(row => row.Fact.Eligible != row.Eligible
+        return
+            from fact in context.AnalyticsJobFacts
+            join job in context.CallJobs on fact.IvrCallJobId equals job.IvrCallJobId
+            join counted in countedByJob on job.IvrCallJobId equals counted.JobId into matches
+            from counted in matches.DefaultIfEmpty()
+            select new JobFactAgainstSource
+            {
+                Fact = fact,
+                Eligible = job.Eligible,
+                Closed = job.ClosedAt != null,
+                // A job with no counted attempt has no group, so the left join leaves it null.
+                CountedAttempts = (int?)counted!.Count ?? 0,
+            }
+            into row
+            where row.Fact.Eligible != row.Eligible
                 || row.Fact.Closed != row.Closed
-                || row.Fact.CountedAttemptCount != row.CountedAttempts);
+                || row.Fact.CountedAttemptCount != row.CountedAttempts
+            select row;
+    }
+
+    /// <summary>
+    /// The SQL of the drift comparison, for a test that asks PostgreSQL for its plan
+    /// (<c>W-0355</c>). The query itself stays private; only its text leaves this class.
+    /// </summary>
+    public static string DriftedJobFactsSql(IvrDbContext context)
+    {
+        ArgumentNullException.ThrowIfNull(context);
+        return DriftedJobFacts(context).ToQueryString();
+    }
 
     private static bool IsJobSafeToLoad(AnalyticsFactCallJobEntity fact) =>
         AnalyticsColumnPolicy.InspectValue(fact.IvrCallJobId)
