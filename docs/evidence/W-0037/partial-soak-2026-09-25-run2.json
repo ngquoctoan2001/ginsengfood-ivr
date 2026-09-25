@@ -1,0 +1,189 @@
+{
+  "schema": "ivr-w0037-partial-soak/v1",
+  "testId": "PT-SOAK-02",
+  "verdict": "NOT_JUDGED",
+  "why": "The run died after 104 of its 240 minutes, before the harness computed its verdict and wrote pt-soak-02.json. It was a background task of the Claude Code process that launched it, and that process exited when the desktop app restarted at about 15:25; the harness, the API and both workers went with it. No fault in the stack was logged before it. The criteria below are recomputed from the recorded samples with the harness's own thresholds, as a record of the partial run only.",
+  "command": "node tools/dev/Invoke-LocalMockE2E.mjs --duration-minutes 240 --sample-seconds 60 --skip-faults --evidence-dir docs/evidence/W-0037",
+  "build": "Release build of a git archive of 31a967c (W-0355, W-0356, W-0357 included; W-0358 not yet)",
+  "overlaps": [
+    "The hosted pipeline for a push made at 14:14:46 ran its jobs on this machine from 14:15:32, inside this run's second quarter; the first quarter (the baseline) had ended at about 14:02."
+  ],
+  "workers": 2,
+  "startedAt": "2026-09-25T06:41:21.641Z",
+  "lastSampleAt": "2026-09-25T08:25:31.088Z",
+  "minutesCovered": 104,
+  "samples": 84,
+  "lastRoundPrinted": 390,
+  "quarterSamples": 20,
+  "criteria": [
+    {
+      "name": "api: one process for the whole run",
+      "limit": "one pid, present in every sample",
+      "observed": {
+        "pids": 1
+      },
+      "ok": true
+    },
+    {
+      "name": "api: working set",
+      "limit": "last-quarter median <= 1.5 x first-quarter median",
+      "observed": {
+        "firstQuarterMedianMb": 187,
+        "lastQuarterMedianMb": 72.6
+      },
+      "ok": true
+    },
+    {
+      "name": "api: handles",
+      "limit": "last-quarter median <= 1.5 x first-quarter median + 100",
+      "observed": {
+        "firstQuarterMedian": 739,
+        "lastQuarterMedian": 671
+      },
+      "ok": true
+    },
+    {
+      "name": "worker-1: one process for the whole run",
+      "limit": "one pid, present in every sample",
+      "observed": {
+        "pids": 1
+      },
+      "ok": true
+    },
+    {
+      "name": "worker-1: working set",
+      "limit": "last-quarter median <= 1.5 x first-quarter median",
+      "observed": {
+        "firstQuarterMedianMb": 178.9,
+        "lastQuarterMedianMb": 95.2
+      },
+      "ok": true
+    },
+    {
+      "name": "worker-1: handles",
+      "limit": "last-quarter median <= 1.5 x first-quarter median + 100",
+      "observed": {
+        "firstQuarterMedian": 519,
+        "lastQuarterMedian": 530
+      },
+      "ok": true
+    },
+    {
+      "name": "worker-2: one process for the whole run",
+      "limit": "one pid, present in every sample",
+      "observed": {
+        "pids": 1
+      },
+      "ok": true
+    },
+    {
+      "name": "worker-2: working set",
+      "limit": "last-quarter median <= 1.5 x first-quarter median",
+      "observed": {
+        "firstQuarterMedianMb": 186.4,
+        "lastQuarterMedianMb": 124.2
+      },
+      "ok": true
+    },
+    {
+      "name": "worker-2: handles",
+      "limit": "last-quarter median <= 1.5 x first-quarter median + 100",
+      "observed": {
+        "firstQuarterMedian": 517,
+        "lastQuarterMedian": 523
+      },
+      "ok": true
+    },
+    {
+      "name": "database connections",
+      "limit": "last-quarter peak <= 1.5 x first-quarter peak + 5",
+      "observed": {
+        "firstQuarterPeak": 35,
+        "lastQuarterPeak": 17
+      },
+      "ok": true
+    },
+    {
+      "name": "callback backlog between rounds",
+      "limit": "last-quarter peak <= first-quarter peak + 5",
+      "observed": {
+        "firstQuarterPeak": 0,
+        "lastQuarterPeak": 0
+      },
+      "ok": true
+    },
+    {
+      "name": "no task outlives its window",
+      "limit": "0 in every sample",
+      "observed": {
+        "worstSample": 0
+      },
+      "ok": true
+    },
+    {
+      "name": "no dial after a window closed",
+      "limit": "0",
+      "observed": {
+        "attempts": 0
+      },
+      "ok": true
+    },
+    {
+      "name": "no customer outcome after a window closed",
+      "limit": "0",
+      "observed": {
+        "results": 0
+      },
+      "ok": true
+    },
+    {
+      "name": "expired windows are closed promptly",
+      "limit": "last-quarter median lag <= first-quarter median + 30 s",
+      "observed": {
+        "firstQuarterMedianSeconds": 0.0863,
+        "lastQuarterMedianSeconds": 0.15586,
+        "worstSeconds": 10.095037
+      },
+      "ok": true
+    },
+    {
+      "name": "deadline slack does not erode",
+      "limit": "last-quarter median slack >= first-quarter median - 30 s",
+      "observed": {
+        "firstQuarterMedianSeconds": 130.114101,
+        "lastQuarterMedianSeconds": 128.137912
+      },
+      "ok": true
+    },
+    {
+      "name": "core round duration (printed rounds only)",
+      "limit": "last-quarter median <= 2 x first-quarter median",
+      "observed": {
+        "note": "not computable from what was kept: the console prints round 1 and every tenth round after it; round 1 is the only core round printed and every tenth round was an extended one, so no core round falls in the last quarter; per-round durations lived in the harness process, which died before writing them",
+        "printedCoreRounds": [
+          {
+            "round": 1,
+            "ms": 17005
+          }
+        ]
+      },
+      "ok": null
+    },
+    {
+      "name": "rounds (printed rounds only)",
+      "limit": "every printed round ok",
+      "observed": {
+        "printed": 40,
+        "core": 1,
+        "extended": 39,
+        "failed": 0,
+        "note": "the unprinted rounds are not known from the log"
+      },
+      "ok": true
+    }
+  ],
+  "computableCriteriaWithinLimits": true,
+  "notComputed": [
+    "core round duration (printed rounds only)"
+  ]
+}

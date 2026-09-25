@@ -114,3 +114,25 @@ tất lượt nào trong phần log còn giữ lúc 12:15, và normalizer ghi l�
 
 **Còn lại:** một lượt đủ bốn giờ, trên bản đã có `W-0355`, vào lúc máy không build, không chạy CI hay collector.
 Lượt này chạy khi máy còn build và chạy test ở nửa giữa; quý đầu được giữ không có việc nặng.
+
+## 9. Hai lượt tiếp theo ngày `25/09`, cũng dở
+
+| Lượt | Bản chạy | Thời gian | Dừng vì | Bản ghi |
+| --- | --- | --- | --- | --- |
+| 2 | `31a967c` | 13:41 → 15:25, phút 104, 84 mẫu | Tiến trình Claude Code khởi chạy lượt này thoát khi app desktop khởi động lại; harness, API và hai worker đi theo | [partial-soak-2026-09-25-run2.json](partial-soak-2026-09-25-run2.json) |
+| 3 | `b7a0761` | 16:28 → 19:13, phút 165, 138 mẫu | Log kết thúc bằng `^C`. Lượt này khởi chạy qua WMI để không phụ thuộc phiên, và cửa sổ console của nó hiện trên desktop. Winlogon ghi máy khóa lúc 16:29:59, mở lúc 19:13:15; một bộ ghi CPU khởi chạy cùng cách cũng dừng trong cùng phút. Khả năng lớn nhất là hai cửa sổ bị đóng sau khi mở khóa: đó là suy luận, không phải quan sát | [partial-soak-2026-09-25-run3.json](partial-soak-2026-09-25-run3.json) |
+
+Ở cả hai lượt, mọi tiêu chí tính được đều trong ngưỡng, còn thời lượng vòng lõi không tính được, cùng lý do như lượt 1.
+Không lượt nào có verdict của harness, nên không có `pt-soak-02.json`, và `PT-SOAK-02` vẫn chưa được chứng minh.
+
+**Quý đầu của lượt 3 bị tải.** Từ khoảng 16:30 tới 17:30, một phiên khác trên máy (ops-core) chạy chín agent build và
+test .NET song song với Testcontainers: vòng 10 mất 41,9 giây, trước đó 21–34 giây. Bốn phép so quý (backlog callback,
+độ trễ đóng cửa sổ, độ dư trước hạn, thời lượng vòng lõi) lấy quý đầu làm mốc, nên dễ đạt hơn; số ở bản ghi phải đọc
+kèm điều đó. Bản ghi liệt kê các lần chồng lấn ở `overlaps`.
+
+**Lỗi quay số trong log worker là lỗi được tiêm.** Trong lượt 3, worker ghi hơn 3 000 cảnh báo "Consecutive dispatch
+failures" vào Application log của Windows. Lỗi gốc của mỗi lần là `MockSimOperationException: The fake SIM adapter
+injected an audio error`, tức lỗi harness cố ý tiêm ở vòng extended, và backoff là phản ứng đúng của scheduler.
+
+**Lượt 4** bắt đầu 19:35 trên `d989c31` (có cả `W-0359` và `W-0360`), khởi chạy qua WMI với cửa sổ ẩn. Kết quả sẽ
+ghi ở mục sau.
