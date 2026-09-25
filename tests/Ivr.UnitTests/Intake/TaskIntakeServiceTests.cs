@@ -36,6 +36,7 @@ public sealed class TaskIntakeServiceTests
     [Theory]
     [InlineData(ProgramCode.GOLDEN_HOUR, IvrConfirmationTaskV1Payment_method_snapshot.ONLINE)]
     [InlineData(ProgramCode.TWENTY_FOUR_SEVEN, IvrConfirmationTaskV1Payment_method_snapshot.COD)]
+    [Trait("TestId", "UT-INTAKE-PROGRAMS-17")]
     public async Task BothSupportedProgramsCreateOneMockDryRunUnit(
         ProgramCode program,
         IvrConfirmationTaskV1Payment_method_snapshot payment)
@@ -53,6 +54,7 @@ public sealed class TaskIntakeServiceTests
     }
 
     [Fact]
+    [Trait("TestId", "UT-INTAKE-IDEMPOTENCY-18")]
     public async Task ConcurrentDuplicateReplaysExactlyAndCreatesOnlyOneAtomicUnit()
     {
         TestContext test = CreateContext();
@@ -73,6 +75,7 @@ public sealed class TaskIntakeServiceTests
     }
 
     [Fact]
+    [Trait("TestId", "UT-INTAKE-IDEMPOTENCY-19")]
     public async Task SameKeyWithChangedPayloadFailsIdempotencyConflict()
     {
         TestContext test = CreateContext();
@@ -252,6 +255,7 @@ public sealed class TaskIntakeServiceTests
     }
 
     [Fact]
+    [Trait("TestId", "UT-INTAKE-RESTRICTION-20")]
     public async Task CallRestrictionBlocksBeforeAnyWorkIsPersisted()
     {
         TestContext test = CreateContext();
@@ -290,6 +294,7 @@ public sealed class TaskIntakeServiceTests
     [Theory]
     [InlineData("full-address")]
     [InlineData("spoken-phone")]
+    [Trait("TestId", "UT-INTAKE-PII-21")]
     public async Task SpeechPiiFailsClosedWithoutPersistingWork(string caseId)
     {
         (string area, string customerDisplayName) = caseId switch
@@ -316,6 +321,7 @@ public sealed class TaskIntakeServiceTests
     }
 
     [Fact]
+    [Trait("TestId", "UT-INTAKE-PII-22")]
     public async Task PersistedMetadataPiiFailsBeforeAnyWorkIsCreated()
     {
         TestContext test = CreateContext();
@@ -333,6 +339,7 @@ public sealed class TaskIntakeServiceTests
     }
 
     [Fact]
+    [Trait("TestId", "UT-INTAKE-NOJOB-23")]
     public async Task UnapprovedScriptAndExpiredWindowFailBeforeAnyJob()
     {
         TestContext scriptTest = CreateContext();
@@ -349,6 +356,7 @@ public sealed class TaskIntakeServiceTests
     }
 
     [Fact]
+    [Trait("TestId", "UT-INTAKE-AUDIT-24")]
     public async Task AuditContainsOnlySafeDecisionMetadata()
     {
         TestContext test = CreateContext();

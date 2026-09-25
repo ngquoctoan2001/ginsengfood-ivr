@@ -61,6 +61,7 @@ public sealed class ApiBehaviorMatrixTests(PostgresPersistenceFixture fixture)
             builder.UseSetting(AdminAccessOptions.WriteTokenConfigurationKey, TestAdminTokens.Write);
             builder.UseSetting(AdminAccessOptions.DangerTokenConfigurationKey, TestAdminTokens.Danger);
             builder.UseSetting("Ivr:DevTooling:SeedDirectory", Path.Combine(repository, "seed"));
+            WholeDayCallingWindow.Apply(builder);
         });
         application = app;
         using HttpClient http = app.CreateClient();

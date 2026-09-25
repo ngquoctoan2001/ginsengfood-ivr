@@ -29,8 +29,9 @@ public interface ISchedulerQueueBacklogReader
 /// work the dialler was never going to do -- a revoked order, a paused queue, an attempt already
 /// ringing -- or misses work it is failing to do. It is a copy rather than a shared fragment
 /// because the claim sits in the most depended-on class in the scheduler, which this change does
-/// not touch; <c>IT-OBS-BACKLOG-15</c> holds the two together instead, by claiming what this
-/// reports and checking that it then reports nothing.
+/// not touch. Two tests hold the two together instead: <c>IT-OBS-BACKLOG-15</c> claims what this
+/// reports and checks that it then reports nothing, and <c>IT-OBS-BACKLOG-17</c> checks that what
+/// the claim refuses on purpose -- a paused queue, a revoked order -- is not reported either.
 /// </para>
 /// <para>
 /// Read-only and unlocked. The claim takes <c>FOR UPDATE SKIP LOCKED</c> because it is about to

@@ -88,6 +88,15 @@ function Set-MockTelephonyEnvironment {
     $env:SIM_PROVIDER = "MOCK"
     $env:ConnectionStrings__IvrDb = "Host=127.0.0.1;Port=55433;Database=ivr;Username=ivr"
 
+    # W-0356 / K-05. The whole-day calling window, for the API and the worker alike: both start
+    # from this environment. Since W-0298 the API refuses at intake a task none of whose attempts
+    # lands inside calling hours, and the worker holds a due attempt until the window opens, so a
+    # run after 21:08 Vietnam time failed in either process. Same values as docker-compose.e2e.yml.
+    $env:Ivr__Scheduler__CallingWindow__Enabled = "true"
+    $env:Ivr__Scheduler__CallingWindow__UtcOffsetMinutes = "420"
+    $env:Ivr__Scheduler__CallingWindow__StartMinuteOfLocalDay = "0"
+    $env:Ivr__Scheduler__CallingWindow__EndMinuteOfLocalDay = "1440"
+
     # The four worker loops, in the order a task passes through them.
     $env:Ivr__Scheduler__Enabled = "true"
     $env:Ivr__Scheduler__PollIntervalMilliseconds = "500"

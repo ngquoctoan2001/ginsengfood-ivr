@@ -177,6 +177,7 @@ public sealed class DomainPolicyAndPrivacyTests
     [InlineData("dial-token-1")]
     [InlineData("token-ok")]
     [InlineData("LAB-A")]
+    [Trait("TestId", "UT-DOMAIN-PRIVACY-05")]
     public void DialTokenReferenceAcceptsGenuinelyOpaqueValues(string opaqueValue)
     {
         DialTokenReference reference = DialTokenReference.Create(

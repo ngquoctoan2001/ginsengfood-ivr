@@ -78,6 +78,11 @@ internal sealed class DevToolingApiTestApplication : IAsyncDisposable
                 SeedDirectory();
         }
 
+        foreach ((string key, string? value) in WholeDayCallingWindow.Settings)
+        {
+            settings[key] = value;
+        }
+
         builder.Configuration.AddInMemoryCollection(settings);
         builder.Services.AddIvrFoundation(builder.Configuration);
         builder.Services.AddIvrEligibility(builder.Configuration);

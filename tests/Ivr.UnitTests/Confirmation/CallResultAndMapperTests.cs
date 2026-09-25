@@ -51,6 +51,7 @@ public sealed class CallResultAndMapperTests
     [Theory]
     [InlineData(IvrResultType.IvrOperationalBlocked)]
     [InlineData(IvrResultType.IvrPolicyBlocked)]
+    [Trait("TestId", "UT-RESULT-TAXONOMY-12")]
     public void PreCallBlockedTaxonomyCannotBecomeACallResult(IvrResultType resultType)
     {
         InvalidOperationException failure = Assert.Throws<InvalidOperationException>(

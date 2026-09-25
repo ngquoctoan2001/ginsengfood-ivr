@@ -74,3 +74,5 @@ tại commit chạy sau khi soak kết thúc.
 
 W-0055 được ghi `ACCEPTED` sáng `25/09` (`A-1008`) dựa trên `BI-DRIFT-06`, trong khi lỗi 3 nằm ở chính phần đó của
 W-0353. Test chạy trên vài chục dòng nên không lộ. Bản sửa ở đây; giữ hay mở lại nghiệm thu W-0055 là Toàn quyết.
+
+**Toàn quyết `25/09`: giữ nghiệm thu W-0055.** Bản sửa đi cùng `W-0355`; không mở lại.

@@ -166,6 +166,15 @@ try {
     $env:SIM_PROVIDER = "MOCK"
     $env:REAL_CUSTOMER_CALL_ALLOWED = "NO"
 
+    # W-0356 / K-05. The whole-day calling window, as docker-compose.e2e.yml gives the API. Since
+    # W-0298 the API refuses at intake a task none of whose attempts lands inside calling hours,
+    # so a bootstrap run after 21:08 Vietnam time had every seed fixture refused at the door. The
+    # gate stays on and always answers yes.
+    $env:Ivr__Scheduler__CallingWindow__Enabled = "true"
+    $env:Ivr__Scheduler__CallingWindow__UtcOffsetMinutes = "420"
+    $env:Ivr__Scheduler__CallingWindow__StartMinuteOfLocalDay = "0"
+    $env:Ivr__Scheduler__CallingWindow__EndMinuteOfLocalDay = "1440"
+
     $apiProcess = Start-Process `
         -PassThru `
         -WindowStyle Hidden `

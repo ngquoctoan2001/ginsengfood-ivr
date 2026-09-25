@@ -1,0 +1,25 @@
+{
+  "schema": "ivr-acceptance-tests/v1",
+  "workId": "W-0356",
+  "scope": "software",
+  "requiredTestIds": [
+    "IT-OBS-BACKLOG-15",
+    "IT-OBS-BACKLOG-16",
+    "IT-OBS-BACKLOG-17",
+    "UT-INTAKE-PROGRAMS-17",
+    "UT-INTAKE-IDEMPOTENCY-18",
+    "UT-INTAKE-IDEMPOTENCY-19",
+    "UT-INTAKE-RESTRICTION-20",
+    "UT-INTAKE-PII-21",
+    "UT-INTAKE-PII-22",
+    "UT-INTAKE-NOJOB-23",
+    "UT-INTAKE-AUDIT-24",
+    "UT-RESULT-TAXONOMY-12",
+    "UT-DOMAIN-PRIVACY-05",
+    "UT-CALLWINDOW-PARITY-02",
+    "UT-CALLWINDOW-PARITY-03",
+    "IT-API-MATRIX-38",
+    "IT-DEV-SEED-03",
+    "IT-DEV-SEED-04"
+  ]
+}

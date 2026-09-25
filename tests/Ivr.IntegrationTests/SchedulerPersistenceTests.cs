@@ -481,7 +481,7 @@ public sealed class SchedulerPersistenceTests(PostgresPersistenceFixture fixture
     }
 
     [Fact]
-    [Trait("TestId", "IT-OBS-BACKLOG-15")]
+    [Trait("TestId", "IT-OBS-BACKLOG-16")]
     public async Task AnAttemptThatFellDueBeforeTheCallingWindowOpenedIsTimedFromTheOpening()
     {
         // OD-V1-16 opens the window at 08:00 at +07:00, which is 01:00 UTC.
@@ -511,7 +511,7 @@ public sealed class SchedulerPersistenceTests(PostgresPersistenceFixture fixture
     }
 
     [Fact]
-    [Trait("TestId", "IT-OBS-BACKLOG-15")]
+    [Trait("TestId", "IT-OBS-BACKLOG-17")]
     public async Task WorkTheClaimWouldRefuseIsNotBacklog()
     {
         // The two refusals that are decisions rather than failures. A paused queue and a revoked

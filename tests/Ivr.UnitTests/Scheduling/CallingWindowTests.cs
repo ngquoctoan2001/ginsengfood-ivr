@@ -220,8 +220,9 @@ public sealed class CallingWindowTests
         // The other programme has the earlier cutoff, which is the opposite of what its name
         // suggests. TWENTY_FOUR_SEVEN describes when Sales takes the order, not when IVR may
         // telephone: the window is not per-programme, and a 450-second second attempt has to
-        // clear the same 21:00. So its last safe admission is 20:52:30, five minutes before
-        // Golden Hour's.
+        // clear the same 21:08. So its cutoff is 21:00:30 and its last admission that still gets
+        // both calls is 21:00:29, five minutes before Golden Hour's 21:05:29. (W-0356 / K-05: this
+        // said 20:52:30, the figure for the 21:00 window W-0220 replaced.)
         AttemptPolicySnapshot twentyFourSeven = SignedProductionAttemptPolicies.Create()
             .Single(policy => policy.Program == IvrProgramCode.TwentyFourSeven);
         TimeSpan lastOffset247 =

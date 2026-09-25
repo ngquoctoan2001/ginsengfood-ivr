@@ -21,6 +21,13 @@ public sealed partial class RehearsalCallingWindowParityTests
         "EndMinuteOfLocalDay",
     ];
 
+    /// <summary>The two scheduler values <c>MockSchedulerCapacityService</c> sizes a pool with.</summary>
+    private static readonly string[] CapacityKeys =
+    [
+        "MockChannelCount",
+        "ExpectedCallDurationSeconds",
+    ];
+
     [Theory]
     [InlineData("docker-compose.e2e.yml")]
     [InlineData("docker-compose.sandbox.yml")]
@@ -57,6 +64,48 @@ public sealed partial class RehearsalCallingWindowParityTests
         Assert.True(api.GetProperty("Enabled").GetBoolean());
         Assert.Equal(0, api.GetProperty("StartMinuteOfLocalDay").GetInt32());
         Assert.Equal(1440, api.GetProperty("EndMinuteOfLocalDay").GetInt32());
+
+        // W-0356 / K-04. The same profile, the same pool. Eligibility in the API sizes capacity with
+        // these two values and the worker dials with them; left at the defaults (1 channel, 60 s a
+        // call) the API judged every rehearsal against a pool a fraction of the worker's.
+        JsonElement apiScheduler = SchedulerFromProfile(Path.Combine(
+            root, "src", "Ivr.Api", "appsettings.Profile.LocalMockE2E.json"));
+        JsonElement workerScheduler = SchedulerFromProfile(Path.Combine(
+            root, "src", "Ivr.Worker", "appsettings.Profile.LocalMockE2E.json"));
+        foreach (string key in CapacityKeys)
+        {
+            Assert.Equal(
+                workerScheduler.GetProperty(key).GetInt32(),
+                apiScheduler.GetProperty(key).GetInt32());
+        }
+    }
+
+    /// <summary>
+    /// W-0356 / K-05. The two developer scripts that start the stack from a shell environment. Both
+    /// processes a script starts inherit that one environment, so the window it sets is the window
+    /// the API and the worker both run with.
+    /// </summary>
+    [Theory]
+    [InlineData("tools/dev/Invoke-LocalE2E.ps1")]
+    [InlineData("tools/dev/Invoke-DevBootstrap.ps1")]
+    [Trait("TestId", "UT-CALLWINDOW-PARITY-03")]
+    public void DeveloperScriptOpensTheWholeDayForTheProcessesItStarts(string file)
+    {
+        string text = File.ReadAllText(Path.Combine(FindRepositoryRoot(), file));
+
+        var found = new Dictionary<string, string>(StringComparer.Ordinal);
+        foreach (Match setting in ScriptCallingWindowSetting().Matches(text))
+        {
+            Assert.True(
+                found.TryAdd(setting.Groups[1].Value, setting.Groups[2].Value),
+                $"{file} sets {setting.Groups[1].Value} twice.");
+        }
+
+        Assert.Equal(Keys.Order(StringComparer.Ordinal), found.Keys.Order(StringComparer.Ordinal));
+        Assert.Equal("true", found["Enabled"]);
+        Assert.Equal("420", found["UtcOffsetMinutes"]);
+        Assert.Equal("0", found["StartMinuteOfLocalDay"]);
+        Assert.Equal("1440", found["EndMinuteOfLocalDay"]);
     }
 
     /// <summary>
@@ -94,13 +143,15 @@ public sealed partial class RehearsalCallingWindowParityTests
         return found;
     }
 
-    private static JsonElement WindowFromProfile(string path)
+    private static JsonElement WindowFromProfile(string path) =>
+        SchedulerFromProfile(path).GetProperty("CallingWindow");
+
+    private static JsonElement SchedulerFromProfile(string path)
     {
         using JsonDocument document = JsonDocument.Parse(File.ReadAllText(path));
         return document.RootElement
             .GetProperty("Ivr")
             .GetProperty("Scheduler")
-            .GetProperty("CallingWindow")
             .Clone();
     }
 
@@ -125,4 +176,7 @@ public sealed partial class RehearsalCallingWindowParityTests
 
     [GeneratedRegex(@"^\s+Ivr__Scheduler__CallingWindow__([A-Za-z]+):\s*""?([^""\s]+)""?\s*$")]
     private static partial Regex CallingWindowSetting();
+
+    [GeneratedRegex(@"^\s*\$env:Ivr__Scheduler__CallingWindow__([A-Za-z]+)\s*=\s*""([^""]*)""\s*$", RegexOptions.Multiline)]
+    private static partial Regex ScriptCallingWindowSetting();
 }

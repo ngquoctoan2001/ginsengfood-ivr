@@ -21,7 +21,7 @@ xong, trong khi 6% còn lại là toàn bộ những cổng **không ai đóng �
 | 3. `REAL_SALES_INTEGRATION_VERIFIED` | Target V1 is signed and contract tests run against a real Sales sandbox | ❌ |
 | 4. `PRODUCTION_REAL_ELIGIBLE` | 32 eSIM capacity measured, legal/security evidence accepted, DF-03 signed | ❌ |
 
-**Đang ở nấc 0.** 288/343 work item ở trạng thái `ACCEPTED`; phần còn lại
+**Đang ở nấc 0.** 288/344 work item ở trạng thái `ACCEPTED`; phần còn lại
 cao nhất là `EVIDENCE_SUBMITTED`, và **evidence đã nộp không phải evidence đã được chấp nhận**
 (`MASTER-05`). Chỉ Release owner chuyển sang `ACCEPTED`, và đó là **tự nghiệm thu** của dev M8 — Toàn
 vừa làm vừa duyệt — không phải nghiệm thu độc lập: nó không thay chữ ký của M3, Tech Lead hay Sếp.
@@ -33,7 +33,7 @@ vừa làm vừa duyệt — không phải nghiệm thu độc lập: nó không
 | `ACCEPTED` | 288 |
 | `CANCELLED` | 24 |
 | `BLOCKED_EXTERNAL` | 19 |
-| `EVIDENCE_SUBMITTED` | 6 |
+| `EVIDENCE_SUBMITTED` | 7 |
 | `N/A` | 2 |
 | `DEFERRED_TARGET` | 2 |
 | `CODE_DONE` | 1 |

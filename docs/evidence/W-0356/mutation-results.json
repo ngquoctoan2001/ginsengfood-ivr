@@ -1,0 +1,43 @@
+{
+  "schema": "ivr-mutation-results/v1",
+  "workId": "W-0356",
+  "captured_at": "2026-09-25",
+  "method": "Each check breaks one thing the lot fixed, in the working tree, rebuilds, runs the named tests, and writes the original bytes back (never git checkout, which would also drop the uncommitted fix). A control run after restoring must be green.",
+  "results": [
+    {
+      "id": "K-05 test hosts given a calling window closed at the current hour (00:00-01:00 Vietnam time), standing in for a night run",
+      "summary": "Failed!  - Failed:     3, Passed:     9, Skipped:     0, Total:    12, Duration: 1 m 1 s - Ivr.IntegrationTests.dll (net10.0)",
+      "failed": [
+        "[xUnit.net 00:00:10.01]     Ivr.IntegrationTests.DevToolingApiTests.LoadingTwiceNamesEachFixtureAlreadyLoadedAndAddsNothing [FAIL]",
+        "[xUnit.net 00:00:17.77]     Ivr.IntegrationTests.DevToolingApiTests.ASeedLoadAdmitsTheFixturesThroughTheRealIntakePath [FAIL]",
+        "[xUnit.net 00:01:06.67]     Ivr.IntegrationTests.ApiBehaviorMatrixTests.AllOpenApiOperationsHaveExecutedBehaviorEvidence [FAIL]"
+      ],
+      "verdict": "RED_AS_EXPECTED"
+    },
+    {
+      "id": "K-05 control: whole-day window restored",
+      "summary": "Passed!  - Failed:     0, Passed:    12, Skipped:     0, Total:    12, Duration: 59 s - Ivr.IntegrationTests.dll (net10.0)",
+      "verdict": "GREEN_AS_EXPECTED"
+    },
+    {
+      "id": "K-05 UT-CALLWINDOW-PARITY-03: tools/dev/Invoke-DevBootstrap.ps1 narrowed back to 21:08 (EndMinuteOfLocalDay 1268)",
+      "summary": "Failed!  - Failed:     1, Passed:     1, Skipped:     0, Total:     2",
+      "verdict": "RED_AS_EXPECTED"
+    },
+    {
+      "id": "K-05 UT-CALLWINDOW-PARITY-03 control: script restored from its byte copy",
+      "summary": "Passed!  - Failed:     0, Passed:     2, Skipped:     0, Total:     2",
+      "verdict": "GREEN_AS_EXPECTED"
+    },
+    {
+      "id": "K-04 UT-CALLWINDOW-PARITY-02: the API LocalMockE2E profile back to MockChannelCount 1 (run in an isolated copy of HEAD plus this lot)",
+      "summary": "Failed!  - Failed:     1, Passed:     0, Skipped:     0, Total:     1",
+      "verdict": "RED_AS_EXPECTED"
+    },
+    {
+      "id": "K-04 UT-CALLWINDOW-PARITY-02 control: profile restored from its byte copy",
+      "summary": "Passed!  - Failed:     0, Passed:     1, Skipped:     0, Total:     1",
+      "verdict": "GREEN_AS_EXPECTED"
+    }
+  ]
+}
