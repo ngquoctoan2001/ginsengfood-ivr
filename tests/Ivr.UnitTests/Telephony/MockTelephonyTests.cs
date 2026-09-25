@@ -553,6 +553,143 @@ public sealed class MockTelephonyTests
         Assert.Null(provider.GetService<ISpeechRenderer>());
     }
 
+    /// <summary>
+    /// W-0359 / K-31. A MOCK hangup that fails is still swallowed - the dispatch ends in a failure
+    /// either way, and that failure is what the attempt records - but no longer silently: a hangup
+    /// that did not happen leaves the fake SIM counting the call as active on that channel.
+    /// <para>
+    /// The same failing call is dispatched twice, once with a hangup that works and once with one
+    /// that throws, and the two runs are compared. The attempt must be recorded identically, so the
+    /// warning and the fail-closed count are the only difference the failed hangup makes. The
+    /// warning names the exception's type and never its message, which is where a provider's own
+    /// text would ride out.
+    /// </para>
+    /// </summary>
+    [Fact]
+    [Trait("TestId", "UT-TEL-HANGUP-01")]
+    public async Task AFailedMockHangupIsCountedAndLoggedWithoutChangingWhatTheAttemptRecords()
+    {
+        HangupScenarioRun baseline = await DispatchWithMockHangupAsync(hangupFailure: null);
+        HangupScenarioRun failing = await DispatchWithMockHangupAsync(new TimeoutException(
+            "provider-detail: the fake SIM never confirmed the hangup"));
+
+        // The outcome is recorded exactly as it is when the hangup works.
+        RecordedDispatchFailure expected = Assert.Single(baseline.Failures);
+        RecordedDispatchFailure actual = Assert.Single(failing.Failures);
+        Assert.Equal(SimProviderDisposition.AudioError, actual.Disposition);
+        Assert.Equal("MOCK_AUDIO_ERROR", actual.TechnicalErrorCode);
+        Assert.True(actual.ChannelHealthy);
+        Assert.Equal(expected.Disposition, actual.Disposition);
+        Assert.Equal(expected.TechnicalErrorCode, actual.TechnicalErrorCode);
+        Assert.Equal(expected.ChannelHealthy, actual.ChannelHealthy);
+        Assert.Equal(expected.Cooldown, actual.Cooldown);
+        Assert.NotNull(actual.Session);
+        Assert.Equal(expected.Session, actual.Session);
+
+        // In both runs the call was up when the playback failed, and the gateway tried once to end
+        // it: the failed hangup is not retried, and it is not skipped either.
+        Assert.Equal(1, baseline.ActivatedCalls);
+        Assert.Equal(1, failing.ActivatedCalls);
+        Assert.Equal(1, baseline.HangupCalls);
+        Assert.Equal(1, failing.HangupCalls);
+
+        // A hangup that works says nothing...
+        Assert.Empty(baseline.Warnings);
+        Assert.Empty(baseline.FailClosed);
+
+        // ...and one that fails says so once, by type, and is counted once. The reason code is
+        // spelled out rather than read from the gateway: it is the value dashboards and alerts key
+        // on, so renaming it has to fail here first.
+        string warning = Assert.Single(failing.Warnings);
+        Assert.Contains(nameof(TimeoutException), warning, StringComparison.Ordinal);
+        Assert.Contains("ATTEMPT-HANGUP-1", warning, StringComparison.Ordinal);
+        Assert.Contains("MOCK_HANGUP_FAILED", warning, StringComparison.Ordinal);
+        Assert.DoesNotContain("provider-detail", warning, StringComparison.Ordinal);
+        Assert.Equal(1L, Assert.Single(failing.FailClosed));
+    }
+
+    /// <summary>
+    /// One MOCK dispatch through the real fake SIM: it answers, refuses the playback (the AudioError
+    /// scenario), and the gateway hangs up - or fails to, when <paramref name="hangupFailure"/> is
+    /// given.
+    /// </summary>
+    private static async Task<HangupScenarioRun> DispatchWithMockHangupAsync(Exception? hangupFailure)
+    {
+        var clock = new FixedTimeProvider(Now);
+        var lease = new SchedulerDispatchLease(
+            "JOB-HANGUP-1",
+            "ATTEMPT-HANGUP-1",
+            1,
+            Now,
+            Now.AddMinutes(5),
+            "SIM-MOCK-HANGUP",
+            Guid.NewGuid(),
+            1,
+            Now.AddMinutes(2),
+            SimAdapters.Mock,
+            SimAdapters.Mock);
+        var store = new RecordingDispatchStore(new TelephonyDispatchContext(
+            TaskId.Create("TASK-HANGUP-1"),
+            DialTokenReference.Create("enc:mock-token", Now.AddMinutes(5)),
+            TestData.Summary(),
+            Ivr.Domain.Scripts.TargetV1SpeechPolicy.MockTemplateId,
+            Ivr.Domain.Scripts.TargetV1SpeechPolicy.MockTemplateVersion,
+            3));
+
+        // AudioError answers the dial and then refuses the playback, so the call is up when the
+        // dispatch fails and the gateway has a hangup to make.
+        var sim = new HangupFailingSimGateway(
+            new FakeSimGateway(
+                new Dictionary<string, FakeSimScenario>
+                {
+                    [lease.AttemptId] = new(SimProviderDisposition.AudioError),
+                },
+                timeProvider: clock),
+            hangupFailure);
+        var logger = new WarningCapturingLogger<MockSchedulerDispatchGateway>();
+        var gateway = new MockSchedulerDispatchGateway(
+            store,
+            new FakeDialTokenResolver(
+                new Dictionary<string, string>
+                {
+                    ["enc:mock-token"] = "mock-destination-allowlisted",
+                },
+                ["mock-destination-allowlisted"]),
+            new FakeSpeechRenderer(),
+            new PassThroughSpeechSynthesisService(),
+            sim,
+            Microsoft.Extensions.Options.Options.Create(new MockTelephonyOptions
+            {
+                Enabled = true,
+                KillSwitchEngaged = false,
+            }),
+            Microsoft.Extensions.Options.Options.Create(new IvrOptions
+            {
+                ExecutionMode = IvrOptions.MockExecutionMode,
+                SalesProvider = "FAKE_TARGET_V1",
+                SimProvider = "MOCK",
+                RealCustomerCallAllowed = false,
+            }),
+            new SchedulerExecutionContext(IvrOptions.MockExecutionMode),
+            clock,
+            logger);
+        var failClosed = new List<long>();
+        using (FailClosedMeasurements.Listen("MOCK_HANGUP_FAILED", failClosed))
+        {
+            MockSimOperationException playback =
+                await Assert.ThrowsAsync<MockSimOperationException>(
+                    () => gateway.DispatchAsync(lease, CancellationToken.None));
+            Assert.Equal("MOCK_AUDIO_ERROR", playback.TechnicalErrorCode);
+        }
+
+        return new HangupScenarioRun(
+            store.Failures,
+            logger.Warnings,
+            failClosed,
+            sim.HangupCalls,
+            store.ActivatedCalls);
+    }
+
     private static SimDialRequest Request(string attemptId, string channelId) => new(
         AttemptId.Create(attemptId),
         TaskId.Create(string.Concat("task-", attemptId)),
@@ -569,4 +706,59 @@ public sealed class MockTelephonyTests
             Ivr.Domain.Scripts.TargetV1SpeechPolicy.MockTemplateVersion,
             ExecutionMode.Mock,
             CancellationToken.None);
+
+    /// <summary>
+    /// W-0359 / K-31. The fake SIM with one change: its hangup can be made to fail. Everything else
+    /// is the fake's own behaviour, so the call up to the failure is the one the MOCK path makes.
+    /// </summary>
+    private sealed class HangupFailingSimGateway(FakeSimGateway inner, Exception? hangupFailure)
+        : ISimGateway
+    {
+        public int HangupCalls { get; private set; }
+
+        public ValueTask<SimCallSession> DialAsync(
+            SimDialRequest request,
+            CancellationToken cancellationToken) =>
+            inner.DialAsync(request, cancellationToken);
+
+        public ValueTask PlayAsync(
+            SimCallSession session,
+            RenderedSpeech speech,
+            CancellationToken cancellationToken) =>
+            inner.PlayAsync(session, speech, cancellationToken);
+
+        public ValueTask<SimDtmfCapture> CaptureDtmfAsync(
+            SimCallSession session,
+            TimeSpan timeout,
+            CancellationToken cancellationToken) =>
+            inner.CaptureDtmfAsync(session, timeout, cancellationToken);
+
+        public ValueTask<SimDispositionReport> GetDispositionAsync(
+            SimCallSession session,
+            CancellationToken cancellationToken) =>
+            inner.GetDispositionAsync(session, cancellationToken);
+
+        public ValueTask HangupAsync(
+            SimCallSession session,
+            CancellationToken cancellationToken)
+        {
+            HangupCalls++;
+            if (hangupFailure is not null)
+            {
+                throw hangupFailure;
+            }
+
+            return inner.HangupAsync(session, cancellationToken);
+        }
+
+        public ValueTask<SimGatewayHealth> CheckHealthAsync(
+            string simChannelId,
+            CancellationToken cancellationToken) =>
+            inner.CheckHealthAsync(simChannelId, cancellationToken);
+    }
+
+    private sealed class FixedTimeProvider(DateTimeOffset now) : TimeProvider
+    {
+        public override DateTimeOffset GetUtcNow() => now;
+    }
 }

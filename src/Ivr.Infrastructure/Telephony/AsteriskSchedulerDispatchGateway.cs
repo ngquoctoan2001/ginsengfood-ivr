@@ -3,8 +3,10 @@ using Ivr.Domain.Errors;
 using Ivr.Domain.Ports;
 using Ivr.Infrastructure.Configuration;
 using Ivr.Infrastructure.FeatureFlags;
+using Ivr.Infrastructure.Observability;
 using Ivr.Infrastructure.Scheduling;
 using Ivr.Infrastructure.Speech;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
 namespace Ivr.Infrastructure.Telephony;
@@ -12,8 +14,12 @@ namespace Ivr.Infrastructure.Telephony;
 /// <summary>
 /// Dispatch orchestration for the isolated Asterisk softphone lab. The runtime
 /// DispatchGate is evaluated before the first ARI operation.
+/// <para>
+/// W-0359 / K-31. The logger is optional for the reason <c>FeatureFlagPlatform</c>'s is: tests
+/// construct this gateway by hand, and the container supplies one in every real host.
+/// </para>
 /// </summary>
-public sealed class AsteriskSchedulerDispatchGateway(
+public sealed partial class AsteriskSchedulerDispatchGateway(
     ITelephonyDispatchStore store,
     IDialTokenResolver dialTokenResolver,
     ISpeechRenderer speechRenderer,
@@ -23,8 +29,21 @@ public sealed class AsteriskSchedulerDispatchGateway(
     IOptions<AsteriskAriOptions> ariOptions,
     IOptions<IvrOptions> ivrOptions,
     SchedulerExecutionContext executionContext,
-    TimeProvider timeProvider) : ISchedulerDispatchGateway
+    TimeProvider timeProvider,
+    ILogger<AsteriskSchedulerDispatchGateway>? logger = null) : ISchedulerDispatchGateway
 {
+    /// <summary>
+    /// The reason code a hangup that failed, and was swallowed, is counted under on
+    /// <c>ivr_fail_closed_total</c> (W-0359 / K-31).
+    /// <para>
+    /// The existing fail-closed counter rather than a new meter, for the reason
+    /// <c>FeatureFlagPlatform</c> gives: only <c>IvrTelemetry.ServiceName</c> is exported, so a
+    /// private meter would count something nothing reads. The same code the ARI adapter raises for
+    /// a refused hangup, so the counter and the adapter's own error name one fault one way.
+    /// </para>
+    /// </summary>
+    public const string HangupFailedReason = "ASTERISK_HANGUP_FAILED";
+
     public bool IsReady
     {
         get
@@ -207,6 +226,16 @@ public sealed class AsteriskSchedulerDispatchGateway(
                     // technical error code rather than being flattened away.
                     DialTokenRefusedException refused =>
                         (SimProviderDisposition.NetworkError, refused.RefusalCode, true),
+                    // W-0359 / K-29. The approved script refused this order: no version approved
+                    // for the mode, a placeholder it cannot fill, past the length bound, or the
+                    // full-text privacy guard. It is an InvalidOperationException, so without an
+                    // arm of its own ahead of the generic one it was recorded as a policy-or-token
+                    // rejection, and whoever was on call went looking for a dial-token fault. Same
+                    // disposition and channel health as that arm; only the code is its own.
+                    SpeechRenderPolicyRejectedException =>
+                        (SimProviderDisposition.NetworkError,
+                            SpeechRenderPolicyRejectedException.TechnicalCode,
+                            true),
                     InvalidOperationException =>
                         (SimProviderDisposition.NetworkError, "ASTERISK_POLICY_OR_TOKEN_REJECTED", true),
                     _ =>
@@ -299,9 +328,26 @@ public sealed class AsteriskSchedulerDispatchGateway(
         {
             await simGateway.HangupAsync(session, cancellationToken);
         }
-        catch (Exception)
+        catch (Exception exception)
         {
             // The fenced persistence path still holds or quarantines the channel.
+            //
+            // W-0359 / K-31. Still swallowed: the dispatch ends in a failure either way, and that
+            // failure is the one the attempt records. But no longer silently - a hangup that did
+            // not happen can leave the call up in Asterisk, and until now nothing said so.
+            IvrTelemetry.RecordFailClosed((TelemetryTags.ReasonCode, HangupFailedReason));
+
+            // The exception type, not the exception: an ARI failure message can carry the
+            // provider's own text, and that has no business in a log line.
+            if (logger is not null)
+            {
+                LogHangupFailed(
+                    logger,
+                    session.AttemptId.Value,
+                    session.SimChannelId,
+                    HangupFailedReason,
+                    exception.GetType().Name);
+            }
         }
     }
 
@@ -317,4 +363,20 @@ public sealed class AsteriskSchedulerDispatchGateway(
 
         return string.Concat("ASTERISK_GATE_", normalized);
     }
+
+    // W-0359 / K-31. ReasonCode repeats HangupFailedReason so the line can be found by the code the
+    // counter carries: PiiSafeLogRecordProcessor exports only allowlisted attributes, and
+    // ReasonCode and AttemptId are on that list.
+    [LoggerMessage(
+        EventId = 2420,
+        Level = LogLevel.Warning,
+        Message = "ARI hangup of attempt {AttemptId} on SIM channel {SimChannelId} failed and was "
+            + "swallowed; the attempt is still recorded, but the call may still be up in "
+            + "Asterisk. ReasonCode={ReasonCode} ExceptionType={ExceptionType}")]
+    private static partial void LogHangupFailed(
+        ILogger logger,
+        string attemptId,
+        string simChannelId,
+        string reasonCode,
+        string exceptionType);
 }

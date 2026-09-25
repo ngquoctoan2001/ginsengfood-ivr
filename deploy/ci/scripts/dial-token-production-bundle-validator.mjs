@@ -37,7 +37,7 @@ const SOURCE_PINS = Object.freeze({
   resolver_port_path: "src/Ivr.Domain/Ports/ProviderPorts.cs",
   resolver_port_sha256: "4e970eaf8385a36a653901d598dba53f2efb6511058d4c2951f8ff8eeae6dca8",
   intake_service_path: "src/Ivr.Infrastructure/Intake/TaskIntakeService.cs",
-  intake_service_sha256: "0c3008c4bb83d7c565b198a205175d987ea4f189dd8120b6746a6b052fbb5b6b",
+  intake_service_sha256: "bb0662e3a994d3ed8b9c343207fdb264fd291434c7b9fa684c1d7d76a1a5f7d9",
   requirement_scope: "B5-C12-DTK.2026-09-04",
 });
 

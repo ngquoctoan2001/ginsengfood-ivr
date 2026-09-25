@@ -69,15 +69,44 @@ public sealed class SpeechRenderRejectionTests
     [Trait("TestId", "UT-RENDER-DATA-03")]
     public async Task AScriptThatIsNotApprovedIsStillAPolicyRefusal()
     {
-        // Only the renderer's data refusals change arm. An unapproved script keeps surfacing as
-        // InvalidOperationException, which the gateways report as a policy rejection.
+        // Only the renderer's data refusals change arm. An unapproved script stays a policy
+        // refusal - an InvalidOperationException, which the gateways report with the channel
+        // healthy - but since W-0359 / K-29 it is named as a render refusal, so it is no longer
+        // recorded as "policy or token rejected".
         using InMemoryScriptRegistry scripts = CreateScripts();
-        await Assert.ThrowsAsync<InvalidOperationException>(() => CreateRenderer(scripts).RenderAsync(
-            Summary(210_637m),
-            "SCRIPT-ORDER-CONFIRM",
-            "v-never-approved",
-            ExecutionMode.Mock,
-            CancellationToken.None).AsTask());
+        SpeechRenderPolicyRejectedException rejected =
+            await Assert.ThrowsAsync<SpeechRenderPolicyRejectedException>(() => CreateRenderer(scripts).RenderAsync(
+                Summary(210_637m),
+                "SCRIPT-ORDER-CONFIRM",
+                "v-never-approved",
+                ExecutionMode.Mock,
+                CancellationToken.None).AsTask());
+
+        Assert.Equal("SPEECH_RENDER_POLICY_REJECTED", SpeechRenderPolicyRejectedException.TechnicalCode);
+        Assert.IsAssignableFrom<InvalidOperationException>(rejected);
+        Assert.IsNotAssignableFrom<TtsSynthesisException>(rejected);
+        Assert.IsType<InvalidOperationException>(rejected.InnerException);
+    }
+
+    [Fact]
+    [Trait("TestId", "UT-RENDER-DATA-04")]
+    public async Task AScriptThePrivacyGuardRefusesIsARenderRefusalNotATokenOne()
+    {
+        // W-0359 / K-29. "Đường phèn" passes the product-name guard at intake (W-0243) and is
+        // refused by the full-text guard on the finished script (Q-12, still open). That refusal,
+        // like a placeholder the renderer cannot fill or a script past the length bound, used to
+        // escape as a bare InvalidOperationException and be recorded as a dial-token rejection.
+        using InMemoryScriptRegistry scripts = CreateScripts();
+        SpeechRenderPolicyRejectedException rejected =
+            await Assert.ThrowsAsync<SpeechRenderPolicyRejectedException>(() => CreateRenderer(scripts).RenderAsync(
+                Summary(210_637m, "Đường phèn"),
+                "SCRIPT-ORDER-CONFIRM",
+                TargetV1SpeechPolicy.MockTemplateVersion,
+                ExecutionMode.Mock,
+                CancellationToken.None).AsTask());
+
+        Assert.IsType<InvalidOperationException>(rejected.InnerException);
+        Assert.Equal("SPEECH_RENDER_POLICY_REJECTED", SpeechRenderPolicyRejectedException.TechnicalCode);
     }
 
     private static InMemoryScriptRegistry CreateScripts()
@@ -102,11 +131,11 @@ public sealed class SpeechRenderRejectionTests
             new RegionalVoiceMap(tts));
     }
 
-    private static PrivacySafeOrderSummary Summary(decimal amount) =>
+    private static PrivacySafeOrderSummary Summary(decimal amount, string productName = "Cháo sâm") =>
         PrivacySafeOrderSummary.Create(
             "Quý khách",
             "DH-B16",
-            [SpeechItem.Create("Cháo sâm", 2, "hộp")],
+            [SpeechItem.Create(productName, 2, "hộp")],
             Money.Vnd(amount),
             ShortDeliveryArea.Create("Quận 7"),
             "Giờ Vàng",

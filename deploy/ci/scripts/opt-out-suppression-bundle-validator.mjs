@@ -57,7 +57,7 @@ const SOURCE_PINS = Object.freeze([
   ],
   [
     "src/Ivr.Infrastructure/Intake/TaskIntakeService.cs",
-    "0c3008c4bb83d7c565b198a205175d987ea4f189dd8120b6746a6b052fbb5b6b",
+    "bb0662e3a994d3ed8b9c343207fdb264fd291434c7b9fa684c1d7d76a1a5f7d9",
   ],
 ]);
 

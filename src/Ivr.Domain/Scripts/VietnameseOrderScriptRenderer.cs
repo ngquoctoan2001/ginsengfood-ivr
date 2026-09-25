@@ -301,6 +301,12 @@ public sealed class VietnameseOrderScriptRenderer : IScriptPreviewRenderer
     }
 
     /// <summary>
+    /// The digit form of a quantity with every significant digit it holds. A decimal carries at
+    /// most 28 places, so 28 optional ones can never round, and <c>#</c> adds no trailing zero.
+    /// </summary>
+    private static readonly string ExactQuantityFormat = string.Concat("0.", new string('#', 28));
+
+    /// <summary>
     /// Quantities are spoken, fractional ones included: "hai hộp", "hai phẩy năm ký".
     /// <para>
     /// Fractions used to keep the digit form <c>"2,5"</c> on the reasoning that engines read it
@@ -309,28 +315,40 @@ public sealed class VietnameseOrderScriptRenderer : IScriptPreviewRenderer
     /// đồng". Spelling the words out leaves VieNeu nothing to guess.
     /// </para>
     /// <para>
-    /// The digit fallback survives only for quantities outside the speller's range, where a
-    /// wrong reading is better than a failed call — and a quantity that large is a data problem
-    /// the call itself cannot fix.
+    /// The digit form survives only as the fallback for a quantity the speller refuses: outside
+    /// its range, or more decimal places than
+    /// <see cref="VietnameseNumberSpeller.MaximumQuantityDecimals"/>. A quantity like that is a
+    /// data problem the call itself cannot fix, and digits are still better than a failed call.
+    /// </para>
+    /// <para>
+    /// That fallback is exact: every significant digit, nothing rounded and no trailing zero
+    /// added. It used to format with <c>"0.##"</c>, on the reasoning that a short wrong number
+    /// would at least show in the call log. The customer hears it first, though, and is asked to
+    /// approve it: 0,0005 was read as "0" and 2,99999 as "3". W-0359 / K-26.
     /// </para>
     /// </summary>
     private static string FormatQuantity(decimal quantity, VietnameseNumberStyle numberStyle)
     {
         if (quantity < 0m || quantity > VietnameseNumberSpeller.MaximumAmount)
         {
-            return quantity.ToString("0.##", VietnameseNumbers);
+            return quantity.ToString(ExactQuantityFormat, VietnameseNumbers);
         }
 
         try
         {
             return VietnameseNumberSpeller.SpellQuantity(quantity, numberStyle);
         }
-        catch (ArgumentOutOfRangeException)
+        catch (Exception exception) when (
+            exception is ArgumentException
+                or ArithmeticException
+                or IndexOutOfRangeException
+                or FormatException)
         {
-            // More decimal places than a spoken quantity carries. Reading it digit by digit
-            // would be a sentence long; the digit form at least stays short and wrong in a way
-            // the operator can see in the call log.
-            return quantity.ToString("0.##", VietnameseNumbers);
+            // Every exception the speller can raise for a value, not only the out-of-range one.
+            // Whatever escapes here escapes the renderer, and the dispatch gateways read an
+            // exception they do not recognise as a channel fault: that is how an
+            // IndexOutOfRangeException from one mistyped quantity quarantined a SIM (B16).
+            return quantity.ToString(ExactQuantityFormat, VietnameseNumbers);
         }
     }
 }

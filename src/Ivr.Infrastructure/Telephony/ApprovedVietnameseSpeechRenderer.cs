@@ -25,8 +25,10 @@ public sealed class ApprovedVietnameseSpeechRenderer(
             cancellationToken);
         if (approved is null)
         {
-            throw new InvalidOperationException(
-                "The requested script version is not approved for the execution mode.");
+            // W-0359 / K-29. Named as a render refusal, not left as the bare
+            // InvalidOperationException the gateways record as a policy-or-token rejection.
+            throw new SpeechRenderPolicyRejectedException(new InvalidOperationException(
+                "The requested script version is not approved for the execution mode."));
         }
 
         // The renderer resolves the region itself, so only the FALLBACK has to be shared: if the
@@ -49,6 +51,13 @@ public sealed class ApprovedVietnameseSpeechRenderer(
             // dial it; SpeechRenderRejectedException keeps the SIM out of quarantine.
             throw new SpeechRenderRejectedException(exception);
         }
+        catch (InvalidOperationException exception)
+        {
+            // W-0359 / K-29. The script refused the order: a placeholder the renderer cannot
+            // fill, a script past the length bound, the full-text privacy guard.
+            throw new SpeechRenderPolicyRejectedException(exception);
+        }
+
         int collapsed = Math.Max(
             0,
             summary.Items.Length - renderOptions.MaximumSpokenItems);

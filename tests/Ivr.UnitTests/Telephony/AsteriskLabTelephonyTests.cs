@@ -78,6 +78,111 @@ public sealed class AsteriskLabTelephonyTests
     }
 
     /// <summary>
+    /// W-0359 / K-30 (B16) and K-29. The lab and production dial path records a render refusal as
+    /// the order's fault, the way the MOCK path does (<c>IT-TEL-RENDER-DATA-09</c>), and records
+    /// which kind of refusal it was.
+    /// <para>
+    /// The order's data refused by the speller is an audio-class failure with the channel healthy,
+    /// through the arm every <c>TtsSynthesisException</c> takes. The approved script refusing the
+    /// order stays a network-class refusal with the channel healthy - what the generic
+    /// <c>InvalidOperationException</c> arm already did - but under its own code, so nobody on call
+    /// goes looking for a dial-token fault that is not there. Neither reaches ARI: the render comes
+    /// before the first ARI operation, so no call was placed and there is nothing to hang up.
+    /// </para>
+    /// </summary>
+    [Fact]
+    [Trait("TestId", "UT-AST-RENDER-DATA-10")]
+    public async Task ARenderRefusalIsRecordedAsTheOrdersFaultUnderItsOwnCode()
+    {
+        var dataStore = new RecordingDispatchStore(DispatchContext());
+        var dataSim = new CountingSimGateway();
+        await Assert.ThrowsAsync<SpeechRenderRejectedException>(() => OpenGateway(
+                dataStore,
+                new RefusingSpeechRenderer(new SpeechRenderRejectedException(
+                    new ArgumentException("The total amount is past the speller's range."))),
+                dataSim)
+            .DispatchAsync(Lease(), CancellationToken.None));
+
+        RecordedDispatchFailure data = Assert.Single(dataStore.Failures);
+        Assert.Equal(SimProviderDisposition.AudioError, data.Disposition);
+        Assert.Equal("SPEECH_RENDER_DATA_REJECTED", data.TechnicalErrorCode);
+        Assert.True(data.ChannelHealthy);
+        Assert.Null(data.Session);
+        Assert.Equal(0, dataSim.Calls);
+
+        var policyStore = new RecordingDispatchStore(DispatchContext());
+        var policySim = new CountingSimGateway();
+        await Assert.ThrowsAsync<SpeechRenderPolicyRejectedException>(() => OpenGateway(
+                policyStore,
+                new RefusingSpeechRenderer(new SpeechRenderPolicyRejectedException(
+                    new InvalidOperationException("The finished script failed the privacy guard."))),
+                policySim)
+            .DispatchAsync(Lease(), CancellationToken.None));
+
+        RecordedDispatchFailure policy = Assert.Single(policyStore.Failures);
+        Assert.Equal(SimProviderDisposition.NetworkError, policy.Disposition);
+        Assert.Equal("SPEECH_RENDER_POLICY_REJECTED", policy.TechnicalErrorCode);
+        Assert.True(policy.ChannelHealthy);
+        Assert.Null(policy.Session);
+        Assert.Equal(0, policySim.Calls);
+    }
+
+    /// <summary>
+    /// W-0359 / K-31. An ARI hangup that fails is still swallowed - the dispatch ends in a failure
+    /// either way, and that failure is what the attempt records - but no longer silently: a hangup
+    /// that did not happen can leave the call up in Asterisk.
+    /// <para>
+    /// The same failing call is dispatched twice, once with a hangup that works and once with one
+    /// that throws, and the two runs are compared. The attempt must be recorded identically, so the
+    /// warning and the fail-closed count are the only difference the failed hangup makes. The
+    /// warning names the exception's type and never its message, which is where the provider's own
+    /// text would ride out.
+    /// </para>
+    /// </summary>
+    [Fact]
+    [Trait("TestId", "UT-AST-HANGUP-01")]
+    public async Task AFailedAriHangupIsCountedAndLoggedWithoutChangingWhatTheAttemptRecords()
+    {
+        HangupScenarioRun baseline = await DispatchWithAriHangupAsync(hangupFailure: null);
+        HangupScenarioRun failing = await DispatchWithAriHangupAsync(new HttpRequestException(
+            "provider-detail: ARI answered 500 to DELETE /ari/channels/ari-channel-lab-hangup"));
+
+        // The outcome is recorded exactly as it is when the hangup works.
+        RecordedDispatchFailure expected = Assert.Single(baseline.Failures);
+        RecordedDispatchFailure actual = Assert.Single(failing.Failures);
+        Assert.Equal(SimProviderDisposition.AudioError, actual.Disposition);
+        Assert.Equal("ASTERISK_PLAYBACK_FAILED", actual.TechnicalErrorCode);
+        Assert.True(actual.ChannelHealthy);
+        Assert.Equal(expected.Disposition, actual.Disposition);
+        Assert.Equal(expected.TechnicalErrorCode, actual.TechnicalErrorCode);
+        Assert.Equal(expected.ChannelHealthy, actual.ChannelHealthy);
+        Assert.Equal(expected.Cooldown, actual.Cooldown);
+        Assert.NotNull(actual.Session);
+        Assert.Equal(expected.Session, actual.Session);
+
+        // In both runs the call was up when the playback failed, and the gateway tried once to end
+        // it: the failed hangup is not retried, and it is not skipped either.
+        Assert.Equal(1, baseline.ActivatedCalls);
+        Assert.Equal(1, failing.ActivatedCalls);
+        Assert.Equal(1, baseline.HangupCalls);
+        Assert.Equal(1, failing.HangupCalls);
+
+        // A hangup that works says nothing...
+        Assert.Empty(baseline.Warnings);
+        Assert.Empty(baseline.FailClosed);
+
+        // ...and one that fails says so once, by type, and is counted once. The reason code is
+        // spelled out rather than read from the gateway: it is the value dashboards and alerts key
+        // on, so renaming it has to fail here first.
+        string warning = Assert.Single(failing.Warnings);
+        Assert.Contains(nameof(HttpRequestException), warning, StringComparison.Ordinal);
+        Assert.Contains("ATTEMPT-LAB-1", warning, StringComparison.Ordinal);
+        Assert.Contains("ASTERISK_HANGUP_FAILED", warning, StringComparison.Ordinal);
+        Assert.DoesNotContain("provider-detail", warning, StringComparison.Ordinal);
+        Assert.Equal(1L, Assert.Single(failing.FailClosed));
+    }
+
+    /// <summary>
     /// The lab speaks through the VieNeu sidecar and nothing else: the profile resolves the
     /// loopback client, and its settings pass the same validator production uses.
     /// </summary>
@@ -477,6 +582,181 @@ public sealed class AsteriskLabTelephonyTests
         {
             FailureCode = technicalErrorCode;
             return Task.CompletedTask;
+        }
+    }
+
+    // ------------------------------------------------------------------------------- W-0359
+
+    private static TelephonyDispatchContext DispatchContext() => new(
+        TaskId.Create("TASK-LAB-1"),
+        DialTokenReference.Create("enc:lab-sha256:SAFE", Now.AddMinutes(5)),
+        TestData.Summary(),
+        "SCRIPT-ORDER-CONFIRM",
+        "v1-test-approved",
+        3);
+
+    /// <summary>
+    /// The lab gateway with every gate open: the configuration <c>UT-AST-GATE-02</c> builds, plus a
+    /// dispatch gate that allows, so a scenario reaches the step it is about.
+    /// </summary>
+    private static AsteriskSchedulerDispatchGateway OpenGateway(
+        RecordingDispatchStore store,
+        ISpeechRenderer renderer,
+        ISimGateway sim,
+        WarningCapturingLogger<AsteriskSchedulerDispatchGateway>? logger = null) => new(
+            store,
+            new FixedResolver(),
+            renderer,
+            new PassThroughSpeechSynthesisService(),
+            sim,
+            new AllowingDispatchGate(),
+            Microsoft.Extensions.Options.Options.Create(Options()),
+            Microsoft.Extensions.Options.Options.Create(new IvrOptions
+            {
+                ExecutionMode = IvrOptions.LabRealSimExecutionMode,
+                SalesProvider = "FAKE_TARGET_V1",
+                SimProvider = "VENDOR",
+                RealCustomerCallAllowed = false,
+            }),
+            new SchedulerExecutionContext(IvrOptions.LabRealSimExecutionMode),
+            new FixedTimeProvider(),
+            logger);
+
+    /// <summary>
+    /// One lab dispatch that connects, fails at playback and then hangs up - or fails to, when
+    /// <paramref name="hangupFailure"/> is given.
+    /// </summary>
+    private static async Task<HangupScenarioRun> DispatchWithAriHangupAsync(Exception? hangupFailure)
+    {
+        var store = new RecordingDispatchStore(DispatchContext());
+        var sim = new ScriptedAriSimGateway(hangupFailure);
+        var logger = new WarningCapturingLogger<AsteriskSchedulerDispatchGateway>();
+        AsteriskSchedulerDispatchGateway gateway = OpenGateway(
+            store,
+            new FixedSpeechRenderer(),
+            sim,
+            logger);
+        var failClosed = new List<long>();
+        using (FailClosedMeasurements.Listen("ASTERISK_HANGUP_FAILED", failClosed))
+        {
+            AsteriskAriOperationException playback =
+                await Assert.ThrowsAsync<AsteriskAriOperationException>(
+                    () => gateway.DispatchAsync(Lease(), CancellationToken.None));
+            Assert.Equal("ASTERISK_PLAYBACK_FAILED", playback.TechnicalErrorCode);
+        }
+
+        return new HangupScenarioRun(
+            store.Failures,
+            logger.Warnings,
+            failClosed,
+            sim.HangupCalls,
+            store.ActivatedCalls);
+    }
+
+    private sealed class AllowingDispatchGate : IDispatchGate
+    {
+        public Task<DispatchGateDecision> EvaluateAsync(
+            string environment,
+            string destinationReference,
+            CancellationToken cancellationToken = default) =>
+            Task.FromResult(new DispatchGateDecision(true, "LAB_DESTINATION_APPROVED"));
+    }
+
+    /// <summary>Refuses every order with the exception it was given, as the approved renderer does.</summary>
+    private sealed class RefusingSpeechRenderer(Exception refusal) : ISpeechRenderer
+    {
+        public ValueTask<RenderedSpeech> RenderAsync(
+            PrivacySafeOrderSummary summary,
+            string scriptTemplateId,
+            string scriptVersion,
+            ExecutionMode executionMode,
+            CancellationToken cancellationToken) =>
+            throw refusal;
+    }
+
+    /// <summary>Renders every order to the same short script, so a scenario gets past speech.</summary>
+    private sealed class FixedSpeechRenderer : ISpeechRenderer
+    {
+        public ValueTask<RenderedSpeech> RenderAsync(
+            PrivacySafeOrderSummary summary,
+            string scriptTemplateId,
+            string scriptVersion,
+            ExecutionMode executionMode,
+            CancellationToken cancellationToken) =>
+            ValueTask.FromResult(new RenderedSpeech(
+                "SCRIPT-ORDER-CONFIRM:v1-test-approved",
+                "Xin chào Quý khách.",
+                "sha256-lab-hangup-test",
+                "vi-VN",
+                TimeSpan.FromSeconds(2),
+                0,
+                "FAKE_TEXT_ONLY"));
+    }
+
+    /// <summary>
+    /// An ARI line that is healthy, connects and refuses the playback - and then, when given an
+    /// exception, refuses the hangup too. Nothing past the playback is meant to be reached.
+    /// </summary>
+    private sealed class ScriptedAriSimGateway(Exception? hangupFailure) : ISimGateway
+    {
+        public int HangupCalls { get; private set; }
+
+        public ValueTask<SimGatewayHealth> CheckHealthAsync(
+            string simChannelId,
+            CancellationToken cancellationToken) =>
+            ValueTask.FromResult(new SimGatewayHealth(
+                simChannelId,
+                SimChannelHealthState.Healthy,
+                Now,
+                null,
+                true));
+
+        public ValueTask<SimCallSession> DialAsync(
+            SimDialRequest request,
+            CancellationToken cancellationToken)
+        {
+            ArgumentNullException.ThrowIfNull(request);
+            return ValueTask.FromResult(new SimCallSession(
+                request.AttemptId,
+                request.SimChannelId,
+                "ari-channel-lab-hangup",
+                request.FencingGeneration,
+                Now,
+                true));
+        }
+
+        public ValueTask PlayAsync(
+            SimCallSession session,
+            RenderedSpeech speech,
+            CancellationToken cancellationToken) =>
+            throw new AsteriskAriOperationException(
+                SimProviderDisposition.AudioError,
+                "ASTERISK_PLAYBACK_FAILED",
+                true,
+                "ARI refused the playback.");
+
+        public ValueTask<SimDtmfCapture> CaptureDtmfAsync(
+            SimCallSession session,
+            TimeSpan timeout,
+            CancellationToken cancellationToken) =>
+            throw new InvalidOperationException("A refused playback never reaches DTMF capture.");
+
+        public ValueTask<SimDispositionReport> GetDispositionAsync(
+            SimCallSession session,
+            CancellationToken cancellationToken) =>
+            throw new InvalidOperationException("A refused playback never reaches a disposition.");
+
+        public ValueTask HangupAsync(
+            SimCallSession session,
+            CancellationToken cancellationToken)
+        {
+            HangupCalls++;
+            if (hangupFailure is not null)
+            {
+                throw hangupFailure;
+            }
+
+            return ValueTask.CompletedTask;
         }
     }
 }

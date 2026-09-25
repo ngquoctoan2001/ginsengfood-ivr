@@ -35,7 +35,7 @@ W-0129 khóa theo runtime hiện hành, không suy từ prefix của decision:
 | --- | --- | --- | --- |
 | `IVR_UNAUTHENTICATED` | 401 | Thiếu/invalid auth | — |
 | `IVR_FORBIDDEN_CALLER` | 403 | Không thuộc allowlist / thiếu permission (DF-06/DF-01) | — |
-| `IVR_MALFORMED_REQUEST` | 400 | Sai cú pháp/format | — |
+| `IVR_MALFORMED_REQUEST` | 400 | Sai cú pháp/format. Ở route intake, `details.field` nêu đường dẫn của field sai, không kèm giá trị (§5; *thêm `25/09`, `W-0359`*) | — |
 | `IVR_MISSING_TRACE` | 422 | Thiếu `idempotency_key`/`correlation_id` | `TASK_REJECTED_INVALID_TRACE` |
 | `IVR_IDEMPOTENCY_CONFLICT` | 409 | Same key, khác payload | — |
 | `IVR_VERSION_CONFLICT` | 409 | target IR-SALES-TASK-02: `order_version` stale/mismatch | (callback target → `REJECTED_STALE`) |
@@ -78,6 +78,7 @@ Các mã dưới đây chi tiết hóa `TaskIntakeOutcome.BlockedReasons` ở se
 | Giờ gọi | `T0` (`confirmation_window_started_at`) nằm ngoài giờ gọi `08:00–21:08` (giờ VN) — *từ `25/09` (`B17`); trước đó (`W-0298`, `16/09`): không attempt nào của `attempt_policy` rơi vào giờ gọi, trên toàn bộ confirmation window* | `TASK_BLOCKED_OPERATIONAL` | `CALLING_WINDOW_CLOSED_FOR_WHOLE_CONFIRMATION_WINDOW` (giữ tên dù điều kiện đổi) | `200` kèm `decision` và `blocked_reasons` — M3 **đọc được** reason này. Task **không** được lưu. **Không** retry trong cùng cửa sổ: kết quả không đổi. M3 giữ đơn `TWENTY_FOUR_SEVEN` (COD), rồi gửi lại từ `08:00` với cửa sổ mới và `Idempotency-Key` mới; được dùng lại `task_id` (`IR-07`, đính chính `25/09`). *Thêm `25/09`, `W-0354`; sửa `25/09` (`B17`): điều kiện theo `T0`, và "gửi task mới" thành "gửi lại, được dùng lại `task_id`"* |
 | Bảo vệ token | task gửi `dial_token` **không** kèm `phone_e164`, trên deployment ngoài MOCK chưa có bộ mã hoá dial token — production hiện chưa có (`UnavailableOpaqueValueProtector`); MOCK và lab bật Asterisk thì có. Hôm nay `IvrOptionsValidator` ép `REAL_CUSTOMER_CALL_ALLOWED=NO`, nên ở production task dừng sớm hơn, ở `TASK_HELD_ADMIN_REVIEW` (`REAL_CUSTOMER_CALL_ALLOWED_NO`) | `TASK_BLOCKED_OPERATIONAL` | `DIAL_TOKEN_PROTECTION_UNAVAILABLE` | `200` kèm `decision` và `blocked_reasons`. Task **không** được lưu. **Không** retry được với cùng payload: kết quả không đổi tới khi deployment có bộ mã hoá. Task kèm `phone_e164` không gặp ca này (`IR-06` §3.4.0). *Thêm `25/09`* |
 | Số tiền | `privacy_safe_order_summary.total_amount` có phần lẻ, ví dụ `210636.8` | *(không có — schema chặn trước service)* | *(không có)* | `400 IVR_MALFORMED_REQUEST` (từ `1.0.0-draft.33`, `W-0354`: `multipleOf: 1`). Trước đó intake nhận rồi hỏng lúc quay số. *Thêm `25/09`* |
+| Privacy | tóm tắt đơn hoặc metadata IVR lưu xuống không qua guard privacy (ví dụ số điện thoại đọc thành lời, địa chỉ đầy đủ ở `delivery_area_short`). Từ `W-0359` gồm cả bản JSON của `privacy_safe_order_summary` mà IVR lưu: tên hàng **không dấu** có `duong`/`thon`/`ap` rồi khoảng trắng, ví dụ `Duong phen` (đường phèn), qua được guard tên hàng (`W-0243`) nhưng khớp guard toàn văn. Bản có dấu `Đường phèn` không vướng, vì JSON escape mọi chữ ngoài ASCII | `TASK_HELD_ADMIN_REVIEW` | `PRIVACY_SAFE_SPEECH_REJECTED` | `422 IVR_PII_POLICY_VIOLATION`. Trước `W-0359`, ở MOCK (sandbox M3 đang gọi) và lab, ca tên hàng không dấu lọt qua kiểm tra rồi ném lỗi ở bước dựng bản ghi → **`500`**, và M3 retry mãi một body không bao giờ được nhận; ở production task dừng trước bước đó, ở `200 TASK_HELD_ADMIN_REVIEW` (`REAL_CUSTOMER_CALL_ALLOWED_NO`), nay cũng là `422`. Retry với cùng payload không có ích. Có nên nhận các tên này hay không là `Q-12`, chưa chốt: `W-0359` đổi cách từ chối, không đổi guard. *Thêm `25/09`* |
 
 Compatibility:
 
@@ -93,11 +94,12 @@ Compatibility:
   `draft.28`, khi `W-0302` thêm `DIAL_TOKEN_EXPIRES_AFTER_WINDOW`)*; chỉ riêng trigger này là wire
   không tới được nữa. Cùng khuôn với `ivr_confirmation_required` (`enum: [true]`) đã chọn trước đó —
   hai dòng Policy ở bảng trên ghi đúng kiểu chặn này.
-- M3 **chưa nhìn thấy** mười mã chi tiết ở bảng trên qua public intake route theo mapping hiện hành. Muốn đưa
+- M3 **chưa nhìn thấy** mười một mã chi tiết ở bảng trên qua public intake route theo mapping hiện hành. Muốn đưa
   safe reason vào error envelope hoặc đổi reject thành `200 decision` là thay đổi contract riêng,
-  cần owner/M3 ký; W-0129 không tự mở rộng quyền đó. *Sửa `25/09`: "mười mã" là hai dòng Policy và
-  tám dòng Contact. Hai dòng `TASK_BLOCKED_OPERATIONAL` (giờ gọi, bảo vệ token) thì M3 **đọc được** qua
-  `blocked_reasons` của body `200`; dòng số tiền không có reason service.*
+  cần owner/M3 ký; W-0129 không tự mở rộng quyền đó. *Sửa `25/09`: mười một mã là hai dòng Policy,
+  tám dòng Contact và dòng Privacy (dòng Privacy thêm ở `W-0359`; trước đó ghi "mười mã"). Hai dòng `TASK_BLOCKED_OPERATIONAL` (giờ gọi, bảo vệ token) thì M3 **đọc được** qua
+  `blocked_reasons` của body `200`; dòng số tiền không có reason service. `details.field` của `400` (§5)
+  là đường dẫn field, không phải reason.*
 
 ## 2b. Eligibility advisory codes cũ
 
@@ -116,6 +118,14 @@ emit nhóm advisory này. `risk_flags` chỉ còn dùng cho audit/scheduler prio
 - P2-8 bật `ThrowOnBadRequest` cho minimal API để JSON body malformed/thiếu required body được middleware đổi thành typed `400 IVR_MALFORMED_REQUEST`, không trả body rỗng mặc định của framework.
 - Mọi lỗi kỹ thuật cuộc gọi → `IVR_TECHNICAL_EXCEPTION`, **không** thành no-answer (DT-02; P0-IVR-004).
 - Error envelope thống nhất `{error:{code,message,details,correlationId}}` (đồng bộ ops — DO-06).
+- **`details.field` ở `400 IVR_MALFORMED_REQUEST` của intake** (*thêm `25/09`, `W-0359`*). Là **đường dẫn**
+  JSON của field sai, không bao giờ kèm giá trị: ví dụ `contract_version`, `attempt_offsets_seconds[1]`,
+  `privacy_safe_order_summary.items[1].quantity`. Thiếu field bắt buộc → đường dẫn object cha + tên field
+  thiếu (lấy từ danh sách required của IVR). Field lạ hoặc trùng → chỉ đường dẫn object **cha** (`$` là
+  chính object task), không nêu tên field lạ vì tên đó do producer đặt; key do producer đặt (ví dụ key của
+  `pronunciation_hints`) cũng không bao giờ bị nêu. Body quá lớn, rỗng hoặc không phải JSON → không có
+  `details.field`. `message`, HTTP status và `code` giữ nguyên; `details` vốn khai là map
+  `string → string`, nên contract không đổi. M3 dùng nó để log và sửa producer, không rẽ nhánh theo nó.
 
 ## Báo cáo (error)
 - HTTP mapping (8) + **response model rõ (200-decision vs 4xx-envelope)** + **danh mục 16 `code` ổn định** (§1c); intake taxonomy 12 (5 → 200 body, 7 → 4xx); result taxonomy 11; consume 8 mã ops-core (fail-closed). *Sửa `25/09`: bản trước ghi 18 — con số trước `W-0128`, lượt xoá `IVR_ACCOUNT_CONFLICT` và `IVR_ACCOUNT_POLICY_VIOLATION`. §1c, enum `ErrorCode` của OpenAPI và `IvrErrorCodes.cs` cùng có 16 mã, và `CT-CI-10` ghim đúng 16.*

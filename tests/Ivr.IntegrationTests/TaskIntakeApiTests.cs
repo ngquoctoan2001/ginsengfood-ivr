@@ -269,6 +269,150 @@ public sealed class TaskIntakeApiTests
     }
 
     /// <summary>
+    /// W-0359 / K-28. A schema refusal used to carry an empty <c>details</c>, so a producer could
+    /// not tell which field to fix. A missing required field is now named in <c>details.field</c>
+    /// by its path: the parent's path and the missing name, which comes from IVR's own required
+    /// list, not from the body.
+    /// </summary>
+    [Theory]
+    [InlineData("root", "evidence_ref")]
+    [InlineData("summary", "privacy_safe_order_summary.locale")]
+    [InlineData("item", "privacy_safe_order_summary.items[0].quantity")]
+    [Trait("TestId", "IT-INTAKE-SCHEMA-04")]
+    public async Task AMissingRequiredFieldIsNamedInTheSchemaError(
+        string scenario,
+        string expectedField)
+    {
+        await using TaskIntakeApiTestApplication app =
+            await TaskIntakeApiTestApplication.StartAsync();
+        JsonObject body = CreateBody();
+        JsonObject summary = body["privacy_safe_order_summary"]!.AsObject();
+        bool removed = scenario switch
+        {
+            "root" => body.Remove("evidence_ref"),
+            "summary" => summary.Remove("locale"),
+            "item" => summary["items"]![0]!.AsObject().Remove("quantity"),
+            _ => throw new ArgumentOutOfRangeException(nameof(scenario)),
+        };
+        Assert.True(removed);
+
+        using HttpResponseMessage response = await SendAsync(app.Client, body);
+
+        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+        Assert.Equal(IvrErrorCodes.MalformedRequest, await ErrorCodeAsync(response));
+        Assert.Equal(expectedField, await ErrorFieldAsync(response));
+        Assert.Equal(0, app.Store.CallJobCount);
+        Assert.Empty(app.Audit.Entries);
+    }
+
+    /// <summary>
+    /// W-0359 / K-28. A bad value is named by its own path - inside a nested object, at an array
+    /// index, or on a field only the serializer checks, whose path it reports - and never by the
+    /// value. The payment case is one half of a two-field rule, reported against the field that
+    /// breaks it for the program sent.
+    /// </summary>
+    [Theory]
+    [InlineData("item-quantity", "privacy_safe_order_summary.items[1].quantity")]
+    [InlineData("attempt-offset", "attempt_offsets_seconds[1]")]
+    [InlineData("payment-for-program", "payment_method_snapshot")]
+    [InlineData("phone-status", "phone_validation_status")]
+    [Trait("TestId", "IT-INTAKE-SCHEMA-05")]
+    public async Task AnInvalidValueIsNamedByItsPathInTheSchemaError(
+        string scenario,
+        string expectedField)
+    {
+        await using TaskIntakeApiTestApplication app =
+            await TaskIntakeApiTestApplication.StartAsync();
+        JsonObject body = CreateBody();
+        switch (scenario)
+        {
+            case "item-quantity":
+                body["privacy_safe_order_summary"]!["items"]!.AsArray().Add(new JsonObject
+                {
+                    ["public_name"] = "Trà hồng sâm",
+                    ["quantity"] = 0,
+                    ["unit_label"] = "gói",
+                });
+                break;
+            case "attempt-offset":
+                body["attempt_offsets_seconds"] = new JsonArray(0, -150);
+                break;
+            case "payment-for-program":
+                body["payment_method_snapshot"] = "COD";
+                break;
+            case "phone-status":
+                // Not checked by hand: the serializer's enum binding refuses it.
+                body["phone_validation_status"] = "PHONE_VALID";
+                break;
+            default:
+                throw new ArgumentOutOfRangeException(nameof(scenario));
+        }
+
+        using HttpResponseMessage response = await SendAsync(app.Client, body);
+
+        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+        Assert.Equal(IvrErrorCodes.MalformedRequest, await ErrorCodeAsync(response));
+        Assert.Equal(expectedField, await ErrorFieldAsync(response));
+        Assert.Equal(0, app.Store.CallJobCount);
+        Assert.Empty(app.Audit.Entries);
+    }
+
+    /// <summary>
+    /// W-0359 / K-28. An unknown field is named by its parent's path, never by its own name: that
+    /// name is text the producer chose, and <c>details.field</c> carries only names IVR defines.
+    /// <c>$</c> is the task object itself. A dictionary key the producer chose - a pronunciation
+    /// hint's - is held to the same rule, so a bad value under one is refused with no field at all
+    /// rather than with the key in it.
+    /// </summary>
+    [Theory]
+    [InlineData("root", "$")]
+    [InlineData("summary", "privacy_safe_order_summary")]
+    [InlineData("item", "privacy_safe_order_summary.items[0]")]
+    [InlineData("hint-key", null)]
+    [Trait("TestId", "IT-INTAKE-SCHEMA-06")]
+    public async Task AnUnknownFieldIsNamedByItsParentAndNeverByItsOwnName(
+        string scenario,
+        string? expectedField)
+    {
+        // Lower case and underscores, so it would pass for a path step if anything built a path
+        // out of the body.
+        const string ProducerName = "nguyen_van_an";
+        await using TaskIntakeApiTestApplication app =
+            await TaskIntakeApiTestApplication.StartAsync();
+        JsonObject body = CreateBody();
+        JsonObject summary = body["privacy_safe_order_summary"]!.AsObject();
+        switch (scenario)
+        {
+            case "root":
+                body[ProducerName] = "x";
+                break;
+            case "summary":
+                summary[ProducerName] = "x";
+                break;
+            case "item":
+                summary["items"]![0]![ProducerName] = "x";
+                break;
+            case "hint-key":
+                summary["pronunciation_hints"] = new JsonObject { [ProducerName] = 5 };
+                break;
+            default:
+                throw new ArgumentOutOfRangeException(nameof(scenario));
+        }
+
+        using HttpResponseMessage response = await SendAsync(app.Client, body);
+
+        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+        Assert.Equal(IvrErrorCodes.MalformedRequest, await ErrorCodeAsync(response));
+        Assert.Equal(expectedField, await ErrorFieldAsync(response));
+        Assert.DoesNotContain(
+            ProducerName,
+            await response.Content.ReadAsStringAsync(),
+            StringComparison.Ordinal);
+        Assert.Equal(0, app.Store.CallJobCount);
+        Assert.Empty(app.Audit.Entries);
+    }
+
+    /// <summary>
     /// W-0354 / B16 (chief worklist 2026-09-25). total_amount is read aloud and VND has no spoken
     /// subunit, so a fraction used to pass intake and fail at dial time, where the gateway took it
     /// for a broken SIM. It is refused at the door now, before anything is stored.
@@ -288,6 +432,39 @@ public sealed class TaskIntakeApiTests
         Assert.Equal(IvrErrorCodes.MalformedRequest, await ErrorCodeAsync(response));
         Assert.Equal(0, app.Store.CallJobCount);
         Assert.Empty(app.Audit.Entries);
+    }
+
+    /// <summary>
+    /// W-0359 (K-30). The other side of <c>IT-INTAKE-AMOUNT-16</c>: W-0354 refuses a fraction, not
+    /// a spelling. A whole number of dong written with a zero fraction or with an exponent is still
+    /// whole, and is accepted. The body is checked to carry each spelling as written, because a
+    /// writer that normalised it to 210636 would let this pass without ever sending the case.
+    /// </summary>
+    [Theory]
+    [InlineData("210636.0")]
+    [InlineData("2.10636E5")]
+    [Trait("TestId", "IT-INTAKE-AMOUNT-17")]
+    public async Task AWholeTotalAmountIsAcceptedHoweverItIsSpelled(string spelling)
+    {
+        await using TaskIntakeApiTestApplication app =
+            await TaskIntakeApiTestApplication.StartAsync();
+        JsonObject body = CreateBody();
+
+        // A node parsed from the text keeps that text when written back; one built from a decimal
+        // or a double would be written in the number's own form.
+        body["privacy_safe_order_summary"]!["total_amount"] = JsonNode.Parse(spelling);
+        Assert.Contains(
+            string.Concat("\"total_amount\":", spelling),
+            body.ToJsonString(),
+            StringComparison.Ordinal);
+
+        using HttpResponseMessage response = await SendAsync(app.Client, body);
+
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        IvrTaskIntakeResult result = (await response.Content
+            .ReadFromJsonAsync<IvrTaskIntakeResult>())!;
+        Assert.Equal(IvrTaskIntakeResultDecision.TASK_ACCEPTED_DRY_RUN_ONLY, result.Decision);
+        Assert.Equal(1, app.Store.CallJobCount);
     }
 
     [Fact]
@@ -1091,6 +1268,19 @@ public sealed class TaskIntakeApiTests
     {
         using JsonDocument body = JsonDocument.Parse(await response.Content.ReadAsStringAsync());
         return body.RootElement.GetProperty("error").GetProperty("code").GetString()!;
+    }
+
+    /// <summary>
+    /// W-0359 / K-28. <c>details.field</c> of an error envelope, or null when it names no field.
+    /// </summary>
+    private static async Task<string?> ErrorFieldAsync(HttpResponseMessage response)
+    {
+        using JsonDocument body = JsonDocument.Parse(await response.Content.ReadAsStringAsync());
+        JsonElement error = body.RootElement.GetProperty("error");
+        return error.TryGetProperty("details", out JsonElement details)
+            && details.TryGetProperty("field", out JsonElement field)
+                ? field.GetString()
+                : null;
     }
 
     /// <summary>

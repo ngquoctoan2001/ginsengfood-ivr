@@ -6,6 +6,7 @@ using Ivr.Infrastructure.Intake;
 using Ivr.Infrastructure.Persistence;
 using Ivr.Infrastructure.Persistence.Entities;
 using Ivr.Infrastructure.Providers.Fakes;
+using Ivr.Infrastructure.Repositories;
 using Ivr.Infrastructure.Scheduling;
 using Ivr.Infrastructure.Speech;
 using Ivr.Infrastructure.Telephony;
@@ -346,6 +347,196 @@ public sealed class MockTelephonyPersistenceTests(PostgresPersistenceFixture fix
     }
 
     /// <summary>
+    /// W-0359 / K-30 (B16). The refusal IT-TEL-RENDER-DATA-09 records once, followed to the end
+    /// of the order's window: the retry is refused as well, the order is held for a person, and
+    /// the hold is closed when the window runs out - and the SIM comes out of it untouched.
+    /// <para>
+    /// This pins the sequence the code actually runs. The first refusal normalises to an uncounted
+    /// technical exception with a retry left, which puts the job back in the queue. The retry is
+    /// attempt 1 again - nothing reached the customer, so nothing was counted - and waits out the
+    /// cooldown the first refusal left on the channel. The second refusal spends the one technical
+    /// retry: the job is held for admin review and a review item is opened. A hold is not a close,
+    /// so the window sweep closes it once the window has passed, as a window expiry nobody was
+    /// reached for, which asks Core to put the order in front of a person rather than expire it.
+    /// The channel is handed back healthy after each refusal, so its failure count never moves and
+    /// it is never quarantined: the fault travels with the order, not with the SIM.
+    /// </para>
+    /// </summary>
+    [Fact]
+    [Trait("TestId", "IT-TEL-RENDER-DATA-10")]
+    public async Task AnOrderRefusedOnItsRetryIsHeldForReviewThenClosedWhenItsWindowPasses()
+    {
+        await fixture.ResetAsync();
+        IDbContextFactory<IvrDbContext> factory = Factory();
+        await SeedMockDispatchAsync(
+            factory,
+            "TASK-TEL-10",
+            "JOB-TEL-10",
+            "SIM-MOCK-10",
+            totalAmount: 1_000_000_000_000m);
+        var clock = new FixedTimeProvider(Now);
+        IOptions<TtsProviderOptions> tts = Options.Create(new TtsProviderOptions
+        {
+            ExecutionMode = IvrOptions.MockExecutionMode,
+            Provider = TtsProviderOptions.FakeProvider,
+        });
+        using var scripts = new Ivr.Infrastructure.Scripts.InMemoryScriptRegistry(
+            new Ivr.Infrastructure.Audit.InMemoryAuditLogger(clock),
+            clock,
+            Options.Create(new Ivr.Infrastructure.Scripts.ScriptContentOptions()));
+        var approvedRenderer = new ApprovedVietnameseSpeechRenderer(
+            scripts,
+            new Ivr.Domain.Scripts.VietnameseOrderScriptRenderer(),
+            new RegionalVoiceMap(tts));
+
+        // One fake SIM for both dispatches, answering anything. Neither refusal may reach it, and
+        // its event log is where it would show.
+        var sim = new FakeSimGateway(
+            new Dictionary<string, FakeSimScenario>
+            {
+                ["*"] = new(SimProviderDisposition.Answered, "1"),
+            },
+            timeProvider: clock);
+
+        // Refusal 1, at the start of the window.
+        DateTimeOffset firstAt = Now;
+        SchedulerDispatchLease first = Assert.IsType<SchedulerDispatchLease>(
+            await new PostgresSchedulerStore(factory, new FixedTimeProvider(firstAt))
+                .TryClaimDueDispatchAsync(
+                    "worker-render-twice",
+                    IvrOptions.MockExecutionMode,
+                    TimeSpan.FromMinutes(2)));
+        await Assert.ThrowsAsync<SpeechRenderRejectedException>(() => CreateGateway(
+                CreateStore(factory, firstAt),
+                first,
+                sim,
+                includeToken: true,
+                renderer: approvedRenderer)
+            .DispatchAsync(first));
+        NormalizationPersistenceResult retry = Assert.IsType<NormalizationPersistenceResult>(
+            await CreateNormalizer(factory, firstAt.AddSeconds(10))
+                .NormalizeNextAsync("normalizer-render-twice-1"));
+        Assert.Equal("IVR_TECHNICAL_EXCEPTION", retry.ResultStatus);
+        Assert.False(retry.IsCounted);
+        Assert.False(retry.IsFinal);
+        Assert.True(retry.TechnicalRetryAllowed);
+        Assert.Equal(1, retry.TechnicalRetryCount);
+        Assert.False(retry.HumanReviewRequired);
+        await using (IvrDbContext requeued = await factory.CreateDbContextAsync())
+        {
+            // Back in the MOCK queue rather than held: one technical retry is still allowed.
+            CallJobEntity job = await requeued.CallJobs.AsNoTracking().SingleAsync();
+            Assert.Equal("DRY_RUN", job.Status);
+            Assert.Equal("HELD_MOCK", job.QueueStatus);
+        }
+
+        // Refusal 2, the retry, once the five-second cooldown the first refusal left has passed.
+        DateTimeOffset secondAt = firstAt.AddSeconds(30);
+        SchedulerDispatchLease second = Assert.IsType<SchedulerDispatchLease>(
+            await new PostgresSchedulerStore(factory, new FixedTimeProvider(secondAt))
+                .TryClaimDueDispatchAsync(
+                    "worker-render-twice",
+                    IvrOptions.MockExecutionMode,
+                    TimeSpan.FromMinutes(2)));
+
+        // Attempt 1 again, not attempt 2: a refused render never reached the customer, so nothing
+        // was counted and the retry is the same customer attempt.
+        Assert.Equal(1, second.AttemptNumber);
+        Assert.NotEqual(first.AttemptId, second.AttemptId);
+        Assert.Equal(first.SimChannelId, second.SimChannelId);
+        await Assert.ThrowsAsync<SpeechRenderRejectedException>(() => CreateGateway(
+                CreateStore(factory, secondAt),
+                second,
+                sim,
+                includeToken: true,
+                renderer: approvedRenderer)
+            .DispatchAsync(second));
+        NormalizationPersistenceResult held = Assert.IsType<NormalizationPersistenceResult>(
+            await CreateNormalizer(factory, secondAt.AddSeconds(10))
+                .NormalizeNextAsync("normalizer-render-twice-2"));
+        Assert.Equal("IVR_TECHNICAL_EXCEPTION", held.ResultStatus);
+        Assert.False(held.IsCounted);
+        Assert.False(held.IsFinal);
+        Assert.False(held.TechnicalRetryAllowed);
+        Assert.Equal(2, held.TechnicalRetryCount);
+        Assert.True(held.HumanReviewRequired);
+        await using (IvrDbContext review = await factory.CreateDbContextAsync())
+        {
+            CallJobEntity job = await review.CallJobs.AsNoTracking().SingleAsync();
+            Assert.Equal("HELD_ADMIN_REVIEW", job.Status);
+            Assert.Equal("HELD_TECHNICAL_REVIEW", job.QueueStatus);
+            Assert.Null(job.ClosedAt);
+        }
+
+        // Held means held: nothing claims it a third time...
+        var scheduler = new PostgresSchedulerStore(
+            factory,
+            new FixedTimeProvider(secondAt.AddSeconds(30)));
+        Assert.Null(await scheduler.TryClaimDueDispatchAsync(
+            "worker-render-twice",
+            IvrOptions.MockExecutionMode,
+            TimeSpan.FromMinutes(2)));
+
+        // ...and a hold is not a close: the sweep leaves it alone until the window has passed, and
+        // closes it after.
+        DateTimeOffset windowCloses = first.Deadline;
+        Assert.Equal(0, await scheduler.CloseMissedDeadlinesAsync(windowCloses.AddSeconds(-1), 32));
+        Assert.Equal(1, await scheduler.CloseMissedDeadlinesAsync(windowCloses.AddSeconds(1), 32));
+
+        await using IvrDbContext verification = await factory.CreateDbContextAsync();
+        CallJobEntity closed = await verification.CallJobs.AsNoTracking().SingleAsync();
+        Assert.Equal("WINDOW_EXPIRED", closed.Status);
+        Assert.Equal("CLOSED_WINDOW_EXPIRED", closed.QueueStatus);
+        Assert.Equal(windowCloses.AddSeconds(1), closed.ClosedAt);
+        Assert.Equal("IVR_CONFIRMATION_WINDOW_EXPIRED", closed.ClosedReason);
+
+        // One final result, a window expiry nobody was reached for: Core is asked to put the order
+        // in front of a person, not to expire it.
+        CallResultEntity expiry = Assert.Single(await verification.CallResults
+            .AsNoTracking()
+            .Where(result => result.IsFinalForIvr)
+            .ToListAsync());
+        Assert.Equal("IVR_CONFIRMATION_WINDOW_EXPIRED", expiry.ResultType);
+        Assert.Equal("WINDOW_EXPIRED_BEFORE_FINAL_RESULT", expiry.ResultReason);
+        Assert.False(expiry.IsCountedCustomerAttempt);
+        Assert.True(expiry.HumanReviewRequired);
+        Assert.Equal("REVALIDATE_AND_HOLD_ADMIN_REVIEW", expiry.RecommendedCoreAction);
+        Assert.Single(await verification.ResultCallbacks.AsNoTracking().ToListAsync());
+
+        // Not a SIM shortage either: the job was dispatched, twice, and a channel was there both
+        // times, so the sweep opens no capacity incident for it.
+        Assert.Equal(0, await verification.CapacityIncidents.CountAsync());
+        ReviewItemEntity reviewItem = Assert.Single(
+            await verification.ReviewItems.AsNoTracking().ToListAsync());
+        Assert.Equal("OPEN", reviewItem.Status);
+
+        // Both refusals: uncounted attempt 1s, named as the order's data fault.
+        CallAttemptEntity[] attempts = await verification.CallAttempts
+            .AsNoTracking()
+            .OrderBy(attempt => attempt.EndedAt)
+            .ToArrayAsync();
+        Assert.Equal(2, attempts.Length);
+        Assert.All(attempts, attempt =>
+        {
+            Assert.Equal(1, attempt.AttemptNumber);
+            Assert.False(attempt.IsCountedCustomerAttempt);
+            Assert.Equal(SpeechRenderRejectedException.TechnicalCode, attempt.TechnicalExceptionType);
+        });
+        Assert.Equal("NORMALIZED_TECHNICAL_RETRY", attempts[0].Status);
+        Assert.Equal("NORMALIZED_REVIEW_REQUIRED", attempts[1].Status);
+
+        // The channel: handed back healthy both times, never counted against, never quarantined.
+        SimChannelEntity channel = await verification.SimChannels.AsNoTracking().SingleAsync();
+        Assert.Equal("IDLE", channel.Status);
+        Assert.Equal(0, channel.FailCount);
+        Assert.Null(channel.FailureWindowStartedAt);
+        Assert.Null(channel.QuarantineUntil);
+        Assert.Null(channel.LeaseToken);
+        Assert.Null(channel.ActiveCallJobId);
+        Assert.Empty(sim.Events);
+    }
+
+    /// <summary>
     /// Cutting a call that is already in progress (W-0111).
     /// <para>
     /// The load-bearing assertion is not that the call stopped — it is what the attempt says
@@ -578,12 +769,31 @@ public sealed class MockTelephonyPersistenceTests(PostgresPersistenceFixture fix
     private IDbContextFactory<IvrDbContext> Factory() => fixture.Services
         .GetRequiredService<IDbContextFactory<IvrDbContext>>();
 
+    /// <param name="at">
+    /// W-0359. When the store believes it is. Omitted, it is <see cref="Now"/>, which is right for
+    /// every single-dispatch test; a test that dispatches twice moves it with the claim, so the
+    /// second failure is not recorded as ending before its own lease began.
+    /// </param>
     private static PostgresTelephonyDispatchStore CreateStore(
-        IDbContextFactory<IvrDbContext> factory) => new(
+        IDbContextFactory<IvrDbContext> factory,
+        DateTimeOffset? at = null) => new(
         factory,
         SpeechSummaryLimits.Create(100, 100),
         Options.Create(new SchedulerOptions()),
-        new FixedTimeProvider(Now));
+        new FixedTimeProvider(at ?? Now));
+
+    /// <summary>
+    /// W-0359. The normaliser the worker runs, with the technical-retry limit pinned at one rather
+    /// than inherited: IT-TEL-RENDER-DATA-10's whole shape - one retry, then a hold - is that number.
+    /// </summary>
+    private static ResultRepository CreateNormalizer(
+        IDbContextFactory<IvrDbContext> factory,
+        DateTimeOffset at) => new(
+        factory,
+        new RawEventRepository(),
+        Options.Create(new SchedulerOptions { TechnicalRetryLimit = 1 }),
+        new SchedulerExecutionContext(IvrOptions.MockExecutionMode),
+        new FixedTimeProvider(at));
 
     private static MockSchedulerDispatchGateway CreateGateway(
         ITelephonyDispatchStore store,

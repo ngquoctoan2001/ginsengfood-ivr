@@ -16,7 +16,7 @@ things still hold it shut, each for a different reason:
 | What holds it | Where | Why it is separate |
 | --- | --- | --- |
 | `IvrOptionsValidator` refuses to start with `RealCustomerCallAllowed=YES` | `IvrOptionsValidator.cs:51` | Not a flag that is merely off — the process will not boot. A release gate, not a setting. |
-| `AsteriskSchedulerDispatchGateway.IsReady` requires `LAB_REAL_SIM` **and** `!RealCustomerCallAllowed` | `AsteriskSchedulerDispatchGateway.cs:28` | The gateway PD-01 wired in is still the lab's. Opening it belongs to `SIP-04` and needs an approval record. |
+| `AsteriskSchedulerDispatchGateway.IsReady` requires `LAB_REAL_SIM` **and** `!RealCustomerCallAllowed` | `AsteriskSchedulerDispatchGateway.cs:47` | The gateway PD-01 wired in is still the lab's. Opening it belongs to `SIP-04` and needs an approval record. |
 | `SipTrunkOptions.Enabled` is `false` and the section is absent | no deployed `appsettings` carries it | Every value in it comes from a carrier integration document that does not exist yet. |
 
 So this page is written ahead of its subject. That is deliberate: the reasoning behind these numbers
@@ -303,7 +303,7 @@ reasons on purpose.
 | --- | --- | --- |
 | Kill switch → next dial decision | **The very next call** | `DispatchGate` reads the flag with `forceFresh: true` (`DispatchGate.cs:26`), so the 15-second snapshot cache is bypassed on this path |
 | Worst case before a call would have started anyway | ~1 poll interval (**1s** at default) | `PollIntervalMilliseconds` |
-| `:terminate-all` → a live call hangs up | **≤ 500ms** | `TerminationPollMilliseconds`, floored at 200ms (`AsteriskSchedulerDispatchGateway.cs:233`) |
+| `:terminate-all` → a live call hangs up | **≤ 500ms** | `TerminationPollMilliseconds`, floored at 200ms (`AsteriskSchedulerDispatchGateway.cs:268`) |
 | Pod shutdown waits for in-flight calls | **180s** | `DispatchDrainSeconds`; `terminationGracePeriodSeconds: 210` in `deploy/helm/ivr/values.yaml:45` is set above it so a drain is never SIGKILLed |
 
 The 15-second flag cache is worth knowing about precisely because it does **not** apply here. Other

@@ -20,8 +20,11 @@ public sealed class TtsProviderNotConfiguredException(string message)
     : TtsSynthesisException("TTS_NOT_CONFIGURED", message);
 
 /// <summary>
-/// W-0354 / B16. The order's own data could not be turned into a script — a fractional
-/// <c>total_amount</c>, an amount past the speller's range, a value a template refuses.
+/// W-0354 / B16. The order's own data could not be turned into a script: the speller or the
+/// renderer refused one of its values with an <see cref="ArgumentException"/> — a fractional
+/// <c>total_amount</c>, an amount past the speller's range. Only that exception type is wrapped. A
+/// script or template that refuses to render the order is a different fault, reported as
+/// <see cref="SpeechRenderPolicyRejectedException"/> (W-0359 / K-29).
 /// <para>
 /// It derives from <see cref="TtsSynthesisException"/> on purpose, so both dispatch gateways map it
 /// through the arm they already have for "no audio for this order": <c>AudioError</c> with the
@@ -38,6 +41,27 @@ public sealed class SpeechRenderRejectedException(Exception innerException)
         innerException)
 {
     public const string TechnicalCode = "SPEECH_RENDER_DATA_REJECTED";
+}
+
+/// <summary>
+/// W-0359 / K-29. The approved script refused to render this order: no version of it is approved
+/// for the execution mode, the template names a placeholder the renderer cannot fill, the finished
+/// script runs past the length bound, or the full-text privacy guard refused the finished script.
+/// <para>
+/// All of these used to leave the renderer as a bare <see cref="InvalidOperationException"/>, which
+/// both dispatch gateways record as <c>*_POLICY_OR_TOKEN_REJECTED</c>, so whoever was on call went
+/// looking for a dial-token fault that did not exist. It still derives from
+/// <see cref="InvalidOperationException"/> and the gateways still report it as a network-class
+/// refusal with the channel healthy; the only change is an arm of its own, ahead of the generic
+/// one, so it is recorded under <see cref="TechnicalCode"/>.
+/// </para>
+/// </summary>
+public sealed class SpeechRenderPolicyRejectedException(Exception innerException)
+    : InvalidOperationException(
+        "The approved script refused to render this order.",
+        innerException)
+{
+    public const string TechnicalCode = "SPEECH_RENDER_POLICY_REJECTED";
 }
 
 /// <summary>

@@ -160,6 +160,11 @@ public static class VietnameseNumberSpeller
     /// "không phẩy hai mươi lăm". Digit-by-digit is the unambiguous reading: grouping invites
     /// hearing a different number, and this is a number the customer is about to approve.
     /// </para>
+    /// <para>
+    /// A quantity that needs more than <see cref="MaximumQuantityDecimals"/> decimal places is
+    /// refused with <see cref="ArgumentOutOfRangeException"/>, however many it needs. Trailing
+    /// zeros are not needed, so <c>2,5000</c> reads as <c>2,5</c>.
+    /// </para>
     /// </summary>
     public static string SpellQuantity(decimal quantity, VietnameseNumberStyle style)
     {
@@ -172,24 +177,33 @@ public static class VietnameseNumberSpeller
             return Spell(whole, style);
         }
 
-        // Trailing zeros carry no meaning in a spoken quantity: 2,50 and 2,5 are the same order,
-        // and reading "hai phẩy năm không" invites hearing 2,50 as a different number.
-        string fractionDigits = (quantity - whole)
-            .ToString("0.#########", System.Globalization.CultureInfo.InvariantCulture)
-            .Split('.')[1]
-            .TrimEnd('0');
-        if (fractionDigits.Length > MaximumQuantityDecimals)
-        {
-            throw new ArgumentOutOfRangeException(
-                nameof(quantity),
-                "A spoken quantity carries at most three decimal places.");
-        }
-
+        // The digits after the point come from decimal arithmetic, one per step. They used to be
+        // cut out of ToString("0.#########"), which rounds at nine places: 1,0000000001 formatted
+        // as "0" and 2,9999999999 as "1", neither had a point, and Split('.')[1] threw
+        // IndexOutOfRangeException — a type nothing on the render path reads as the order's
+        // fault, so one mistyped quantity quarantined a SIM (W-0359 / K-26). Every step here is
+        // exact: the remainder stays below one, so multiplying it by ten cannot overflow and
+        // taking the digit off cannot round.
+        //
+        // Stopping once nothing is left is also what drops trailing zeros, whatever scale the
+        // decimal carries: 2,50 and 2,5 are the same order, and reading "hai phẩy năm không"
+        // invites hearing 2,50 as a different number.
         StringBuilder spoken = new(Spell(whole, style));
         spoken.Append(" phẩy");
-        foreach (char digit in fractionDigits)
+        decimal remainder = quantity - whole;
+        for (int place = 1; remainder != 0m; place++)
         {
-            spoken.Append(' ').Append(Digits[digit - '0']);
+            if (place > MaximumQuantityDecimals)
+            {
+                throw new ArgumentOutOfRangeException(
+                    nameof(quantity),
+                    "A spoken quantity carries at most three decimal places.");
+            }
+
+            remainder *= 10m;
+            decimal digit = decimal.Truncate(remainder);
+            remainder -= digit;
+            spoken.Append(' ').Append(Digits[(int)digit]);
         }
 
         return spoken.ToString();

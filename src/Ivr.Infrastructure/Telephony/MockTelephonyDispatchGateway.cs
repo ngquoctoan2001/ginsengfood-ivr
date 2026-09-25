@@ -2,9 +2,11 @@ using Ivr.Domain.Confirmation;
 using Ivr.Domain.Errors;
 using Ivr.Domain.Ports;
 using Ivr.Infrastructure.Configuration;
+using Ivr.Infrastructure.Observability;
 using Ivr.Infrastructure.Providers.Fakes;
 using Ivr.Infrastructure.Scheduling;
 using Ivr.Infrastructure.Speech;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Ivr.Infrastructure.FeatureFlags;
 
@@ -164,7 +166,15 @@ public sealed class MockTelephonyOptionsValidator : IValidateOptions<MockTelepho
     }
 }
 
-public sealed class MockSchedulerDispatchGateway(
+/// <summary>
+/// Dispatch orchestration for MOCK telephony: the same loop as the Asterisk lab, against the fake
+/// SIM.
+/// <para>
+/// W-0359 / K-31. The logger is optional for the reason <c>FeatureFlagPlatform</c>'s is: tests
+/// construct this gateway by hand, and the container supplies one in every real host.
+/// </para>
+/// </summary>
+public sealed partial class MockSchedulerDispatchGateway(
     ITelephonyDispatchStore store,
     IDialTokenResolver dialTokenResolver,
     ISpeechRenderer speechRenderer,
@@ -173,8 +183,17 @@ public sealed class MockSchedulerDispatchGateway(
     IOptions<MockTelephonyOptions> mockOptions,
     IOptions<IvrOptions> ivrOptions,
     SchedulerExecutionContext executionContext,
-    TimeProvider timeProvider) : ISchedulerDispatchGateway
+    TimeProvider timeProvider,
+    ILogger<MockSchedulerDispatchGateway>? logger = null) : ISchedulerDispatchGateway
 {
+    /// <summary>
+    /// The reason code a hangup that failed, and was swallowed, is counted under on
+    /// <c>ivr_fail_closed_total</c> (W-0359 / K-31). The existing counter rather than a new meter,
+    /// for the reason <c>FeatureFlagPlatform</c> gives: only <c>IvrTelemetry.ServiceName</c> is
+    /// exported, so a private meter would count something nothing reads.
+    /// </summary>
+    public const string HangupFailedReason = "MOCK_HANGUP_FAILED";
+
     public bool IsReady
     {
         get
@@ -339,6 +358,16 @@ public sealed class MockSchedulerDispatchGateway(
                     // review, and a review starts with knowing which rule fired.
                     DialTokenRefusedException refused =>
                         (SimProviderDisposition.NetworkError, refused.RefusalCode, true),
+                    // W-0359 / K-29. The approved script refused this order: no version approved
+                    // for the mode, a placeholder it cannot fill, past the length bound, or the
+                    // full-text privacy guard. It is an InvalidOperationException, so without an
+                    // arm of its own ahead of the generic one it was recorded as a policy-or-token
+                    // rejection, and whoever was on call went looking for a dial-token fault. Same
+                    // disposition and channel health as that arm; only the code is its own.
+                    SpeechRenderPolicyRejectedException =>
+                        (SimProviderDisposition.NetworkError,
+                            SpeechRenderPolicyRejectedException.TechnicalCode,
+                            true),
                     InvalidOperationException =>
                         (SimProviderDisposition.NetworkError, "MOCK_POLICY_OR_TOKEN_REJECTED", true),
                     _ =>
@@ -441,9 +470,43 @@ public sealed class MockSchedulerDispatchGateway(
         {
             await simGateway.HangupAsync(session, cancellationToken);
         }
-        catch (Exception)
+        catch (Exception exception)
         {
             // The fenced persistence path still holds or quarantines the channel.
+            //
+            // W-0359 / K-31. Still swallowed: the dispatch ends in a failure either way, and that
+            // failure is the one the attempt records. But no longer silently - a hangup that did
+            // not happen leaves the fake SIM counting the call as active on that channel, and
+            // until now nothing said so.
+            IvrTelemetry.RecordFailClosed((TelemetryTags.ReasonCode, HangupFailedReason));
+
+            // The exception type, not the exception: a provider failure message can carry the
+            // provider's own text, and that has no business in a log line.
+            if (logger is not null)
+            {
+                LogHangupFailed(
+                    logger,
+                    session.AttemptId.Value,
+                    session.SimChannelId,
+                    HangupFailedReason,
+                    exception.GetType().Name);
+            }
         }
     }
+
+    // W-0359 / K-31. ReasonCode repeats HangupFailedReason so the line can be found by the code the
+    // counter carries: PiiSafeLogRecordProcessor exports only allowlisted attributes, and
+    // ReasonCode and AttemptId are on that list.
+    [LoggerMessage(
+        EventId = 2410,
+        Level = LogLevel.Warning,
+        Message = "MOCK hangup of attempt {AttemptId} on SIM channel {SimChannelId} failed and was "
+            + "swallowed; the attempt is still recorded, but the fake SIM may still count the call "
+            + "as active on that channel. ReasonCode={ReasonCode} ExceptionType={ExceptionType}")]
+    private static partial void LogHangupFailed(
+        ILogger logger,
+        string attemptId,
+        string simChannelId,
+        string reasonCode,
+        string exceptionType);
 }

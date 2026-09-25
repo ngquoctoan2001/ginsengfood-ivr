@@ -3,6 +3,7 @@ using Ivr.Domain.Confirmation;
 using Ivr.Domain.Errors;
 using Ivr.Domain.Ports;
 using Ivr.Domain.Policies;
+using Ivr.Domain.Privacy;
 using Ivr.Domain.Scripts;
 using Ivr.Infrastructure.Audit;
 using Ivr.Infrastructure.Configuration;
@@ -338,6 +339,43 @@ public sealed class TaskIntakeServiceTests
             StringComparison.Ordinal);
     }
 
+    // đường phèn, rock sugar, written without its accents.
+    private const string UnaccentedSugar = "Duong phen";
+
+    /// <summary>
+    /// W-0359 / K-27. An item name the product guard admits and the full guard refuses. The full
+    /// guard used to see it first in <c>Accepted</c>, outside the try that turns a privacy failure
+    /// into a refusal, so intake threw and the HTTP caller got a 500 - the one status Module 3
+    /// retries, for a body that can never be accepted. Only the unaccented spelling reaches that
+    /// guard: the serializer escapes every non-ASCII letter, so "Đường phèn" never matched it.
+    /// Whether such a name should be admitted is Q-12; this pins how it is refused, not whether.
+    /// </summary>
+    [Fact]
+    [Trait("TestId", "UT-INTAKE-PII-23")]
+    public async Task AnItemNameOnlyTheFullGuardRefusesIsAPrivacyRefusalNotAnException()
+    {
+        // The two halves of the defect. If Q-12 moves either guard, this name stops reaching the
+        // summary guard and the case needs another one.
+        Assert.True(PiiGuard.IsSafeProductText(UnaccentedSugar));
+        Assert.False(PiiGuard.IsSafeText(UnaccentedSugar));
+        using TestContext test = CreateContext();
+        IvrConfirmationTaskV1 source = CreateTask(itemPublicName: UnaccentedSugar);
+
+        Task<TaskIntakeOutcome> intake = test.Service.IntakeAsync(Command(source));
+
+        // Before W-0359 this was an InvalidOperationException out of Accepted.
+        Assert.Null(await Record.ExceptionAsync(() => intake));
+        TaskIntakeOutcome outcome = await intake;
+        Assert.True(outcome.IsFailure);
+        Assert.Equal(TaskIntakeDecisions.HeldAdminReview, outcome.Decision);
+        Assert.Equal(IvrErrorCodes.PiiPolicyViolation, outcome.FailureCode);
+        Assert.Equal("PRIVACY_SAFE_SPEECH_REJECTED", Assert.Single(outcome.BlockedReasons));
+        Assert.Null(outcome.IvrCallJobId);
+        Assert.Equal(0, test.Store.TaskCount);
+        Assert.Equal(0, test.Store.CallJobCount);
+        Assert.Equal(0, test.Store.OutboxCount);
+    }
+
     [Fact]
     [Trait("TestId", "UT-INTAKE-NOJOB-23")]
     public async Task UnapprovedScriptAndExpiredWindowFailBeforeAnyJob()
@@ -570,7 +608,8 @@ public sealed class TaskIntakeServiceTests
         string phoneRef = "phone-ref-p2-1",
         string? dialToken = "dial-token-p2-1",
         DateTimeOffset? dialTokenExpiresAt = null,
-        string? phoneE164 = null)
+        string? phoneE164 = null,
+        string itemPublicName = "Nước hồng sâm")
     {
         DateTimeOffset start = windowStart ?? Now.AddMinutes(-1);
         int windowSeconds = program == ProgramCode.GOLDEN_HOUR ? 300 : 900;
@@ -612,7 +651,7 @@ public sealed class TaskIntakeServiceTests
                 [
                     new OrderSpeechItem
                     {
-                        Public_name = "Nước hồng sâm",
+                        Public_name = itemPublicName,
                         Quantity = 2,
                         Unit_label = "hộp",
                     },

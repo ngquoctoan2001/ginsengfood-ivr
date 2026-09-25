@@ -596,6 +596,18 @@ public sealed class TaskIntakeService(
         }
 
         PiiGuard.EnsureSafeText(JsonSerializer.Serialize(source.Eligibility_snapshot));
+
+        // W-0359 / K-27. The summary is stored as exactly this serialisation, and Accepted holds
+        // that text to the full guard. The field guards MapSpeechSummary applies are a different
+        // test: item names and unit labels take the product subset (W-0243), which admits "duong",
+        // "thon" and "ap", and every field guard reads the trimmed, NFC-normalised value, not these
+        // bytes. So an unaccented "Duong phen" (đường phèn, sugar) passed validation and then threw
+        // in Accepted, outside the try that turns a privacy failure into a refusal: a 500, which
+        // Module 3 retries forever. The accented spelling never tripped it, because the serializer
+        // escapes every non-ASCII letter. The same guard over the same text, run here, refuses it
+        // with the privacy outcome instead. Whether such a name should be admitted at all is Q-12;
+        // this changes how it is refused, not whether.
+        PiiGuard.EnsureSafeText(JsonSerializer.Serialize(source.Privacy_safe_order_summary));
     }
 
     /// <summary>
@@ -748,6 +760,7 @@ public sealed class TaskIntakeService(
         string? riskFlagsJson = source.Risk_flags is null
             ? null
             : JsonSerializer.Serialize(source.Risk_flags);
+        // Kept as defence in depth: a validated request can no longer make these throw (W-0359).
         PiiGuard.EnsureSafeText(summaryJson);
         PiiGuard.EnsureSafeText(eligibilityJson);
         if (riskFlagsJson is not null)
