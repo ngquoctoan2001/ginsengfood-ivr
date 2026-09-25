@@ -171,3 +171,17 @@ Còn lại, đều không thuộc phía IVR hoặc đã ghi là giới hạn: ex
 cần báo giá bên ngoài; alert burn-rate cần số liệu production để đặt ngưỡng; panel integration-status §6.4 không có
 nguồn thật vì chưa có thành phần nào dò dependency (`DependencyProbingAvailable = false`, ghi ở `docs/slo.md` §10);
 các ngưỡng `proposed` chờ lưu lượng thật mới duyệt được.
+
+## Owner nghiệm thu — 25/09/2026
+
+Toàn chỉ thị “tiếp đi cho full luôn”, trong khuôn ủy quyền “thì cái nào xong cho xong luôn đi”. Theo
+[danh sách W-0353](../W-0353/README.md), W-0041 chuyển **TESTS_PASS → ACCEPTED** cho phần đã làm.
+Alert hàng đợi quay số bị dồn (IvrCallQueueBacklogAging cùng gauge
+ivr_call_queue_oldest_due_age_seconds) và panel burn-rate D-04 đã làm ở W-0353; UT-OBS-METRIC-03,
+IT-SLO-BACKLOG-05 và IT-OBS-BACKLOG-15 đạt. OTLP và Grafana chờ W-0063; cost_per_confirmed_order cần
+báo giá bên ngoài; alert burn-rate và các ngưỡng proposed chờ số liệu production; panel
+integration-status chưa có nguồn dò dependency. Claude chọn theo tiêu chí phiếu W-0348, không tự cấp
+phê duyệt; Toàn có thể đảo quyết định này.
+
+Mọi giới hạn trong cột Residual của tracker giữ nguyên. Bằng chứng giữ đúng lượt collector tại
+`b92942e`. REAL_CUSTOMER_CALL_ALLOWED=NO.

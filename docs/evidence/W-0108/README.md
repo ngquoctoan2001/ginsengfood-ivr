@@ -303,3 +303,15 @@ sine tone. Tiêu chí nghiệm thu thứ 5 ở §3 — *nghe đúng tên/món/s�
 `⛔ chưa`, và vẫn cần 12 file thật cộng một buổi nghe trên MicroSIP.
 
 Hướng dẫn render cho owner: [`segment-render-kit.md`](segment-render-kit.md).
+
+## Owner nghiệm thu — 25/09/2026
+
+Toàn chỉ thị “tiếp đi cho full luôn”, trong khuôn ủy quyền “thì cái nào xong cho xong luôn đi”. Theo
+[danh sách W-0353](../W-0353/README.md), W-0108 chuyển **TESTS_PASS → ACCEPTED** cho phần đã làm.
+Residual đã cũ: manifest hợp đồng được ghim lại từ lâu (nay draft.32, contract test xanh); 12 MP3 do
+owner render không còn vì W-0315 chốt chỉ dùng VieNeu và bỏ STATIC_FILE; owner đã nghe và chốt giọng
+cùng câu ghép ở W-0323 (OWNER_ACCEPTED, không cần nghe lại). Claude chọn theo tiêu chí phiếu W-0348,
+không tự cấp phê duyệt; Toàn có thể đảo quyết định này.
+
+Mọi giới hạn trong cột Residual của tracker giữ nguyên. Bằng chứng giữ đúng lượt collector tại
+`b92942e`. REAL_CUSTOMER_CALL_ALLOWED=NO.

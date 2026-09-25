@@ -67,3 +67,15 @@ khôi phục nguyên vẹn sau đó.
 
 Phần đọc lại cấu hình ghi âm vẫn giữ như quyết định lịch sử ở trên: đó là lớp phòng vệ, không phải
 mã chết.
+
+## Owner nghiệm thu — 25/09/2026
+
+Toàn chỉ thị “tiếp đi cho full luôn”, trong khuôn ủy quyền “thì cái nào xong cho xong luôn đi”. Theo
+[danh sách W-0353](../W-0353/README.md), W-0094 chuyển **TESTS_PASS → ACCEPTED** cho phần đã làm.
+Sáu thay đổi đều có phép kiểm; ba test mới UT-FAKE-HISTORY-10, UT-WORKER-RETENTION-05 và
+UT-WORKER-CALLBACK-SCOPE-06 bắt được cả sáu đột biến (W-0353). Giữ phần đọc lại cấu hình ghi âm là
+quyết định đã ghi. Claude chọn theo tiêu chí phiếu W-0348, không tự cấp phê duyệt; Toàn có thể đảo
+quyết định này.
+
+Mọi giới hạn trong cột Residual của tracker giữ nguyên. Bằng chứng giữ đúng lượt collector tại
+`b92942e`. REAL_CUSTOMER_CALL_ALLOWED=NO.

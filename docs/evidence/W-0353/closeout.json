@@ -1,0 +1,127 @@
+{
+  "schema": "ivr-w0353-closeout/v1",
+  "date": "2026-09-25",
+  "evidenceCandidate": "b92942e",
+  "acceptedTotal": "288/341",
+  "rung": "46/54",
+  "accepted": [
+    {
+      "workId": "W-0011",
+      "from": "TESTS_PASS",
+      "title": "P0-2 GitLab CI/quality baseline",
+      "why": "OD-V1-21 đóng ngày 10/09 ở W-0266: owner ghi bằng chứng four-eyes (GitLab Premium/Ultimate cộng một reviewer thứ hai) là giới hạn được chấp nhận, không phải điều kiện còn chờ. Điều kiện mà Residual tự đặt vì vậy đã có câu trả lời; W-0061 giữ BLOCKED_EXTERNAL cho đúng phần đó."
+    },
+    {
+      "workId": "W-0036",
+      "from": "TESTS_PASS",
+      "title": "P5-2 OpenAPI/CDC/E2E both modes/programs",
+      "why": "Bảy ID §8 của P5-2 có test chạy thật và đạt: CT-OAS-01..03 và CT-TASK-01..04, mỗi test mới đều đỏ khi thử đột biến (W-0353). Không có Pact là lựa chọn có chủ ý chờ Sales; E2E trình duyệt không còn đối tượng vì Admin UI đã gỡ ở W-0253; provider thật chờ bên ngoài."
+    },
+    {
+      "workId": "W-0041",
+      "from": "TESTS_PASS",
+      "title": "P6-2 dashboards/SLO/alerts/readiness",
+      "why": "Alert hàng đợi quay số bị dồn (IvrCallQueueBacklogAging cùng gauge ivr_call_queue_oldest_due_age_seconds) và panel burn-rate D-04 đã làm ở W-0353; UT-OBS-METRIC-03, IT-SLO-BACKLOG-05 và IT-OBS-BACKLOG-15 đạt. OTLP và Grafana chờ W-0063; cost_per_confirmed_order cần báo giá bên ngoài; alert burn-rate và các ngưỡng proposed chờ số liệu production; panel integration-status chưa có nguồn dò dependency."
+    },
+    {
+      "workId": "W-0053",
+      "from": "TESTS_PASS",
+      "title": "P10-2 data governance/backup/DR",
+      "why": "Bước dựng lại standby sau failover nay có phép kiểm DG-DR-REBUILD-05 (deploy/dr/rebuild-standby.sh, W-0353), đạt trong full sweep; phép kiểm sync của DG-DR-03 được siết lại. Multi-AZ, KMS, PITR, fencing, backup trong cluster và dữ liệu quy mô production là việc của nền tảng (W-0063)."
+    },
+    {
+      "workId": "W-0055",
+      "from": "TESTS_PASS",
+      "title": "P10-4 analytics pipeline",
+      "why": "Hai việc phía IVR mà W-0352 giữ lại đã làm ở W-0353: alert trên reconcile_status (IvrAnalyticsReconcileMismatch, IvrAnalyticsEtlNotCompleting, bộ đếm ivr_analytics_etl_runs_total) và fact job so với nguồn thay vì tin closed_at bất biến; sửa thêm lỗi cộng dồn dòng bị từ chối. BI-ALERT-05, BI-DRIFT-06, BI-QUALITY-04 và IT-SLO-ANALYTICS-06 đạt. Kho riêng, công cụ BI, khối lượng thật và ETL trong cluster chờ bên ngoài."
+    },
+    {
+      "workId": "W-0078",
+      "from": "TESTS_PASS",
+      "title": "NuGet security gate remediation",
+      "why": "security-scan.sh đạt trong lượt mở rộng của collector, theo khai báo W-0353. Bản ghim SSH.NET giữ tới khi Testcontainers công bố bản vá, là việc chờ bên ngoài."
+    },
+    {
+      "workId": "W-0094",
+      "from": "TESTS_PASS",
+      "title": "Phase 1/2 lifecycle and dead-code remediation",
+      "why": "Sáu thay đổi đều có phép kiểm; ba test mới UT-FAKE-HISTORY-10, UT-WORKER-RETENTION-05 và UT-WORKER-CALLBACK-SCOPE-06 bắt được cả sáu đột biến (W-0353). Giữ phần đọc lại cấu hình ghi âm là quyết định đã ghi."
+    },
+    {
+      "workId": "W-0108",
+      "from": "TESTS_PASS",
+      "title": "Chuỗi ghép audio động",
+      "why": "Residual đã cũ: manifest hợp đồng được ghim lại từ lâu (nay draft.32, contract test xanh); 12 MP3 do owner render không còn vì W-0315 chốt chỉ dùng VieNeu và bỏ STATIC_FILE; owner đã nghe và chốt giọng cùng câu ghép ở W-0323 (OWNER_ACCEPTED, không cần nghe lại)."
+    },
+    {
+      "workId": "W-0168",
+      "from": "TESTS_PASS",
+      "title": "D7 current security/secret/vulnerability gate rerun",
+      "why": "security-scan.sh đạt trong lượt mở rộng của collector, theo khai báo W-0353. HOSTED_CI_NOT_RUN là phần hosted CI (W-0121, W-0292)."
+    },
+    {
+      "workId": "W-0169",
+      "from": "EVIDENCE_SUBMITTED",
+      "title": "Documentation estate cleanup — gỡ tài liệu SUPERSEDED/HISTORICAL",
+      "why": "Ba cảnh báo tồn đọng đã có câu trả lời: W-0105 và W-0118 nay là N/A (W-0316); lệch khỏi OD-20 đã ghi vào decisions-log; bản đồ tài liệu sinh lại bằng mapper chính thức ở b92942e, không link nào trỏ tới đích không tồn tại."
+    },
+    {
+      "workId": "W-0205",
+      "from": "TESTS_PASS",
+      "title": "GĐ 3.1–3.2: đóng băng bằng chứng trên một SHA + chạy lại security wrapper",
+      "why": "security-scan.sh đạt trong lượt mở rộng của collector, theo khai báo W-0353. Phát hiện về node_modules của bản checkout freeze là lưu ý đã ghi."
+    },
+    {
+      "workId": "W-0225",
+      "from": "TESTS_PASS",
+      "title": "Mục `1.4` — kiểm hai release blocker của `W-0122` có thật là gate không",
+      "why": "Hai bản luật duyệt phát hành nay có chung 56 ca: gate Node phát lại cả 56 trong --selftest, bản Python chạy cùng tệp trong image; 10 ca lệch được ghim thành expected failure. Blocker LEGAL và INTERNAL_MIRROR chờ bên ngoài; sửa bản Python đi cùng image TTS kế tiếp vì verify-model.py bị ghim ở W-0343."
+    },
+    {
+      "workId": "W-0249",
+      "from": "TESTS_PASS",
+      "title": "Dựng hai fence thu hồi đơn cho `2.5` phương án `B`",
+      "why": "Điểm giòn của test preflight đã được sửa bền ở W-0353: seed bằng SQL ghim theo schema W0144, không còn đi qua model sống. Đề xuất sai ở m8-17 §5 không còn trong tài liệu đang dùng; endpoint thu hồi chờ Module 3 trả lời M3-14."
+    },
+    {
+      "workId": "W-0297",
+      "from": "EVIDENCE_SUBMITTED",
+      "title": "Dồn `plan/ivr-orther` thành hai file trạng thái",
+      "why": "Bản đồ tài liệu sinh lại bằng mapper chính thức ở b92942e (W-0353); bản thứ hai nằm trong .artifacts/, chỉ có trên máy và không thuộc repo. Các mục khác trong Residual là đính chính đã ghi."
+    },
+    {
+      "workId": "W-0303",
+      "from": "TESTS_PASS",
+      "title": "[Luồng] quay số production PD-01.1..01.5",
+      "why": "Cổng Asterisk đang đóng được ghim bằng UT-TRUNK-DI-05 và UT-TRUNK-DI-06, test đỏ khi thử đột biến (W-0353). Mở cổng là SIP-04 và cần bằng chứng phê duyệt; protector production cần khóa do Platform cấp, là việc chờ bên ngoài."
+    }
+  ],
+  "held": [
+    {
+      "workId": "W-0037",
+      "title": "P5-3 performance/security/privacy/mode-isolation",
+      "why": "Chờ lượt soak PT-SOAK-02 bốn giờ; chế độ soak đã có ở W-0353, rate limiting đã có từ W-0282."
+    },
+    {
+      "workId": "W-0347",
+      "title": "Nhóm thiếu test của 5 việc trong kế hoạch",
+      "why": "Đi cùng W-0037: còn vế soak dài."
+    },
+    {
+      "workId": "W-0121",
+      "title": "Lối đẩy code không tới GitLab nên hosted CI không thể chạy",
+      "why": "Cần một pipeline hosted xanh; pipeline 2877405205 có 2 job đỏ mà máy này không đọc được vì project GitLab là private."
+    },
+    {
+      "workId": "W-0171",
+      "title": "Doc↔code conflict audit và reconciliation",
+      "why": "Vế (b), taxonomy 7 nhãn technical-exception, cần owner quyết (specs/functional/06-technical-exception-capacity.md)."
+    },
+    {
+      "workId": "W-0335",
+      "title": "Xếp hàng chuẩn bị lời thoại và đo đủ đơn trên S5",
+      "why": "Chờ S5 và quyết định ngân sách cuối; S2 và mirror còn mở."
+    }
+  ],
+  "notXem": []
+}

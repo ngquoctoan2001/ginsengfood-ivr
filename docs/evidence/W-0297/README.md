@@ -66,3 +66,14 @@ Mục "Hệ quả để lại" ghi hai bản đồ `markdown-doc-map.json` bị 
 
 Bản thứ hai, `.artifacts/w0286/doc-map-final/markdown-doc-map.json`, nằm trong `.artifacts/`: thư mục này bị gitignore,
 chỉ có trên một máy và không thuộc repo, nên không có gì để sinh lại ở đó.
+
+## Owner nghiệm thu — 25/09/2026
+
+Toàn chỉ thị “tiếp đi cho full luôn”, trong khuôn ủy quyền “thì cái nào xong cho xong luôn đi”. Theo
+[danh sách W-0353](../W-0353/README.md), W-0297 chuyển **EVIDENCE_SUBMITTED → ACCEPTED** cho phần đã
+làm. Bản đồ tài liệu sinh lại bằng mapper chính thức ở b92942e (W-0353); bản thứ hai nằm trong
+.artifacts/, chỉ có trên máy và không thuộc repo. Các mục khác trong Residual là đính chính đã ghi.
+Claude chọn theo tiêu chí phiếu W-0348, không tự cấp phê duyệt; Toàn có thể đảo quyết định này.
+
+Mọi giới hạn trong cột Residual của tracker giữ nguyên. Bằng chứng giữ đúng lượt collector tại
+`b92942e`. REAL_CUSTOMER_CALL_ALLOWED=NO.

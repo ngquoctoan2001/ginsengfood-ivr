@@ -2,7 +2,7 @@
 
 Ngày 24/09/2026 · Claude · `REAL_CUSTOMER_CALL_ALLOWED=NO`.
 
-**Trạng thái: đang làm.**
+**Trạng thái: `EVIDENCE_SUBMITTED`.** 15 việc đã đóng theo chỉ thị; W-0037 và W-0347 chờ lượt soak bốn giờ.
 
 ## Vì sao có việc này
 
@@ -32,8 +32,9 @@ ghi `testId` trùng và `verdict: "PASS"`. Luật của mục này:
 - `reason` ít nhất 20 ký tự; `file` phải nằm trong thư mục hồ sơ, đuôi `.json`, không có `..`.
 - Việc có mục `runs` luôn ra `XEM` ở C2, vì không script nào tự đánh giá được một lượt chạy đã ghi.
 
-Self-test của danh sách (`deploy/ci/scripts/acceptance-batches.mjs --self-test`) có 108 phép kiểm C2, trong đó có các ca từ chối: TestId đang sống, TestId không được nhắc,
-tệp không có, tệp ngoài hồ sơ, lý do ngắn, verdict `FAIL`, và tệp ghi TestId khác.
+Self-test của danh sách (`deploy/ci/scripts/acceptance-batches.mjs --self-test`) có 108 phép kiểm C2, trong đó có các ca
+từ chối: TestId đang sống, TestId không được nhắc, tệp không có, tệp ngoài hồ sơ, lý do ngắn, verdict `FAIL`, và tệp ghi
+TestId khác.
 
 ## Việc làm theo từng mục
 
@@ -60,3 +61,62 @@ Phần W-0036, W-0041/W-0055, W-0053, W-0225 và bản đồ tài liệu do năm
 (push bị tắt), mỗi agent nộp một patch. Patch được đọc lại, áp bằng `git apply`, rồi build và chạy test trên cây chính.
 Agent W-0053 đã tự kéo image `koalaman/shellcheck:stable` về Docker để chạy shellcheck, rồi xoá đi. Image này không
 nằm trong danh sách Toàn đã duyệt tải; ghi ở đây để Toàn biết.
+
+## Kiểm chứng
+
+Gói bằng chứng của collector tại `b92942e` (`e95ba64` là phần làm thêm, `b92942e` là bản đồ tài liệu), trên
+cây sạch, có lượt gate mở rộng:
+
+| Phần | Kết quả |
+| --- | --- |
+| Test | contract 24/24, unit 796/796, chaos 8/8, integration 405/405; 0 đỏ |
+| Full sweep | `GATE_SWEEP_PASS 43/43` |
+| Lượt mở rộng | `EXTENDED_SWEEP_PASS 5/5`: hai lượt image, K8s, security scan, oasdiff |
+
+Collector phải chạy bốn lần mới ra gói bằng chứng. Ba lượt đầu không hỏng vì code:
+
+- Lượt 1: Docker Desktop bị tắt lúc 14:59 ngày 24/09 để nén ổ dữ liệu của Docker (việc dọn đĩa C, Toàn đồng ý). Test
+  và full sweep đạt; ba gate mở rộng không kết nối được Docker.
+- Lượt 2: gate image thứ hai đứt mạng ("unexpected EOF") khi đang tải lại `grafana/otel-lgtm:0.30.0`, vì việc dọn đĩa
+  đã xoá image. Image được kéo riêng rồi chạy lại.
+- Lượt 3: treo ở gate k8s sau `IT-K8S-LINT-01` cho tới khi Docker khởi động lại sáng 25/09.
+
+Collector từ chối ghi gói bằng chứng khi lượt mở rộng đỏ, nên không lượt hỏng nào được dùng làm bằng chứng.
+
+Hai lượt soak thử (3 và 5 phút) chạy trước để kiểm công cụ, không phải bằng chứng PT-SOAK-02. Lượt đầu cho thấy phép đo
+hạn chót ban đầu sai: nó đếm cả kết quả `IVR_CONFIRMATION_WINDOW_EXPIRED` mà scheduler ghi khi đóng task hết hạn, tức
+hạn chót được thi hành chứ không bị lỡ. Phép đo được tách làm bốn trước lượt thật (chi tiết ở hồ sơ W-0037).
+
+## Kết quả
+
+Theo [danh sách tại `b92942e`](../../release/acceptance-batches.md), 15 việc lên `XEM` và được chuyển sang `ACCEPTED`
+ở activity `A-1004`..`A-1018`; lý do từng việc trong [closeout.json](closeout.json). Tổng `ACCEPTED` nay là 288/341, Nấc 1 là 46/54.
+
+| Việc | Từ |
+| --- | --- |
+| W-0011 | `TESTS_PASS` |
+| W-0036 | `TESTS_PASS` |
+| W-0041 | `TESTS_PASS` |
+| W-0053 | `TESTS_PASS` |
+| W-0055 | `TESTS_PASS` |
+| W-0078 | `TESTS_PASS` |
+| W-0094 | `TESTS_PASS` |
+| W-0108 | `TESTS_PASS` |
+| W-0168 | `TESTS_PASS` |
+| W-0169 | `EVIDENCE_SUBMITTED` |
+| W-0205 | `TESTS_PASS` |
+| W-0225 | `TESTS_PASS` |
+| W-0249 | `TESTS_PASS` |
+| W-0297 | `EVIDENCE_SUBMITTED` |
+| W-0303 | `TESTS_PASS` |
+
+Giữ lại năm việc, cũng ghi lý do trong closeout.json: W-0037, W-0347, W-0121, W-0171, W-0335.
+
+## Còn lại
+
+- **W-0037 và W-0347:** chờ lượt soak `PT-SOAK-02` bốn giờ. Chạy sau khi đóng lượt này, trên máy không làm việc khác.
+- **W-0121:** cần một pipeline hosted xanh. Pipeline `2877405205` có 2 job đỏ; project GitLab là private nên máy này
+  không đọc được tên job. Toàn xem trên GitLab.
+- **W-0171 vế (b):** taxonomy 7 nhãn technical-exception cần owner quyết: khoá `exception_type` thành enum bảy giá trị
+  rồi ánh xạ mã gateway vào, hay nhận mã gateway làm giá trị chuẩn và bỏ bảy nhãn khỏi đặc tả.
+- **W-0335:** chờ S5 và quyết định ngân sách cuối; S2 và mirror còn mở.

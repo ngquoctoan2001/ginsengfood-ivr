@@ -110,3 +110,15 @@ REAL_CUSTOMER_CALL_ALLOWED=NO
 Đây là giới hạn ủy quyền hiện hành theo tracker §2 tại commit `4346f6a`, bổ sung để kiểm C1.
 Kết quả, thời điểm và phạm vi kiểm chứng lịch sử ở trên giữ nguyên; mục này không xác nhận
 một lượt chạy mới và không thay chữ ký nghiệm thu. Xem [hồ sơ bổ sung W-0325](../W-0325/README.md).
+
+## Owner nghiệm thu — 25/09/2026
+
+Toàn chỉ thị “tiếp đi cho full luôn”, trong khuôn ủy quyền “thì cái nào xong cho xong luôn đi”. Theo
+[danh sách W-0353](../W-0353/README.md), W-0011 chuyển **TESTS_PASS → ACCEPTED** cho phần đã làm.
+OD-V1-21 đóng ngày 10/09 ở W-0266: owner ghi bằng chứng four-eyes (GitLab Premium/Ultimate cộng một
+reviewer thứ hai) là giới hạn được chấp nhận, không phải điều kiện còn chờ. Điều kiện mà Residual tự
+đặt vì vậy đã có câu trả lời; W-0061 giữ BLOCKED_EXTERNAL cho đúng phần đó. Claude chọn theo tiêu
+chí phiếu W-0348, không tự cấp phê duyệt; Toàn có thể đảo quyết định này.
+
+Mọi giới hạn trong cột Residual của tracker giữ nguyên. Bằng chứng giữ đúng lượt collector tại
+`b92942e`. REAL_CUSTOMER_CALL_ALLOWED=NO.

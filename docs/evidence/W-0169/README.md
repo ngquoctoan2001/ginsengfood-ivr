@@ -34,3 +34,15 @@ REAL_CUSTOMER_CALL_ALLOWED=NO
 
 Bản đồ lồng dưới `docs/documents/4. phase/phase-4/.codex-doc-memory/` nằm trong `docs/documents/**`, vùng không được sửa,
 nên giữ nguyên; mapper cũng bỏ qua nó theo thiết kế.
+
+## Owner nghiệm thu — 25/09/2026
+
+Toàn chỉ thị “tiếp đi cho full luôn”, trong khuôn ủy quyền “thì cái nào xong cho xong luôn đi”. Theo
+[danh sách W-0353](../W-0353/README.md), W-0169 chuyển **EVIDENCE_SUBMITTED → ACCEPTED** cho phần đã
+làm. Ba cảnh báo tồn đọng đã có câu trả lời: W-0105 và W-0118 nay là N/A (W-0316); lệch khỏi OD-20
+đã ghi vào decisions-log; bản đồ tài liệu sinh lại bằng mapper chính thức ở b92942e, không link nào
+trỏ tới đích không tồn tại. Claude chọn theo tiêu chí phiếu W-0348, không tự cấp phê duyệt; Toàn có
+thể đảo quyết định này.
+
+Mọi giới hạn trong cột Residual của tracker giữ nguyên. Bằng chứng giữ đúng lượt collector tại
+`b92942e`. REAL_CUSTOMER_CALL_ALLOWED=NO.

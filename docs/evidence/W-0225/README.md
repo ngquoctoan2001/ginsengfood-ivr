@@ -242,3 +242,16 @@ image mới, quét lại và xác thực lại trên S5. Việc sửa đi cùng 
 `candidate.source_bindings` của W-0343 vẫn khớp với cây làm việc (tính lại ngày 24/09).
 
 Hai blocker `LEGAL` và `INTERNAL_MIRROR` vẫn chờ bên ngoài như mục 8 ghi.
+
+## Owner nghiệm thu — 25/09/2026
+
+Toàn chỉ thị “tiếp đi cho full luôn”, trong khuôn ủy quyền “thì cái nào xong cho xong luôn đi”. Theo
+[danh sách W-0353](../W-0353/README.md), W-0225 chuyển **TESTS_PASS → ACCEPTED** cho phần đã làm.
+Hai bản luật duyệt phát hành nay có chung 56 ca: gate Node phát lại cả 56 trong --selftest, bản
+Python chạy cùng tệp trong image; 10 ca lệch được ghim thành expected failure. Blocker LEGAL và
+INTERNAL_MIRROR chờ bên ngoài; sửa bản Python đi cùng image TTS kế tiếp vì verify-model.py bị ghim ở
+W-0343. Claude chọn theo tiêu chí phiếu W-0348, không tự cấp phê duyệt; Toàn có thể đảo quyết định
+này.
+
+Mọi giới hạn trong cột Residual của tracker giữ nguyên. Bằng chứng giữ đúng lượt collector tại
+`b92942e`. REAL_CUSTOMER_CALL_ALLOWED=NO.

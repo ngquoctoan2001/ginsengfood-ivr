@@ -31,3 +31,14 @@ Phép kiểm của việc này là bước `dotnet list package --vulnerable` tr
 bản SSH.NET dính advisory quay lại qua Testcontainers, gate đỏ ở mức HIGH. Từ W-0352, gate này chạy trong lượt mở
 rộng của collector, và từ W-0353 khai báo `gates` được xét qua lượt đó. [Khai báo](acceptance-tests.json) nay ghi
 `security-scan.sh`. Kết quả và phạm vi lịch sử ở trên giữ nguyên.
+
+## Owner nghiệm thu — 25/09/2026
+
+Toàn chỉ thị “tiếp đi cho full luôn”, trong khuôn ủy quyền “thì cái nào xong cho xong luôn đi”. Theo
+[danh sách W-0353](../W-0353/README.md), W-0078 chuyển **TESTS_PASS → ACCEPTED** cho phần đã làm.
+security-scan.sh đạt trong lượt mở rộng của collector, theo khai báo W-0353. Bản ghim SSH.NET giữ
+tới khi Testcontainers công bố bản vá, là việc chờ bên ngoài. Claude chọn theo tiêu chí phiếu
+W-0348, không tự cấp phê duyệt; Toàn có thể đảo quyết định này.
+
+Mọi giới hạn trong cột Residual của tracker giữ nguyên. Bằng chứng giữ đúng lượt collector tại
+`b92942e`. REAL_CUSTOMER_CALL_ALLOWED=NO.

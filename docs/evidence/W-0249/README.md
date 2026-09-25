@@ -137,3 +137,15 @@ Hai dòng còn lại ở mục 8 không còn là việc phía IVR:
 - Endpoint thu hồi chờ Module 3 trả lời `M3-14` trong
   [phiếu IR-07](../../../integration-requirements/07-module-3-decision-sheet.md); mục `E-2` của phiếu
   đó mở endpoint theo shape M3 chốt.
+
+## Owner nghiệm thu — 25/09/2026
+
+Toàn chỉ thị “tiếp đi cho full luôn”, trong khuôn ủy quyền “thì cái nào xong cho xong luôn đi”. Theo
+[danh sách W-0353](../W-0353/README.md), W-0249 chuyển **TESTS_PASS → ACCEPTED** cho phần đã làm.
+Điểm giòn của test preflight đã được sửa bền ở W-0353: seed bằng SQL ghim theo schema W0144, không
+còn đi qua model sống. Đề xuất sai ở m8-17 §5 không còn trong tài liệu đang dùng; endpoint thu hồi
+chờ Module 3 trả lời M3-14. Claude chọn theo tiêu chí phiếu W-0348, không tự cấp phê duyệt; Toàn có
+thể đảo quyết định này.
+
+Mọi giới hạn trong cột Residual của tracker giữ nguyên. Bằng chứng giữ đúng lượt collector tại
+`b92942e`. REAL_CUSTOMER_CALL_ALLOWED=NO.

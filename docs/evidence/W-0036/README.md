@@ -82,3 +82,15 @@ REAL_CUSTOMER_CALL_ALLOWED=NO
 Bảng ở mục 1 nay được C2 kiểm lại: 12 ID §8 được gắn thêm vào đúng các test đang kiểm chúng, kèm ba
 test mới cho các vế chưa có assertion. Bảy ID theo nhóm còn chờ quyết định. Xem
 [bảng gắn tag và phần còn chờ](acceptance-addendum.md). Kết quả và phạm vi lịch sử ở trên giữ nguyên.
+
+## Owner nghiệm thu — 25/09/2026
+
+Toàn chỉ thị “tiếp đi cho full luôn”, trong khuôn ủy quyền “thì cái nào xong cho xong luôn đi”. Theo
+[danh sách W-0353](../W-0353/README.md), W-0036 chuyển **TESTS_PASS → ACCEPTED** cho phần đã làm.
+Bảy ID §8 của P5-2 có test chạy thật và đạt: CT-OAS-01..03 và CT-TASK-01..04, mỗi test mới đều đỏ
+khi thử đột biến (W-0353). Không có Pact là lựa chọn có chủ ý chờ Sales; E2E trình duyệt không còn
+đối tượng vì Admin UI đã gỡ ở W-0253; provider thật chờ bên ngoài. Claude chọn theo tiêu chí phiếu
+W-0348, không tự cấp phê duyệt; Toàn có thể đảo quyết định này.
+
+Mọi giới hạn trong cột Residual của tracker giữ nguyên. Bằng chứng giữ đúng lượt collector tại
+`b92942e`. REAL_CUSTOMER_CALL_ALLOWED=NO.
