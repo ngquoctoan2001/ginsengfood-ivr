@@ -1,0 +1,194 @@
+{
+  "work_id": "W-0037",
+  "plan_item": "P1.2 Full worker pipeline",
+  "profile": "LocalMockE2E",
+  "generated_at": "2026-09-25T16:35:41.126Z",
+  "started_at": "2026-09-25T12:35:11.427Z",
+  "run_id": "123511",
+  "safety": {
+    "execution_mode": "MOCK",
+    "sim_provider": "MOCK",
+    "real_customer_call_allowed": "NO",
+    "destination_allowlist": [
+      "mock-destination-allowlisted"
+    ]
+  },
+  "configuration": {
+    "rounds_requested": null,
+    "duration_minutes_requested": 240,
+    "workers": 2,
+    "extended_every": 10,
+    "attempt_policy_version": "mock-lab-v1",
+    "api": "http://127.0.0.1:5015",
+    "fake_sales": "http://127.0.0.1:18085",
+    "postgres_container": "ginsengfood-ivr-dev-postgres-1",
+    "postgres_port": 55433,
+    "eligibility_owner": "worker-polling",
+    "clock": "wall-clock progressing; MOCK calling window enabled 0..1440; task offsets backdated"
+  },
+  "coverage": {
+    "core_scenarios": [
+      "CONFIRM",
+      "CANCEL",
+      "NOANSWER",
+      "BUSY",
+      "NOINPUT",
+      "WRONGKEY",
+      "BADNUMBER",
+      "AUDIOERR",
+      "ACKOK",
+      "ACKDUP"
+    ],
+    "extended_scenarios": [
+      "REJECTED",
+      "UNREACH",
+      "DTMFERR",
+      "DROPPED",
+      "ACKBLOCK",
+      "ACKREVIEW",
+      "ACKSTALE",
+      "ACKCONFLICT",
+      "ACK422",
+      "ACK429",
+      "ACK500",
+      "ACK401",
+      "ACK247"
+    ],
+    "faults": []
+  },
+  "loop": {
+    "rounds_completed": 1092,
+    "tasks_admitted": 12337,
+    "tasks_settled": 12337,
+    "round_milliseconds": {
+      "min": 7504,
+      "median": 8787,
+      "max": 80959
+    }
+  },
+  "invariants": {
+    "miscounted": 0,
+    "duplicateFinals": 0,
+    "duplicateCallbacks": 0
+  },
+  "shared_e2e_ivr_side": {
+    "provenance": "IVR_SIDE_ONLY",
+    "what_this_is_not": "Not the shared-E2E report. Every case below has a Module 3 half - producer, revalidation, order-state effect - that no run on this side can observe. Signed evidence needs target-v1-shared-e2e-report-validator.mjs with real M3 artefacts and five sign-offs.",
+    "cases": [
+      {
+        "case_id": "TV1-E2E-01-GOLDEN-HOUR-ACCEPTED",
+        "demonstrated_by": "ACKOK",
+        "observed": "ACKOK=DELIVERED_ACCEPTED",
+        "ivr_side": "DEMONSTRATED"
+      },
+      {
+        "case_id": "TV1-E2E-02-24X7-ACCEPTED",
+        "demonstrated_by": "ACK247",
+        "observed": "ACK247=DELIVERED_ACCEPTED",
+        "ivr_side": "DEMONSTRATED"
+      },
+      {
+        "case_id": "TV1-E2E-03-EXACT-REPLAY",
+        "demonstrated_by": "ACKDUP",
+        "observed": "ACKDUP=DELIVERED_ACCEPTED",
+        "ivr_side": "DEMONSTRATED"
+      },
+      {
+        "case_id": "TV1-E2E-04-CHANGED-BODY-REPLAY",
+        "demonstrated_by": "ACKCONFLICT",
+        "observed": "ACKCONFLICT=IDEMPOTENCY_CONFLICT",
+        "ivr_side": "DEMONSTRATED"
+      },
+      {
+        "case_id": "TV1-E2E-05-STALE-VERSION-STATE",
+        "demonstrated_by": "ACKSTALE",
+        "observed": "ACKSTALE=REJECTED_STALE",
+        "ivr_side": "DEMONSTRATED"
+      },
+      {
+        "case_id": "TV1-E2E-06-CORE-BLOCKER",
+        "demonstrated_by": "ACKBLOCK+ACKREVIEW",
+        "observed": "ACKBLOCK=DELIVERED_BLOCKED, ACKREVIEW=DELIVERED_REVIEW",
+        "ivr_side": "DEMONSTRATED"
+      },
+      {
+        "case_id": "TV1-E2E-07-AUTH-NEGATIVE",
+        "demonstrated_by": "ACK401",
+        "observed": "ACK401=AUTH_REJECTED",
+        "ivr_side": "DEMONSTRATED"
+      },
+      {
+        "case_id": "TV1-E2E-08-INVALID-SCHEMA-RESULT",
+        "demonstrated_by": "ACK422",
+        "observed": "ACK422=INVALID_DEAD_LETTER",
+        "ivr_side": "DEMONSTRATED"
+      },
+      {
+        "case_id": "TV1-E2E-09-RATE-LIMIT",
+        "demonstrated_by": "ACK429",
+        "observed": "ACK429=RETRY_EXHAUSTED",
+        "ivr_side": "DEMONSTRATED"
+      },
+      {
+        "case_id": "TV1-E2E-10-M3-OUTAGE-TIMEOUT",
+        "demonstrated_by": "fault:callback-outage",
+        "observed": "not run",
+        "ivr_side": "NOT_DEMONSTRATED"
+      },
+      {
+        "case_id": "TV1-E2E-11-NO-ANSWER-FINAL",
+        "demonstrated_by": "NOANSWER",
+        "observed": "NOANSWER=DELIVERED_ACCEPTED",
+        "ivr_side": "DEMONSTRATED"
+      }
+    ],
+    "demonstrated": 10,
+    "of": 11
+  },
+  "concurrency_probe": {
+    "concurrent_requests": 10,
+    "intake_500": 0,
+    "intake_ok": 10,
+    "eligibility_500": 0,
+    "eligibility_ok": 10
+  },
+  "conflict_retries": {
+    "intake": 0,
+    "eligibility": 0,
+    "exhausted": 0
+  },
+  "open_findings": [],
+  "delivery_ledger": {
+    "callbackIds": 12331,
+    "redelivered": 218,
+    "inconsistent": 0
+  },
+  "faults": null,
+  "retention": {
+    "before": {
+      "purge": 1092,
+      "keep": 1092
+    },
+    "after": {
+      "done": true,
+      "callbacks": 0,
+      "results": 0,
+      "attempts": 0
+    },
+    "speech_snapshots_redacted": 1092,
+    "dependency_held": {
+      "jobs": 1092,
+      "tasks": 1092,
+      "outbox": 1092
+    },
+    "in_period_survivors": {
+      "callbacks": 1092,
+      "results": 1092,
+      "attempts": 1092,
+      "tasks": 1092,
+      "unredacted": 1092
+    }
+  },
+  "failures": [],
+  "verdict": "PASS"
+}

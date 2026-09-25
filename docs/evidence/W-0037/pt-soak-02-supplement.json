@@ -1,0 +1,200 @@
+{
+  "schema": "ivr-w0037-soak-supplement/v1",
+  "testId": "PT-SOAK-02",
+  "run": "pt-soak-02.json (fourth run of 2026-09-25, harness verdict PASS)",
+  "why": "The harness judges the first quarter of the samples against the last. In this run the first quarter (19:35-20:35 local) overlapped heavy load from other sessions on the same machine, while the last quarter (22:35-23:35) was quiet. Four comparisons use the first quarter as their baseline and become easier to pass under that load: callback backlog, window-close lag, deadline slack and core round duration. This file repeats the sample-based comparisons against the only quiet window before the load began, with the harness's own thresholds.",
+  "provenance": {
+    "sourceCommit": "d989c3181eb7952f96f823d8ad3c5e9740cdea8b",
+    "sourceTree": "688d9ab883f2e00b093b391d5cdff064c1c3da70",
+    "method": "The run used a git archive of d989c31, built in Release, outside any git repository. That is why the harness wrote commit \"\", and why its tracked_tree_clean: true means nothing here: git status could not run. After the run, the directory was compared file by file with a fresh git archive of the same commit. It was identical apart from bin/, obj/, ci-artifacts/ (the harness's logs), a .soak-commit marker, and the two files the harness wrote into docs/evidence/W-0037."
+  },
+  "launch": "Started 19:35:11 local through WMI (Win32_Process.Create) with its window hidden, so neither a restart of the Claude Code process nor a closed window could end it.",
+  "loadDuringRun": {
+    "cpuProfile": [
+      {
+        "from": "19:30",
+        "averageCpuPercent": 39
+      },
+      {
+        "from": "19:45",
+        "averageCpuPercent": 81
+      },
+      {
+        "from": "20:00",
+        "averageCpuPercent": 94
+      },
+      {
+        "from": "20:15",
+        "averageCpuPercent": 96
+      },
+      {
+        "from": "20:30",
+        "averageCpuPercent": 95
+      },
+      {
+        "from": "20:45",
+        "averageCpuPercent": 99
+      },
+      {
+        "from": "21:00",
+        "averageCpuPercent": 92
+      },
+      {
+        "from": "21:15",
+        "averageCpuPercent": 71
+      },
+      {
+        "from": "21:30",
+        "averageCpuPercent": 61
+      },
+      {
+        "from": "21:45",
+        "averageCpuPercent": 81
+      },
+      {
+        "from": "22:00",
+        "averageCpuPercent": 46
+      },
+      {
+        "from": "22:15",
+        "averageCpuPercent": 31
+      },
+      {
+        "from": "22:30",
+        "averageCpuPercent": 24
+      },
+      {
+        "from": "22:45",
+        "averageCpuPercent": 19
+      },
+      {
+        "from": "23:00",
+        "averageCpuPercent": 15
+      },
+      {
+        "from": "23:15",
+        "averageCpuPercent": 15
+      },
+      {
+        "from": "23:30",
+        "averageCpuPercent": 14
+      }
+    ],
+    "sources": [
+      "From 19:43 to about 22:00: three ops-core integration test hosts (Ginsengfood.Operational.*.Tests) and the IVR lot L6 session's integration test run in the main working tree, seen with a per-process CPU sample at 19:44 and again at 20:36.",
+      "From 20:36 to 20:45 this session built and ran unit and integration tests for the RuntimeGateApprovals.cs part of K-31, inside the middle half."
+    ]
+  },
+  "quietWindow": {
+    "from": "2026-09-25T12:36:29.001Z",
+    "to": "2026-09-25T12:47:41.724Z",
+    "samples": 11
+  },
+  "lastQuarter": {
+    "from": "2026-09-25T15:41:32.689Z",
+    "to": "2026-09-25T16:35:29.287Z",
+    "samples": 50
+  },
+  "criteria": [
+    {
+      "name": "api: working set",
+      "limit": "last-quarter median <= 1.5 x quiet-window median",
+      "observed": {
+        "quietWindowMedianMb": 186.2,
+        "lastQuarterMedianMb": 176.7
+      },
+      "ok": true
+    },
+    {
+      "name": "api: handles",
+      "limit": "last-quarter median <= 1.5 x quiet-window median + 100",
+      "observed": {
+        "quietWindowMedian": 625,
+        "lastQuarterMedian": 648
+      },
+      "ok": true
+    },
+    {
+      "name": "worker-1: working set",
+      "limit": "last-quarter median <= 1.5 x quiet-window median",
+      "observed": {
+        "quietWindowMedianMb": 167.8,
+        "lastQuarterMedianMb": 198.2
+      },
+      "ok": true
+    },
+    {
+      "name": "worker-1: handles",
+      "limit": "last-quarter median <= 1.5 x quiet-window median + 100",
+      "observed": {
+        "quietWindowMedian": 470,
+        "lastQuarterMedian": 482
+      },
+      "ok": true
+    },
+    {
+      "name": "worker-2: working set",
+      "limit": "last-quarter median <= 1.5 x quiet-window median",
+      "observed": {
+        "quietWindowMedianMb": 156.4,
+        "lastQuarterMedianMb": 177.6
+      },
+      "ok": true
+    },
+    {
+      "name": "worker-2: handles",
+      "limit": "last-quarter median <= 1.5 x quiet-window median + 100",
+      "observed": {
+        "quietWindowMedian": 469,
+        "lastQuarterMedian": 476
+      },
+      "ok": true
+    },
+    {
+      "name": "database connections",
+      "limit": "last-quarter peak <= 1.5 x quiet-window peak + 5",
+      "observed": {
+        "quietWindowPeak": 35,
+        "lastQuarterPeak": 15
+      },
+      "ok": true
+    },
+    {
+      "name": "callback backlog between rounds",
+      "limit": "last-quarter peak <= quiet-window peak + 5",
+      "observed": {
+        "quietWindowPeak": 0,
+        "lastQuarterPeak": 1
+      },
+      "ok": true
+    },
+    {
+      "name": "expired windows are closed promptly",
+      "limit": "last-quarter median lag <= quiet-window median + 30 s",
+      "observed": {
+        "quietWindowMedianSeconds": 0.091112,
+        "lastQuarterMedianSeconds": 0.054339
+      },
+      "ok": true
+    },
+    {
+      "name": "deadline slack does not erode",
+      "limit": "last-quarter median slack >= quiet-window median - 30 s",
+      "observed": {
+        "quietWindowMedianSeconds": 130.787164,
+        "lastQuarterMedianSeconds": 130.103375
+      },
+      "ok": true
+    },
+    {
+      "name": "core round duration",
+      "limit": "last-quarter median <= 2 x quiet reference",
+      "observed": {
+        "note": "per-round durations are not in the samples; the harness compared 983 core rounds itself. Its first-quarter median was 12684 ms under load and its last-quarter median 8595 ms; the only core round timed before the load, round 1 at 19:35, took 12126 ms. The last quarter is faster than that too."
+      },
+      "ok": true
+    }
+  ],
+  "computableCriteriaWithinLimits": true,
+  "notComputed": []
+}

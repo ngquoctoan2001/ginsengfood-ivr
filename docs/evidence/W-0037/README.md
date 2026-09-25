@@ -136,3 +136,46 @@ injected an audio error`, tức lỗi harness cố ý tiêm ở vòng extended, 
 
 **Lượt 4** bắt đầu 19:35 trên `d989c31` (có cả `W-0359` và `W-0360`), khởi chạy qua WMI với cửa sổ ẩn. Kết quả sẽ
 ghi ở mục sau.
+
+## 10. Lượt thứ tư: `PT-SOAK-02` đạt
+
+Lượt thứ tư chạy trên `d989c31` (đã có `W-0355` tới `W-0360`, trừ phần `RuntimeGateApprovals.cs` của `K-31`), từ 19:35:24
+tới 23:35:29, đủ 240 phút, hai worker, `MOCK` toàn phần, `REAL_CUSTOMER_CALL_ALLOWED=NO`. Harness kết luận **`PASS`**:
+1092/1092 vòng, 12 337 task nhận và đóng đủ, không lỗi, cả 18 tiêu chí đạt. Bản ghi của harness:
+[pt-soak-02.json](pt-soak-02.json); phần E2E đi kèm: [local-mock-e2e.json](local-mock-e2e.json).
+
+| Tiêu chí | Quý đầu → quý cuối | Ngưỡng |
+| --- | --- | --- |
+| Working set API · worker-1 · worker-2 | 171 → 169 MB · 163 → 189 MB · 158 → 169 MB | ≤ 1,5 lần |
+| Handle API · worker-1 · worker-2 | 609 → 648 · 481 → 482 · 472 → 476 | ≤ 1,5 lần + 100 |
+| Mỗi tiến trình một PID suốt lượt, không mất mẫu | 1 · 1 · 1 | không restart |
+| Kết nối database, đỉnh | 35 → 15 | ≤ 1,5 lần + 5 |
+| Backlog callback giữa các vòng, đỉnh | 1 → 1 | + 5 |
+| Task quá hạn chưa có kết quả; quay số sau hạn; kết quả khách sau hạn | 0; 0; 0 | 0 |
+| Cửa sổ hết hạn được đóng: số; trung vị độ trễ (tệ nhất) | 1 293; 0,238 → 0,054 giây (5,17 giây) | + 30 giây |
+| Độ dư trước hạn, trung vị (thấp nhất) | 129,9 → 130,1 giây (112,8 giây) | − 30 giây |
+| Thời lượng vòng lõi, trung vị (983 vòng lõi) | 12 684 → 8 595 ms | ≤ 2 lần |
+
+**Nguồn gốc.** Lượt chạy từ một bản `git archive` của `d989c31` nằm ngoài mọi repo git, nên harness ghi `commit` rỗng,
+và `tracked_tree_clean: true` của nó ở đây không có nghĩa. Sau lượt chạy, thư mục được so từng file với một bản
+`git archive` mới của cùng commit: trùng khớp, trừ `bin/`, `obj/`, `ci-artifacts/` (log của harness), một file đánh dấu
+và hai file harness ghi vào `docs/evidence/W-0037`. Commit và tree ghi ở [pt-soak-02-supplement.json](pt-soak-02-supplement.json).
+
+**Quý đầu bị tải, quý cuối thì không.** CPU trung bình mỗi 15 phút: 81–99% từ 19:45 tới 21:15, 61–81% tới 22:00, rồi
+14–24% từ 22:30 tới hết lượt. Nguồn tải: ba test host integration của ops-core, lượt test integration của phiên làm lô
+`L6` trên cây `main`, và mười phút build cùng test của chính phiên này ở nửa giữa. Bốn phép so lấy quý đầu làm mốc
+(backlog, độ trễ đóng cửa sổ, độ dư trước hạn, thời lượng vòng lõi) vì vậy dễ đạt hơn. Để bù, bản bổ sung tính lại các
+phép so có trong mẫu, cùng ngưỡng, giữa quý cuối và khoảng yên duy nhất trước khi tải bắt đầu (19:36–19:48, 11 mẫu): tất
+cả đạt, không chỉ số nào tụt. Khoảng đó ngắn và nằm ngay sau khởi động, nên đây là phép kiểm bổ sung, không thay được một
+lượt trên máy yên. Vòng lõi không tính lại được từ mẫu; vòng lõi duy nhất đo trước khi tải, vòng 1, mất 12 126 ms, vẫn
+chậm hơn trung vị quý cuối.
+
+**Cách khởi chạy.** Qua WMI với cửa sổ ẩn, để cả việc khởi động lại tiến trình Claude Code lẫn việc đóng cửa sổ đều
+không dừng được lượt này.
+
+**Không chứng minh**, theo `not_claimed` của harness: ngưỡng là của harness, không phải mức dịch vụ đã duyệt; không có số
+latency cho `D-04`; chỉ `MOCK`, không SIM, không nhà mạng, không khách thật (dung lượng 32 kênh thật là `W-0008`); một
+máy, một database, API và worker là tiến trình cục bộ chứ không chạy trong cluster.
+
+**Còn lại:** nếu Toàn cần một lượt mà cả quý đầu lẫn quý cuối đều trên máy yên, cần một khoảng bốn giờ không có phiên
+nào khác build.

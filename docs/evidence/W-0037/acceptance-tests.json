@@ -1,0 +1,12 @@
+{
+  "schema": "ivr-acceptance-tests/v1",
+  "workId": "W-0037",
+  "scope": "software",
+  "runs": [
+    {
+      "testId": "PT-SOAK-02",
+      "reason": "A four-hour soak cannot run on every collector pass. This is the harness's own record of the fourth run of 2026-09-25 on d989c31: 240 minutes, 1092 rounds, 12337 tasks, no failure, verdict PASS. Its first quarter overlapped other sessions' builds; README section 10 and pt-soak-02-supplement.json repeat the comparisons against the quiet window before that load.",
+      "file": "docs/evidence/W-0037/pt-soak-02.json"
+    }
+  ]
+}
