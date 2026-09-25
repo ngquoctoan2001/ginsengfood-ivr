@@ -76,3 +76,11 @@ Trên cây làm việc trước khi commit, đã build lại sau lần sinh DTO 
 
 Gói bằng chứng của collector tại commit sẽ chạy sau khi soak của `W-0037` kết thúc, vì CI và collector đều chạy trên
 máy này. Việc nặng trong lượt này được giữ trong nửa giữa của soak để hai quý mà soak so sánh không bị nhiễu.
+
+**Cập nhật `26/09`:** gói bằng chứng của collector đã chạy tại `58ea9e80`, sau khi soak của `W-0037` xong: unit
+`875/875`, contract `24/24`, integration `430/430`, chaos `8/8`; gate sweep `44/44`, gate mở rộng `5/5`. Chín gate hồ sơ
+này khai đều đạt trong lượt đó: `openapi-lint-gate.mjs`, `contract-freeze-verifier.mjs`, `openapi-contract-drift.mjs`,
+`docs-selftest.mjs`, `ci-config-selftest.mjs`, `capacity-selftest.mjs` (`CAPACITY_SELFTEST_PASS_UNCALIBRATED`),
+`dial-token-production-bundle-validator.mjs`, `acceptance-batches.mjs` và `gate-status.mjs`. Tên từng gate được ghi ở đây
+vì từ `W-0358` mỗi gate khai trong `acceptance-tests.json` phải có tên trong bằng chứng; hồ sơ này viết trước quy tắc đó
+nên đã trượt C2 ở lượt ấy chỉ vì thiếu tên.
