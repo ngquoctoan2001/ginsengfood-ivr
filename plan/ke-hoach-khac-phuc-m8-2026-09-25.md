@@ -638,7 +638,7 @@ và viết hoa; bí danh "Owner module IVR"; tham chiếu trong repo; thiếu/sa
 | Việc sau khi quyết | Giờ | Trạng thái |
 | --- | ---: | --- |
 | `Q-22.1` Vị từ + test + tài liệu (gộp với `Q-13.1` nếu kịp) | 0,5 | ✅ c98c479 · 893/893 (W-0364) · UT-INTAKE-EVENING-01/02, UT-INTAKE-WINDOW-SWEEP-01; intake từ chối T0 từ 21:00:30 (24/7), 21:05:30 (Giờ Vàng); IR-06, IR-07 sửa theo, ghim lại hash |
-| `Q-22.2` Task nhận ở giây cuối trước 21:08 không kịp claim bị tính `capacityMiss` (incident OPEN + metric sizing SIM phồng, `PostgresSchedulerStore.cs:446-474`) → phân loại lại chỉ ở incident/metric, **không** đổi result gửi M3 | 1,25 | 🟡 26/09 11:27 · phiên soak và L5 (Q-22.2) · ngưỡng Toàn chốt 26/09: dưới thời lượng một cuộc gọi (ExpectedCallDurationSeconds, 60 giây) |
+| `Q-22.2` Task nhận ở giây cuối trước 21:08 không kịp claim bị tính `capacityMiss` (incident OPEN + metric sizing SIM phồng, `PostgresSchedulerStore.cs:446-474`) → phân loại lại chỉ ở incident/metric, **không** đổi result gửi M3 | 1,25 | ✅ 5a41439 · 924/924 (W-0368) · UT-SCH-WINDOW-10, UT-SCH-HOURS-RANOUT-02, IT-SCH-HOURS-RANOUT-01; còn dưới một cuộc gọi (60 giây) giờ gọi thì không mở sự cố dung lượng, số đo ghi lý do CALLING_HOURS_CLOSED_BEFORE_DISPATCH, kết quả gửi M3 không đổi |
 
 #### `Q-23` — Token tĩnh Order Core luôn được nhận 🆕 · Tech Lead (vai M3) qua chief; Platform (OD-V1-07)
 
@@ -962,7 +962,7 @@ git commit -m "type(scope): W-XXXX mô tả" -- <paths>
 | `B13`, `B14` | `LabRealSim` gán cứng | ✅ + bù | `K-42` |
 | `B15` | `ToString` record mang số | ✅ + bù | `K-37`, `K-38` |
 | `B16` | `total_amount` số lẻ, cách ly SIM | Một phần ✅; `Q-12` PA1, `Q-16` PA2 ✔ 26/09, chưa làm | `K-14`, `K-26`, `K-27`, `K-29`, `K-30`, `Q-12`, `Q-16` |
-| `B17` | Guard W-0298 ở biên buổi sáng | `Q-13` ✅ `3d04eee`; `Q-22` ✔ PA2 25/09: `Q-22.1` ✅ `c98c479` 26/09, `Q-22.2` chưa làm | `Q-13`, `Q-22` |
+| `B17` | Guard W-0298 ở biên buổi sáng | `Q-13` ✅ `3d04eee`; `Q-22` ✔ PA2 25/09: `Q-22.1` ✅ `c98c479` 26/09, `Q-22.2` ✅ `5a41439` 26/09 | `Q-13`, `Q-22` |
 | `C1` | `program_code` | ⛔ M3 | `Q-33`, `CB-05` |
 | `C2` | 9 result code, dòng m8-05 | ✅ đính chính + còn câu trỏ; §13 ⛔ chief | `K-13`, `CB-16` |
 | `C3`, `C4` | `session_id` | ⛔ M3-07 | `Q-34`, `CB-04` |
