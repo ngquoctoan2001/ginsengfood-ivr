@@ -152,4 +152,42 @@ public sealed class CallingWindow(IOptions<CallingWindowOptions> options)
 
         return new CallingWindowDecision(false, localTime, opensAt.ToUniversalTime());
     }
+
+    /// <summary>
+    /// Q-22.2 (2026-09-26). How much of [<paramref name="fromUtc"/>, <paramref name="toUtc"/>) the
+    /// window is open for. It opens and closes on whole local minutes, and the offset is whole
+    /// minutes too, so the span is walked one minute at a time. A disabled window is open
+    /// throughout; an empty or reversed span has no open time.
+    /// </summary>
+    public TimeSpan OpenTimeBetween(DateTimeOffset fromUtc, DateTimeOffset toUtc)
+    {
+        if (toUtc <= fromUtc)
+        {
+            return TimeSpan.Zero;
+        }
+
+        if (!settings.Enabled)
+        {
+            return toUtc - fromUtc;
+        }
+
+        TimeSpan open = TimeSpan.Zero;
+        DateTimeOffset cursor = fromUtc.ToUniversalTime();
+        DateTimeOffset end = toUtc.ToUniversalTime();
+        while (cursor < end)
+        {
+            DateTimeOffset nextMinute = new DateTimeOffset(
+                cursor.UtcTicks - (cursor.UtcTicks % TimeSpan.TicksPerMinute),
+                TimeSpan.Zero).AddMinutes(1);
+            DateTimeOffset segmentEnd = nextMinute < end ? nextMinute : end;
+            if (Evaluate(cursor).Open)
+            {
+                open += segmentEnd - cursor;
+            }
+
+            cursor = segmentEnd;
+        }
+
+        return open;
+    }
 }

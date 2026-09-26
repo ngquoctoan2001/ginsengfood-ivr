@@ -1,0 +1,15 @@
+{
+  "schema": "ivr-acceptance-tests/v1",
+  "workId": "W-0368",
+  "scope": "software",
+  "requiredTestIds": [
+    "UT-SCH-WINDOW-10",
+    "UT-SCH-HOURS-RANOUT-02",
+    "IT-SCH-HOURS-RANOUT-01",
+    "IT-SCH-CAPACITY-HELD-01"
+  ],
+  "gates": [
+    "generate-test-traceability.mjs",
+    "gate-status.mjs"
+  ]
+}

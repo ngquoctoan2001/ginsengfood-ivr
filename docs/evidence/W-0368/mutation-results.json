@@ -1,0 +1,81 @@
+{
+  "schema": "ivr-mutation-results/v1",
+  "workId": "W-0368",
+  "captured_at": "2026-09-26",
+  "method": "Each check breaks one thing the lot added, in an isolated copy of 8305ad5e plus this lot, rebuilds the project the named tests live in, runs them, and writes the original bytes back (never git checkout). Every named test must fail and the named neighbour must stay green. Controls run after restoring: the calling window and store composition unit tests, and the two sweep integration TestIds. The seventh check (the store the container builds) ran after the first six and reran the unit control. None of the lot's files changed on main while it was built (W-0367 landed meanwhile), so it landed as written; the combined tree is re-verified on main in the README.",
+  "results": [
+    {
+      "id": "Q-22.2 the sweep never asks the calling hours",
+      "tests": {
+        "IT-SCH-HOURS-RANOUT-01": "Failed!  - Failed:     1, Passed:     0, Skipped:     0, Total:     1, Duration: 5 s"
+      },
+      "neighbour": "IT-SCH-CAPACITY-HELD-01",
+      "neighbourSummary": "Passed!  - Failed:     0, Passed:     1, Skipped:     0, Total:     1, Duration: 6 s",
+      "verdict": "RED_AS_EXPECTED"
+    },
+    {
+      "id": "Q-22.2 exactly one call of calling time also counts as run out",
+      "tests": {
+        "IT-SCH-HOURS-RANOUT-01": "Failed!  - Failed:     1, Passed:     0, Skipped:     0, Total:     1, Duration: 5 s"
+      },
+      "neighbour": "IT-SCH-CAPACITY-HELD-01",
+      "neighbourSummary": "Passed!  - Failed:     0, Passed:     1, Skipped:     0, Total:     1, Duration: 6 s",
+      "verdict": "RED_AS_EXPECTED"
+    },
+    {
+      "id": "Q-22.2 a late arrival in an open window counts as run out of hours",
+      "tests": {
+        "IT-SCH-HOURS-RANOUT-01": "Failed!  - Failed:     1, Passed:     0, Skipped:     0, Total:     1, Duration: 5 s"
+      },
+      "neighbour": "IT-SCH-CAPACITY-HELD-01",
+      "neighbourSummary": "Passed!  - Failed:     0, Passed:     1, Skipped:     0, Total:     1, Duration: 6 s",
+      "verdict": "RED_AS_EXPECTED"
+    },
+    {
+      "id": "Q-22.2 a job that ran out of hours still opens a capacity incident",
+      "tests": {
+        "IT-SCH-HOURS-RANOUT-01": "Failed!  - Failed:     1, Passed:     0, Skipped:     0, Total:     1, Duration: 5 s"
+      },
+      "neighbour": "IT-SCH-CAPACITY-HELD-01",
+      "neighbourSummary": "Passed!  - Failed:     0, Passed:     1, Skipped:     0, Total:     1, Duration: 5 s",
+      "verdict": "RED_AS_EXPECTED"
+    },
+    {
+      "id": "Q-22.2 the metric keeps the capacity reason",
+      "tests": {
+        "IT-SCH-HOURS-RANOUT-01": "Failed!  - Failed:     1, Passed:     0, Skipped:     0, Total:     1, Duration: 4 s"
+      },
+      "neighbour": "IT-SCH-CAPACITY-HELD-01",
+      "neighbourSummary": "Passed!  - Failed:     0, Passed:     1, Skipped:     0, Total:     1, Duration: 4 s",
+      "verdict": "RED_AS_EXPECTED"
+    },
+    {
+      "id": "Q-22.2 closed calling time is counted as open",
+      "tests": {
+        "UT-SCH-WINDOW-10": "Failed!  - Failed:     1, Passed:     0, Skipped:     0, Total:     1, Duration: 20 ms"
+      },
+      "neighbour": "UT-SCH-WINDOW-09",
+      "neighbourSummary": "Passed!  - Failed:     0, Passed:     1, Skipped:     0, Total:     1, Duration: 17 ms",
+      "verdict": "RED_AS_EXPECTED"
+    },
+    {
+      "id": "Q-22.2 the container builds the store without the calling hours",
+      "tests": {
+        "UT-SCH-HOURS-RANOUT-02": "Failed!  - Failed:     1, Passed:     0, Skipped:     0, Total:     1, Duration: 98 ms"
+      },
+      "neighbour": "UT-SCH-WINDOW-10",
+      "neighbourSummary": "Passed!  - Failed:     0, Passed:     1, Skipped:     0, Total:     1, Duration: 22 ms",
+      "verdict": "RED_AS_EXPECTED"
+    },
+    {
+      "id": "CONTROL unit, restored (calling window and store composition tests)",
+      "summary": "Passed!  - Failed:     0, Passed:    18, Skipped:     0, Total:    18, Duration: 125 ms",
+      "verdict": "GREEN_AS_EXPECTED"
+    },
+    {
+      "id": "CONTROL integration, restored (the two sweep TestIds)",
+      "summary": "Passed!  - Failed:     0, Passed:     2, Skipped:     0, Total:     2, Duration: 6 s",
+      "verdict": "GREEN_AS_EXPECTED"
+    }
+  ]
+}

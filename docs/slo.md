@@ -213,6 +213,13 @@ chứ không theo dự đoán là điều giữ cho hai counter trung thực v�
 — không phải một lần cho mỗi lượt quét. Lượt quét chạy mỗi vòng scheduler và hầu như luôn không tìm
 thấy gì; một counter nhích lên ở những lượt rỗng sẽ làm một hệ đang rảnh trông như một hệ đang hỏng.
 
+*Thêm 26/09 (`Q-22.2`):* job chưa quay lần nào mà giờ gọi chỉ còn mở chưa tới một cuộc gọi
+(`ExpectedCallDurationSeconds`) trong khoảng từ lúc tới (hoặc `T0`) tới hạn cửa sổ, và giờ gọi thật sự đóng
+trong khoảng đó, được đếm với `ivr_reason_code=CALLING_HOURS_CLOSED_BEFORE_DISPATCH`, không mở sự cố dung
+lượng. Đó là đơn tới ở những giây cuối trước `21:08` hoặc sau đó, không phải thiếu kênh. Kết quả gửi Module 3
+không đổi (`IVR_CAPACITY_EXCEPTION`). Luật `IvrConfirmationDeadlineMissed` hiện vẫn cộng mọi lý do; lọc theo lý
+do là việc của `K-61`.
+
 ### Vì sao ngưỡng là **không**, và vì sao đó là suy ra chứ không phải chọn
 
 Mô hình dung lượng (`W-0054`) nói pool prod đang ship **phủ được đỉnh mô hình**. Dưới chính giả định

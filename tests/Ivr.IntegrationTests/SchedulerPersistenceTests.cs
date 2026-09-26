@@ -408,6 +408,125 @@ public sealed class SchedulerPersistenceTests(PostgresPersistenceFixture fixture
         Assert.Empty(observed);
     }
 
+    /// <summary>
+    /// Q-22.2 (2026-09-26). A queued job the calling hours left less than one expected call's time
+    /// to be dialled in ran out of hours, not of channels: it closes for Module 3 exactly as a
+    /// capacity miss does, but opens no capacity incident and is counted under its own reason, so
+    /// the figure that sizes the SIM order is not raised by it. The threshold is Toàn's, 26/09:
+    /// ExpectedCallDurationSeconds (60). Pinned from both sides - 59 seconds of calling time left
+    /// runs out, 60 does not - with the default hours, 08:00-21:08 at +07:00.
+    /// </summary>
+    [Fact]
+    [Trait("TestId", "IT-SCH-HOURS-RANOUT-01")]
+    public async Task AJobLeftLessThanOneCallOfCallingHoursIsNotCountedAsACapacityShortage()
+    {
+        await fixture.ResetAsync();
+        IDbContextFactory<IvrDbContext> factory = Factory();
+        static DateTimeOffset Local(int hour, int minute, int second) =>
+            new DateTimeOffset(2026, 9, 5, hour, minute, second, TimeSpan.FromHours(7)).ToUniversalTime();
+        DateTimeOffset t0 = Local(21, 5, 0);
+        DateTimeOffset expires = Local(21, 15, 0);
+        const string ranOutJob = "JOB-SCH-HOURS-RANOUT-59";
+        const string shortageJob = "JOB-SCH-HOURS-RANOUT-60";
+        const string lateInAnOpenWindowJob = "JOB-SCH-HOURS-RANOUT-NOON";
+        await SeedReadyJobAsync(factory, "TASK-SCH-HOURS-RANOUT-59", ranOutJob, t0, expires);
+        await SeedReadyJobAsync(factory, "TASK-SCH-HOURS-RANOUT-60", shortageJob, t0, expires);
+
+        // The third arrived with only 30 seconds of its window left, at noon. That is little time,
+        // but the hours did not run out on it - the window did - so it stays a capacity miss.
+        await SeedReadyJobAsync(
+            factory,
+            "TASK-SCH-HOURS-RANOUT-NOON",
+            lateInAnOpenWindowJob,
+            Local(12, 0, 0),
+            Local(12, 5, 0));
+        await using (IvrDbContext arrival = await factory.CreateDbContextAsync())
+        {
+            // Both arrived late in their window; one with 59 seconds of calling hours left, one
+            // with 60.
+            (await arrival.CallJobs.SingleAsync(job => job.IvrCallJobId == ranOutJob)).CreatedAt =
+                Local(21, 7, 1);
+            (await arrival.CallJobs.SingleAsync(job => job.IvrCallJobId == shortageJob)).CreatedAt =
+                Local(21, 7, 0);
+            (await arrival.CallJobs.SingleAsync(job => job.IvrCallJobId == lateInAnOpenWindowJob)).CreatedAt =
+                Local(12, 4, 30);
+            await arrival.SaveChangesAsync();
+        }
+
+        var store = new PostgresSchedulerStore(
+            factory,
+            new FixedTimeProvider(expires),
+            new CallingWindow(Options.Create(new CallingWindowOptions())),
+            Options.Create(new SchedulerOptions()));
+        List<string> reasons = [];
+        using (var listener = new MeterListener
+        {
+            InstrumentPublished = (instrument, target) =>
+            {
+                if (instrument.Meter.Name == IvrTelemetry.ServiceName
+                    && instrument.Name == "ivr_missed_deadline_total")
+                {
+                    target.EnableMeasurementEvents(instrument);
+                }
+            },
+        })
+        {
+            listener.SetMeasurementEventCallback<long>((_, _, tags, _) =>
+            {
+                foreach (KeyValuePair<string, object?> tag in tags)
+                {
+                    if (tag.Key == TelemetryTags.ReasonCode)
+                    {
+                        lock (reasons)
+                        {
+                            reasons.Add(tag.Value?.ToString() ?? string.Empty);
+                        }
+                    }
+                }
+            });
+            listener.Start();
+            Assert.Equal(3, await store.CloseMissedDeadlinesAsync(expires.AddSeconds(1), 16));
+        }
+
+        Assert.Equal(
+            [PostgresSchedulerStore.CallingHoursClosedBeforeDispatch, "NO_DISPATCH_BEFORE_DEADLINE", "NO_DISPATCH_BEFORE_DEADLINE"],
+            reasons.Order(StringComparer.Ordinal).ToArray());
+
+        await using IvrDbContext verification = await factory.CreateDbContextAsync();
+        CallJobEntity ranOut = await verification.CallJobs.AsNoTracking()
+            .SingleAsync(job => job.IvrCallJobId == ranOutJob);
+        CallJobEntity shortage = await verification.CallJobs.AsNoTracking()
+            .SingleAsync(job => job.IvrCallJobId == shortageJob);
+        CallJobEntity lateInAnOpenWindow = await verification.CallJobs.AsNoTracking()
+            .SingleAsync(job => job.IvrCallJobId == lateInAnOpenWindowJob);
+        Assert.Null(ranOut.CapacityIncidentId);
+        Assert.NotNull(shortage.CapacityIncidentId);
+        Assert.NotNull(lateInAnOpenWindow.CapacityIncidentId);
+        Assert.Equal(
+            new[] { shortage.CapacityIncidentId, lateInAnOpenWindow.CapacityIncidentId }.Order(StringComparer.Ordinal),
+            (await verification.CapacityIncidents.AsNoTracking().Select(incident => incident.CapacityIncidentId).ToListAsync())
+                .Order(StringComparer.Ordinal));
+
+        // What Module 3 receives is the same for all three.
+        foreach (CallJobEntity job in new[] { ranOut, shortage, lateInAnOpenWindow })
+        {
+            Assert.Equal("CAPACITY_MISSED", job.Status);
+            CallResultEntity result = await verification.CallResults.AsNoTracking()
+                .SingleAsync(row => row.IvrCallJobId == job.IvrCallJobId);
+            Assert.Equal("IVR_CAPACITY_EXCEPTION", result.ResultType);
+            Assert.Equal("NO_DISPATCH_BEFORE_DEADLINE", result.ResultReason);
+        }
+
+        Assert.Equal(3, await verification.ResultCallbacks.CountAsync());
+        foreach ((string job, bool ranOutOfHours) in new[] { (ranOutJob, true), (shortageJob, false), (lateInAnOpenWindowJob, false) })
+        {
+            string data = (await verification.AuditLog.AsNoTracking()
+                .SingleAsync(row => row.TargetId == job && row.Action == "SCHEDULER_DEADLINE_MISSED")).DataJson;
+            using JsonDocument audit = JsonDocument.Parse(data);
+            Assert.Equal(ranOutOfHours, audit.RootElement.GetProperty("calling_hours_ran_out").GetBoolean());
+        }
+    }
+
     private static MeterListener ListenForCapacityMetrics(
         List<(string Instrument, string Taxonomy)> observed)
     {

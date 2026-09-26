@@ -239,6 +239,47 @@ public sealed class CallingWindowTests
         Assert.True(Window().Evaluate(onTheStrokeOfNine + lastOffset247).Open);
     }
 
+    /// <summary>
+    /// Q-22.2 (2026-09-26). How much of a span the window is open for, which the missed-deadline
+    /// sweep asks to tell a job that ran out of calling hours from one that ran out of channels.
+    /// Pinned at the edges that matter: the last seconds before 21:08, the first minute after 08:00,
+    /// midnight, a span the window covers whole, and a disabled window.
+    /// </summary>
+    [Fact]
+    [Trait("TestId", "UT-SCH-WINDOW-10")]
+    public void OpenTimeBetweenCountsOnlyTheOpenPartOfASpan()
+    {
+        CallingWindow window = Window();
+
+        Assert.Equal(
+            TimeSpan.FromSeconds(10),
+            window.OpenTimeBetween(LocalVietnamAtSecond(21, 7, 50), LocalVietnamAtSecond(21, 15, 0)));
+        Assert.Equal(
+            TimeSpan.FromMinutes(8),
+            window.OpenTimeBetween(LocalVietnamAtSecond(21, 0, 0), LocalVietnamAtSecond(21, 15, 0)));
+        Assert.Equal(
+            TimeSpan.FromMinutes(10),
+            window.OpenTimeBetween(LocalVietnamAtSecond(20, 0, 0), LocalVietnamAtSecond(20, 10, 0)));
+        Assert.Equal(
+            TimeSpan.FromSeconds(60),
+            window.OpenTimeBetween(LocalVietnamAtSecond(7, 59, 30), LocalVietnamAtSecond(8, 1, 0)));
+        Assert.Equal(
+            TimeSpan.Zero,
+            window.OpenTimeBetween(LocalVietnamAtSecond(21, 10, 0), LocalVietnamAtSecond(21, 15, 0)));
+        Assert.Equal(
+            TimeSpan.Zero,
+            window.OpenTimeBetween(LocalVietnamAtSecond(23, 59, 0), LocalVietnamAtSecond(0, 1, 0).AddDays(1)));
+        Assert.Equal(
+            TimeSpan.Zero,
+            window.OpenTimeBetween(LocalVietnamAtSecond(12, 0, 0), LocalVietnamAtSecond(12, 0, 0)));
+        Assert.Equal(
+            TimeSpan.Zero,
+            window.OpenTimeBetween(LocalVietnamAtSecond(12, 5, 0), LocalVietnamAtSecond(12, 0, 0)));
+        Assert.Equal(
+            TimeSpan.FromMinutes(5),
+            Window(enabled: false).OpenTimeBetween(LocalVietnamAtSecond(21, 10, 0), LocalVietnamAtSecond(21, 15, 0)));
+    }
+
     private static DateTimeOffset LocalVietnamAtSecond(int hour, int minute, int second) =>
         new DateTimeOffset(2026, 9, 5, hour, minute, second, TimeSpan.FromHours(7))
             .ToUniversalTime();

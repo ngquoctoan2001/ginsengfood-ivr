@@ -52,10 +52,38 @@ public interface IPostgresSchedulerStore
         CancellationToken cancellationToken = default);
 }
 
+/// <param name="callingWindow">
+/// Q-22.2. The calling hours, so the missed-deadline sweep can tell a job that ran out of them from
+/// one that ran out of channels. Without it (tests, tools) every zero-attempt job is a capacity
+/// miss, as before.
+/// </param>
+/// <param name="schedulerOptions">
+/// Q-22.2. Supplies <see cref="SchedulerOptions.ExpectedCallDurationSeconds"/>, the least calling
+/// time a job must have had for its miss to count as a capacity shortage.
+/// </param>
 public sealed class PostgresSchedulerStore(
     IDbContextFactory<IvrDbContext> dbContextFactory,
-    TimeProvider timeProvider) : IPostgresSchedulerStore
+    TimeProvider timeProvider,
+    CallingWindow? callingWindow = null,
+    Microsoft.Extensions.Options.IOptions<SchedulerOptions>? schedulerOptions = null) : IPostgresSchedulerStore
 {
+    /// <summary>
+    /// Q-22.2 (2026-09-26). The <c>ivr.reason_code</c> on <c>ivr_missed_deadline_total</c> for a job
+    /// that was never dialled because the calling hours left it less than one expected call's time
+    /// between arriving and its deadline - a task that arrived in the last seconds before 21:08, or
+    /// after it. Not a channel shortage, so no capacity incident is opened and the counter that
+    /// sizes the SIM order is not raised under the capacity reason. What Module 3 receives does not
+    /// change: the result is still <c>IVR_CAPACITY_EXCEPTION</c> with its usual reason.
+    /// </summary>
+    public const string CallingHoursClosedBeforeDispatch = "CALLING_HOURS_CLOSED_BEFORE_DISPATCH";
+
+    /// <summary>
+    /// Q-22.2. Whether this store was given the calling hours and the call length, so that its
+    /// missed-deadline sweep can tell a job that ran out of hours from one that ran out of channels.
+    /// The scheduler's own store always is; a store built by hand without them is not.
+    /// </summary>
+    public bool ClassifiesByCallingHours => callingWindow is not null && schedulerOptions is not null;
+
     public async Task<SchedulerDispatchLease?> TryClaimDueDispatchAsync(
         string workerId,
         string executionMode,
@@ -470,6 +498,14 @@ public sealed class PostgresSchedulerStore(
                 && (capacityHeld
                     || string.Equals(job.Status, "READY_FOR_SCHEDULER", StringComparison.Ordinal));
 
+            // Q-22.2 (2026-09-26). A queued job the calling hours left less than one expected
+            // call's time to be dialled in - it arrived in the last seconds before 21:08, or after -
+            // ran out of hours, not of channels. It closes exactly as before for Module 3, but opens
+            // no capacity incident and is counted under its own reason, so the figure that sizes
+            // the SIM order is not raised by it. A job eligibility held for capacity keeps its
+            // incident: that shortage was measured when it was held.
+            bool hoursRanOut = capacityMiss && !capacityHeld && CallingHoursRanOut(job);
+
             // The customer side of the same question, and it is not the same question. Reaching
             // the customer at least once means the confirmation genuinely lapsed and Core can
             // expire it. Never reaching them means the order would die for a call that was never
@@ -483,7 +519,7 @@ public sealed class PostgresSchedulerStore(
             // one, and only a job that was queued and never served opens a new incident.
             string? heldIncidentId = capacityMiss && capacityHeld ? job.CapacityIncidentId : null;
             string incidentId = heldIncidentId ?? string.Concat("CAP-", Guid.NewGuid().ToString("N"));
-            if (capacityMiss && heldIncidentId is null)
+            if (capacityMiss && heldIncidentId is null && !hoursRanOut)
             {
                 context.CapacityIncidents.Add(new CapacityIncidentEntity
                 {
@@ -519,7 +555,8 @@ public sealed class PostgresSchedulerStore(
                 detectedAt,
                 new Dictionary<string, object?>
                 {
-                    ["capacity_incident_id"] = capacityMiss ? incidentId : null,
+                    ["capacity_incident_id"] = capacityMiss && !hoursRanOut ? incidentId : null,
+                    ["calling_hours_ran_out"] = hoursRanOut,
                     ["result_id"] = resultId,
                     ["deadline"] = job.ExpiresAt,
                     ["is_counted_customer_attempt"] = false,
@@ -590,13 +627,16 @@ public sealed class PostgresSchedulerStore(
                 evidenceRef,
                 auditRef,
                 detectedAt));
-            job.CapacityIncidentId = capacityMiss ? incidentId : null;
+            job.CapacityIncidentId = capacityMiss && !hoursRanOut ? incidentId : null;
             job.Status = capacityMiss ? "CAPACITY_MISSED" : "WINDOW_EXPIRED";
             job.QueueStatus = capacityMiss ? "CLOSED_CAPACITY" : "CLOSED_WINDOW_EXPIRED";
             job.ClosedAt = detectedAt;
             job.ClosedReason = normalized.ResultStatus;
             context.AuditLog.Add(audit);
-            closed.Add((job.ProgramType, normalized.ResultStatus, reasonCode));
+            closed.Add((
+                job.ProgramType,
+                normalized.ResultStatus,
+                hoursRanOut ? CallingHoursClosedBeforeDispatch : reasonCode));
         }
 
         await context.SaveChangesAsync(cancellationToken);
@@ -626,6 +666,26 @@ public sealed class PostgresSchedulerStore(
         }
 
         return jobs.Count;
+    }
+
+    /// <summary>
+    /// Q-22.2. True when the calling hours closed at some point between the job's arrival (or its
+    /// T0, whichever is later) and its deadline, and what they left open in that span was less than
+    /// one expected call. The first half keeps a job that simply arrived late in an open window a
+    /// capacity miss: the hours did not run out on it, the window did.
+    /// </summary>
+    private bool CallingHoursRanOut(CallJobEntity job)
+    {
+        if (callingWindow is null || schedulerOptions is null)
+        {
+            return false;
+        }
+
+        DateTimeOffset from = job.CreatedAt > job.T0At ? job.CreatedAt : job.T0At;
+        TimeSpan span = job.ExpiresAt - from;
+        TimeSpan open = callingWindow.OpenTimeBetween(from, job.ExpiresAt);
+        TimeSpan oneCall = TimeSpan.FromSeconds(schedulerOptions.Value.ExpectedCallDurationSeconds);
+        return open < span && open < oneCall;
     }
 
     private static DateTimeOffset[] DeserializeSchedule(string json, int expectedCount)
