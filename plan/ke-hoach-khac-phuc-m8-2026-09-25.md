@@ -260,22 +260,22 @@ biến `9/9`; gate sweep `44/44`. Rà lại thấy phần đã làm **đúng hư
 | `Q-01` | Hình thức phát hành lại IR-07 🔥 | C7, C9, C15 | Toàn (báo chief) | PA2 | 0,25 | ✔ PA2 · 25/09 · Toàn |
 | `Q-02` | Câu chữ đính chính C23 🔥 | C23, N1 | Toàn | PA2 | 0,5 | ✔ PA2 · 25/09 · Toàn |
 | `Q-03` | C22 khi chưa có nguyên văn bảng v1 🔥 | C22 | Toàn | PA3 | 1 | ✔ PA3 · 25/09 · Toàn |
-| `Q-04` | Các ghi "Sếp + Toàn 17/09" | A1 bước 5 | Toàn | PA2 | 0,3 | ⏸ Toàn |
-| `Q-05` | Thẻ kill switch trên console 🆕 | — | Toàn (báo Tech Lead) | PA1 | 0,5 | ⏸ Toàn |
+| `Q-04` | Các ghi "Sếp + Toàn 17/09" | A1 bước 5 | Toàn | PA2 | 0,3 | ✔ PA2 · 26/09 · Toàn (theo khuyến nghị) |
+| `Q-05` | Thẻ kill switch trên console 🆕 | — | Toàn (báo Tech Lead) | PA1 | 0,5 | ✔ PA1 · 26/09 · Toàn (theo khuyến nghị) — PA2 khi M3 cần diễn tập kill switch trên sandbox |
 | `Q-06` | Vị từ `revoked_at` khi nào | B7 | chief | PA2 | 0 | ✔ PA2 · 16/09 · chief |
-| `Q-07` | Endpoint capacity-incidents | B9 bước 1 | Toàn (chief duyệt) | PA3 | 0 (8 sau) | ⏸ Toàn |
-| `Q-08` | Tờ trình rủi ro cho Sếp | A1 bước 1, A3, A4, C5 | Toàn (chief chuyển) | PA1 | 1,5 | ⏸ Toàn |
-| `Q-09` | Phép thử schema B5 🆕 | B5 | Toàn (báo chief) | PA2 | 1,5 | ⏸ Toàn |
-| `Q-10` | Ví dụ sandbox ca đơn đêm | C15 bước 2 | Toàn | PA2 | 2 | ⏸ Toàn |
-| `Q-11` | Nguồn clip N1 | N1 | Toàn | PA1 | 0 | ⏸ Toàn |
-| `Q-12` | Guard tên hàng lệch intake/lúc quay 🆕 | B16 | Toàn (báo chief) | PA1 | 2 | ⏸ Toàn |
+| `Q-07` | Endpoint capacity-incidents | B9 bước 1 | Toàn (chief duyệt) | PA3 | 0 (8 sau) | ✔ PA3 · 26/09 · Toàn (theo khuyến nghị) — hỏi M3 qua `M3-32` (`K-17`), code khi M3 trả lời |
+| `Q-08` | Tờ trình rủi ro cho Sếp | A1 bước 1, A3, A4, C5 | Toàn (chief chuyển) | PA1 | 1,5 | ✔ PA1 · 26/09 · Toàn (theo khuyến nghị) |
+| `Q-09` | Phép thử schema B5 🆕 | B5 | Toàn (báo chief) | PA2 | 1,5 | ✔ PA2 · 26/09 · Toàn (theo khuyến nghị) |
+| `Q-10` | Ví dụ sandbox ca đơn đêm | C15 bước 2 | Toàn | PA2 | 2 | ✔ PA2 · 26/09 · Toàn (theo khuyến nghị) |
+| `Q-11` | Nguồn clip N1 | N1 | Toàn | PA1 | 0 | ✔ PA1 · 26/09 · Toàn (theo khuyến nghị) |
+| `Q-12` | Guard tên hàng lệch intake/lúc quay 🆕 | B16 | Toàn (báo chief) | PA1 | 2 | ✔ PA1 · 26/09 · Toàn (theo khuyến nghị) |
 | `Q-13` | Mô hình biên buổi sáng 🔥 | B17 | Toàn (báo chief) | PA1 | 3 | ✔ PA1 · 25/09 · Toàn |
-| `Q-14` | Pipeline main không thể xanh 🆕 | dòng 714 | Toàn + chief (PA1 cần Sếp) | PA2 → PA1 | 4 | ⏸ Toàn |
-| `Q-15` | 3 biến "an toàn" không ai đọc 🆕 | dòng 106 | Toàn (báo chief) | PA1 | 2,5 | ⏸ Toàn |
-| `Q-16` | Lớp lỗi "intake nhận – lúc quay từ chối" | B16 | Toàn đề xuất, chief duyệt | PA2 | 3 | ⏸ Toàn |
-| `Q-17` | Hạ S2 / `legal_gate` / mirror | A1 bước 2, A3, A4, B8 | Toàn (theo hướng chief) | PA1 | 3 | ⏸ Toàn |
-| `Q-18` | Siết gate tts-provenance | A1 bước 6 | Toàn đề xuất, chief duyệt | PA1 | 3,5 | ⏸ Toàn |
-| `Q-19` | Giới hạn tuổi phát lại callback | C21 | Toàn (báo chief) | PA2 | 4,5 | ⏸ Toàn |
+| `Q-14` | Pipeline main không thể xanh 🆕 | dòng 714 | Toàn + chief (PA1 cần Sếp) | PA2 → PA1 | 4 | ✔ PA2 · 26/09 · Toàn (theo khuyến nghị) — PA1 khi phiếu Platform được duyệt |
+| `Q-15` | 3 biến "an toàn" không ai đọc 🆕 | dòng 106 | Toàn (báo chief) | PA1 | 2,5 | ✔ PA1 · 26/09 · Toàn (theo khuyến nghị) |
+| `Q-16` | Lớp lỗi "intake nhận – lúc quay từ chối" | B16 | Toàn đề xuất, chief duyệt | PA2 | 3 | ✔ PA2 · 26/09 · Toàn (theo khuyến nghị) |
+| `Q-17` | Hạ S2 / `legal_gate` / mirror | A1 bước 2, A3, A4, B8 | Toàn (theo hướng chief) | PA1 | 3 | ✔ PA1 · 26/09 · Toàn (theo khuyến nghị) |
+| `Q-18` | Siết gate tts-provenance | A1 bước 6 | Toàn đề xuất, chief duyệt | PA1 | 3,5 | ✔ PA1 · 26/09 · Toàn (theo khuyến nghị) |
+| `Q-19` | Giới hạn tuổi phát lại callback | C21 | Toàn (báo chief) | PA2 | 4,5 | ✔ PA2 · 26/09 · Toàn (theo khuyến nghị) |
 | `Q-20` | Thu hồi task có phát callback không | C13 | chief | PA1 | 0 | ✔ PA1 · 25/09 · Toàn (theo đề xuất M8, không gửi chief) |
 | `Q-21` | Tên trường callback trên dây | C10 | chief | PA1 | 0 | ✔ PA1 · 25/09 · Toàn (theo đề xuất M8, không gửi chief) |
 | `Q-22` | Vùng tối 21:00:30–21:08 🆕 | C15, B17 | chief | PA2 | 1,75 | ✔ PA2 · 25/09 · Toàn (theo đề xuất M8, không gửi chief) |
@@ -297,6 +297,10 @@ biến `9/9`; gate sweep `44/44`. Rà lại thấy phần đã làm **đúng hư
 > **25/09 — `Q-20…Q-29`:** Toàn chốt theo khuyến nghị M8 thay cho việc gửi chief; tin gộp §7 không gửi. Phần của
 > các phương án cần người khác làm vì thế **chưa ai được báo**: chief sửa §14 trỏ về OAS (`Q-21`), ngoại lệ tạm trên
 > server test (`Q-24`), M3 đối ký bảng map (`Q-27`), Platform giữ khoá HMAC và Sếp ký chuyển pilot → mở (`Q-28`).
+
+> **26/09 — `Q-04`, `Q-05`, `Q-07…Q-12`, `Q-14…Q-19`:** Toàn chốt cả 14 theo khuyến nghị (“Chốt hết theo khuyến
+> nghị”). Như 25/09, phần cần người khác **chưa ai được báo**: chief duyệt `Q-07`, `Q-16`, `Q-18`; chief được báo `Q-09`,
+> `Q-12`, `Q-14`, `Q-15`, `Q-19`; chief chuyển tờ trình `Q-08`; Tech Lead được báo `Q-05`; `Q-14` lên PA1 cần Sếp.
 
 ### Nhóm 1 — Toàn quyết (`Q-06` đã có phán quyết chief)
 
@@ -627,8 +631,8 @@ và viết hoa; bí danh "Owner module IVR"; tham chiếu trong repo; thiếu/sa
 
 | Việc sau khi quyết | Giờ | Trạng thái |
 | --- | ---: | --- |
-| `Q-22.1` Vị từ + test + tài liệu (gộp với `Q-13.1` nếu kịp) | 0,5 | ⬜ |
-| `Q-22.2` Task nhận ở giây cuối trước 21:08 không kịp claim bị tính `capacityMiss` (incident OPEN + metric sizing SIM phồng, `PostgresSchedulerStore.cs:446-474`) → phân loại lại chỉ ở incident/metric, **không** đổi result gửi M3 | 1,25 | ⬜ |
+| `Q-22.1` Vị từ + test + tài liệu (gộp với `Q-13.1` nếu kịp) | 0,5 | 🟡 26/09 09:38 · phiên soak và L5 (Q-22, Q-24, Q-28) |
+| `Q-22.2` Task nhận ở giây cuối trước 21:08 không kịp claim bị tính `capacityMiss` (incident OPEN + metric sizing SIM phồng, `PostgresSchedulerStore.cs:446-474`) → phân loại lại chỉ ở incident/metric, **không** đổi result gửi M3 | 1,25 | 🟡 26/09 09:38 · phiên soak và L5 (Q-22, Q-24, Q-28) |
 
 #### `Q-23` — Token tĩnh Order Core luôn được nhận 🆕 · Tech Lead (vai M3) qua chief; Platform (OD-V1-07)
 
@@ -661,6 +665,10 @@ Công cụ đang tạo tài nguyên ngoài `/home/ssv/m8`: `deploy/lab/full-flow
 | PA3 | Công cụ cho các lượt sau đổi theo PA2 (tên `m8_`, cổng 68xx, thư mục `/m8`); tài nguyên cũ giữ chỉ-đọc như ngoại lệ tạm rồi dọn theo nhãn; mirror production **không** dời trong server test mà chờ kho S5 thật | Giảm va chạm ngay; không ghim lại hai lần; trung thực về kho production | — | ~2 giờ bây giờ |
 
 **Khuyến nghị: PA3.** Trong lúc chờ: không chạy thêm lượt S5 bằng công cụ hiện tại.
+
+| Việc sau khi quyết | Giờ | Trạng thái |
+| --- | ---: | --- |
+| `Q-24.1` Công cụ cho các lượt sau theo PA2: tiền tố `m8_`, cổng 6800–6899, thư mục `/home/ssv/m8` (`launcher.py`, `run-vieneu-s5.py`, `run-vieneu-worker-s5.py` và test của chúng). Tài nguyên cũ giữ chỉ-đọc, dọn theo nhãn sau; mirror production không dời (chờ kho S5 thật, `CB-15`) | 2 | 🟡 26/09 09:38 · phiên soak và L5 (Q-22, Q-24, Q-28) |
 
 #### `Q-25` — N1: nơi lưu ngân hàng clip · Toàn + chief (kho, C18) + Platform (S5)
 
@@ -714,8 +722,8 @@ này không thể chứa số (guardrails bắt mọi mục qua PiiGuard). Nhán
 
 | Việc sau khi quyết | Giờ | Trạng thái |
 | --- | ---: | --- |
-| `Q-28.1` Sửa gate + `IT-FLAG-PRODGATE-15/16`, `UT-TRUNK-GATE-01/02`; sửa `InternalAdminApiService.cs:994-1000` (retry kỹ thuật tay cũng đòi allowlist lab ở mọi chế độ) | 6 | ⬜ |
-| `Q-28.2` `IT-PHONE-CONTAIN-03`: số chỉ dùng ở mép nhà mạng | 1 | ⬜ |
+| `Q-28.1` Sửa gate + `IT-FLAG-PRODGATE-15/16`, `UT-TRUNK-GATE-01/02`; sửa `InternalAdminApiService.cs:994-1000` (retry kỹ thuật tay cũng đòi allowlist lab ở mọi chế độ) | 6 | 🟡 26/09 09:38 · phiên soak và L5 (Q-22, Q-24, Q-28) |
+| `Q-28.2` `IT-PHONE-CONTAIN-03`: số chỉ dùng ở mép nhà mạng | 1 | 🟡 26/09 09:38 · phiên soak và L5 (Q-22, Q-24, Q-28) |
 | `Q-28.3` Dựng lời thoại **trước** khi resolve số (hiện từ chối tất định xảy ra sau resolve, tiêu lượt resolve, ghi nhầm là lỗi mạng; thông báo còn ghi "lab" trên đường production) — làm cùng SIP-04 | 1 | ⬜ |
 
 #### `Q-29` — N1: phạm vi đoạn động ở production quá độ · Tech Lead; chief đối chiếu PACK-09; Sếp xác nhận nếu chọn (a) hoặc (c)
@@ -932,22 +940,22 @@ git commit -m "type(scope): W-XXXX mô tả" -- <paths>
 
 | Mã chief | Tên ngắn | Trạng thái 25/09 (sau `f3e26a6`; dòng có `3d04eee` hoặc ✔ 25/09 cập nhật chiều 25/09) | Task trong kế hoạch |
 | --- | --- | --- | --- |
-| `A1` | Owner IVR tự ký quyết định ngoài M8 | Bước 4, 7 ✅; còn 1, 2, 3, 5, 6 | `Q-08`, `Q-17`, `K-18`, `Q-04`, `Q-18`, `K-06` |
+| `A1` | Owner IVR tự ký quyết định ngoài M8 | Bước 4, 7 ✅; còn 1, 2, 3, 5, 6 (`Q-04`, `Q-08`, `Q-17`, `Q-18` ✔ 26/09, chưa làm) | `Q-08`, `Q-17`, `K-18`, `Q-04`, `Q-18`, `K-06` |
 | `A2` | `phone_e164` đọc được, giữ vĩnh viễn | ⛔ Sếp (B2) | `Q-32`, `K-40`, `K-24`, `CB-10` |
 | `A3`, `A4` | Tự nhận thẩm quyền ký S2, kiêm Legal/Privacy | ➖ gộp A1 | `Q-08`, `Q-17`, `Q-18` |
 | `B1` | Capacity 800–1200 cuộc/phiên | Bước 1 ✅ + sót | `K-21`, `Q-31`, `CB-12` |
 | `B2` | 4 file softphone văn phòng | ➖ không giao dev | `Q-36`, `CB-20` |
 | `B3`, `B4`, `B6` | Đã xong vòng 16/09 | ✅ | `K-06` (dòng chữ còn sót của B6) |
-| `B5` | Runbook rollback W0122/P03 | Một phần ✅ | `K-20`, `Q-09` |
+| `B5` | Runbook rollback W0122/P03 | Một phần ✅; `Q-09` ✔ PA2 26/09, chưa làm | `K-20`, `Q-09` |
 | `B7` | Deadline sweep không biết task bị thu hồi | ✔ chờ gói C13 | `Q-06`, `CB-03` |
 | `B8` | TTS VieNeu | Chuyển sang N1 | `K-48…K-50`, `Q-11`, `Q-17`, `Q-24`, `Q-25`, `Q-26`, `Q-29`, `CB-15` |
-| `B9` | Admin UI/monitoring §16 | Bước 2 ✅ + sót; bước 1 chưa hỏi M3 | `K-15`, `K-17`, `Q-07` |
+| `B9` | Admin UI/monitoring §16 | Bước 2 ✅ + sót; bước 1: `Q-07` ✔ PA3 26/09, hỏi qua `M3-32` (`K-17` ✅), chờ IR-07 tới M3 (`CB-01`) | `K-15`, `K-17`, `Q-07` |
 | `B10` | Constraint khoá hành vi V0.3 | ➖ gộp C7; giữ constraint | `K-12`, `CB-19` |
 | `B11` | Vị trí số E.164 | Bước 0 ✅ + sót; bước 1–4 ⛔ Sếp | `K-39`, `K-41`, `Q-28`, `Q-32`, `CB-10` |
 | `B12` | Telephony adapter production | ⛔ nhà mạng; `Q-27`, `Q-28` ✔ PA2 25/09 | `K-25`, `K-42…K-47`, `Q-27`, `Q-28`, `CB-12`, `CB-13` |
 | `B13`, `B14` | `LabRealSim` gán cứng | ✅ + bù | `K-42` |
 | `B15` | `ToString` record mang số | ✅ + bù | `K-37`, `K-38` |
-| `B16` | `total_amount` số lẻ, cách ly SIM | Một phần ✅ | `K-14`, `K-26`, `K-27`, `K-29`, `K-30`, `Q-12`, `Q-16` |
+| `B16` | `total_amount` số lẻ, cách ly SIM | Một phần ✅; `Q-12` PA1, `Q-16` PA2 ✔ 26/09, chưa làm | `K-14`, `K-26`, `K-27`, `K-29`, `K-30`, `Q-12`, `Q-16` |
 | `B17` | Guard W-0298 ở biên buổi sáng | `Q-13` ✅ `3d04eee`; `Q-22` ✔ PA2 25/09, chưa làm | `Q-13`, `Q-22` |
 | `C1` | `program_code` | ⛔ M3 | `Q-33`, `CB-05` |
 | `C2` | 9 result code, dòng m8-05 | ✅ đính chính + còn câu trỏ; §13 ⛔ chief | `K-13`, `CB-16` |
@@ -961,14 +969,14 @@ git commit -m "type(scope): W-XXXX mô tả" -- <paths>
 | `C12` | `IVR_OPT_OUT` | ⛔ Sếp S2 điểm 6 + chief | `K-51`, `CB-11`, `CB-16` |
 | `C13`, `C17` | Thu hồi task; re-check trước attempt 2 | `Q-20` ✔ PA1 25/09; ⛔ M3-14 | `Q-20`, `CB-03` |
 | `C14` | Kết nối M2 | ✅ + sót checklist | `K-13` |
-| `C15`, `C20` | Đơn đêm | Bước 1, 3, 4 ✅ + sót | `K-05`, `K-11`, `Q-10`, `Q-13`, `Q-22`, `CB-08` |
+| `C15`, `C20` | Đơn đêm | Bước 1, 3, 4 ✅ + sót; `Q-10` ✔ PA2 26/09, chưa làm | `K-05`, `K-11`, `Q-10`, `Q-13`, `Q-22`, `CB-08` |
 | `C16` | Contact Gate / dial token | ⛔ Sếp + SIP-04; 🆕 có việc dev mới (`Q-28` ✔ PA2 25/09, chưa làm) | `Q-28`, `CB-10`, `CB-13` |
 | `C18` | Server test ngoài cấp phát | `Q-24` ✔ PA3 25/09, chưa làm | `Q-24`, `CB-15` |
 | `C19` | Phương án B trên contract | ➖ gộp A2 | `Q-32` |
-| `C21` | Phát lại callback không giới hạn tuổi | Tài liệu ✅; code ⏸ | `K-13`, `Q-19` |
+| `C21` | Phát lại callback không giới hạn tuổi | Tài liệu ✅; code: `Q-19` ✔ PA2 26/09, chưa làm | `K-13`, `Q-19` |
 | `C22` | Bảng map v0 bỏ phân biệt runtime | ⏸ chờ nguyên văn v1 | `Q-03`, `CB-02` |
 | `C23` | IR-07 hứa VieNeu đọc lúc gọi | Đính chính ✅ `3d04eee` (`Q-02`); phần N1 theo `Q-29` PA2 | `Q-02` |
-| `N1` | Không sinh giọng lúc gọi | `K-48…K-50` ✅ `8efa3ee` 26/09 (bước 4–6); `Q-25`, `Q-26` PA1 và `Q-29` PA2 ✔ 25/09; `Q-29.1…Q-29.5` chưa làm, `Q-11` ⏸ Toàn | `K-48`, `K-49`, `K-50`, `Q-11`, `Q-25`, `Q-26`, `Q-29` |
+| `N1` | Không sinh giọng lúc gọi | `K-48…K-50` ✅ `8efa3ee` 26/09 (bước 4–6); `Q-25`, `Q-26` PA1 và `Q-29` PA2 ✔ 25/09; `Q-29.1…Q-29.5` chưa làm, `Q-11` ✔ PA1 26/09 | `K-48`, `K-49`, `K-50`, `Q-11`, `Q-25`, `Q-26`, `Q-29` |
 | `N2…N5` | ORDER_VERIFIED, bộ đếm, MB, giá | ✅ còn đúng (kiểm lại 25/09); N3 đầu-cuối chờ C22 | — |
 | `V6-1`/`V6-9`, `V6-4`/`V6-12`, `V6-8`/`V6-17` | Tất định, không classifier, không ORDER_VERIFIED | ✅ phân tích | — |
 | `V6-2`/`V6-10` | Template duyệt, có version | B13 ✅; S1 ⛔ Sếp | `Q-30` |
@@ -977,10 +985,10 @@ git commit -m "type(scope): W-XXXX mô tả" -- <paths>
 | `V6-6`/`V6-14` | Provider hỏng → fail an toàn | Đạt vế không tính lượt; 🆕 lỗ luồng ARI | `K-47`, N1 |
 | `V6-7`/`V6-15` | Classifier P1 | Không làm trước cổng V6.4 | — |
 | `D1…D11` | Đã đạt | ✅ còn đúng (kiểm lại 25/09) | `K-08`, `K-05` (chữ D11) |
-| Dòng 106, 123 | `IVR_ADAPTER_MODE` dùng làm bằng chứng | 🆕 biến không có tác dụng | `Q-15` |
+| Dòng 106, 123 | `IVR_ADAPTER_MODE` dùng làm bằng chứng | 🆕 biến không có tác dụng; `Q-15` ✔ PA1 26/09, chưa làm | `Q-15` |
 | Dòng 120, 717 | Thiếu `X-Actor-Id` → 403 | ✅ `f3e26a6` (IR-06, IR-08) | — |
 | Dòng 121 | Cảnh báo "(none registered)" lúc khởi động | ✅ 5aec684 | `K-33` |
-| Dòng 714 | CI hosted không xanh | `openapi_lint` ✅; còn `deploy_dev` | `K-01`, `K-05`, `Q-14`, `CB-17` |
+| Dòng 714 | CI hosted không xanh | `openapi_lint` ✅; còn `deploy_dev`; `Q-14` ✔ PA2 26/09, chưa làm | `K-01`, `K-05`, `Q-14`, `CB-17` |
 
 ---
 
