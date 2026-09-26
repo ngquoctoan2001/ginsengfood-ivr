@@ -10,13 +10,13 @@
     "telephony_requirements_path": "integration-requirements/03-telephony-sim-requirements.md",
     "telephony_requirements_sha256": "8025bb2809c026d7c04340373a600e8ef70399cf394320ca2ce6e6e58b28811e",
     "m3_handover_path": "integration-requirements/06-module-3-api-handover.md",
-    "m3_handover_sha256": "f10a7304c3e1a275704e3bf231012f0d55633d59daa03b368a2202386389512e",
+    "m3_handover_sha256": "6e858eb41e72e87803c546b37a77ccc35bc02af46ece460d4931a03691f2cc7a",
     "task_oas_path": "specs/api/openapi/ivr-order-confirmation.v1.yaml",
-    "task_oas_sha256": "394842853a6de21b9882c954cb0b49ee89d986da880ff76bc30baf17f9f672a3",
+    "task_oas_sha256": "f301cda8492c22bc9e26bc108bda5b9cf8b232509821fd74ea1719ad89628034",
     "resolver_port_path": "src/Ivr.Domain/Ports/ProviderPorts.cs",
     "resolver_port_sha256": "d993926759b55270a95a09ab85742be61e5a967249f708a1980c4a8fe07b9ee5",
     "intake_service_path": "src/Ivr.Infrastructure/Intake/TaskIntakeService.cs",
-    "intake_service_sha256": "c5db0924df64204fc322bc96bd40865f807505056e8232aa56b7d8c66f7a064b",
+    "intake_service_sha256": "baed79ef579fec5c66f7ed205179c79dd5a0e4461b032b8f58a628345b790927",
     "requirement_scope": "B5-C12-DTK.2026-09-04"
   },
   "candidate": {

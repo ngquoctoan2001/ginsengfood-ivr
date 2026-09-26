@@ -6,6 +6,7 @@ using Ivr.Api.Internal;
 using Ivr.Domain.Errors;
 using Ivr.Domain.Policies;
 using Ivr.Domain.Privacy;
+using Ivr.Infrastructure.Callbacks;
 using Ivr.Infrastructure.Configuration;
 using Ivr.Infrastructure.DevTooling;
 using Ivr.Infrastructure.FeatureFlags;
@@ -68,7 +69,8 @@ public sealed class InternalAdminApiService(
     IFeatureFlags featureFlags,
     IOptions<IvrOptions> ivrOptions,
     IOptions<SchedulerOptions> schedulerOptions,
-    TimeProvider timeProvider) : IIvrLifecycleApiService, IIvrAdminOperationsService
+    TimeProvider timeProvider,
+    IOptions<CallbackReplayOptions> callbackReplayOptions) : IIvrLifecycleApiService, IIvrAdminOperationsService
 {
     private static readonly JsonSerializerOptions JsonOptions = new(JsonSerializerDefaults.Web);
     private const string AdminPauseScope = "ADMIN_QUEUE_PAUSE";
@@ -840,6 +842,13 @@ public sealed class InternalAdminApiService(
     /// duplicate for Sales to recognise, not a second outcome.
     /// </para>
     /// <para>
+    /// Q-19 (PA2, 2026-09-26). <c>AUTH_REJECTED</c> is a dead letter too: once IVR authenticates
+    /// its callbacks (C11), a wrong credential leaves every result in that state, and until now only
+    /// an <c>UPDATE</c> could bring them back. And a replay is refused, with nothing written, once
+    /// the callback is older than <see cref="CallbackReplayOptions.MaxAgeDays"/>: the replay reuses
+    /// the first attempt's idempotency key, which Module 3 keeps only that long.
+    /// </para>
+    /// <para>
     /// Refused with nothing written (409) when the callback is not dead-lettered - replaying one
     /// still in flight would race the outbox that owns it - and when its confirmation task is
     /// gone: the outbox could only dead-letter it again, and the operator would be left believing
@@ -870,11 +879,18 @@ public sealed class InternalAdminApiService(
                     item => item.CallbackId == callbackId,
                     token)
                     ?? throw IvrErrors.NotFound("The result callback was not found.");
-                if (callback.DeliveryStatus is not ("RETRY_EXHAUSTED" or "INVALID_DEAD_LETTER"))
+                if (callback.DeliveryStatus is not ("RETRY_EXHAUSTED" or "INVALID_DEAD_LETTER" or "AUTH_REJECTED"))
                 {
                     throw new IvrFailureException(
                         IvrErrorCodes.VersionConflict,
                         "Only a dead-lettered callback can be replayed.");
+                }
+
+                if (now - callback.CreatedAt > callbackReplayOptions.Value.MaxAge)
+                {
+                    throw new IvrFailureException(
+                        IvrErrorCodes.VersionConflict,
+                        "The callback is older than the replay limit, so it cannot be sent again.");
                 }
 
                 bool taskExists = await context.ConfirmationTasks.AnyAsync(

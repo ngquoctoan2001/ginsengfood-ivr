@@ -10,6 +10,22 @@ and does not approve the external Sales contract.
 
 ## Current comparisons
 
+> **`1.0.0-draft.34` (`Q-16`, `Q-19`, `26/09`)** chỉ đổi mô tả; schema không đổi, và `oasdiff` in *"No changes to
+> report, but the specs are different"* cho `33→34`.
+>
+> 1. **Intake dựng thử lời thoại trước khi nhận** (`Q-16`). Tóm tắt đơn không đọc được thành lời theo kịch bản đã duyệt
+>    — `total_amount` lớn hơn `999999999999`, lời thoại quá `1.200` ký tự, hoặc giá trị mà guard lời nói từ chối — bị
+>    `422 IVR_PII_POLICY_VIOLATION` (reason `SPEECH_SUMMARY_NOT_RENDERABLE`). Trước bản này intake trả `200`, rồi mọi
+>    lần quay đều hỏng tới hết cửa sổ. Giới hạn ghi trong mô tả của `total_amount` và `quantity`, không ghi vào schema,
+>    để người gửi nhận được lý do thay vì một lỗi schema.
+> 2. **Phát lại callback đã chết** (`Q-19`) nhận thêm `AUTH_REJECTED`, và từ chối (`409`, không ghi gì) callback cũ hơn
+>    giới hạn phát lại: `7` ngày, cấu hình `1–30`. Lần phát lại dùng lại idempotency key của lần gửi đầu, mà Module 3
+>    chỉ giữ key chừng ấy (`M3-10`).
+> 3. Summary của `POST /feature-flags/{environment}` sửa theo `IR-06`: dòng phê duyệt `RUNTIME_GATE_ADMIN` đã bị thu
+>    hồi, nên thay đổi không thuần giảm rủi ro nhận `409 IVR_OPERATIONAL_BLOCKED` (`K-15`).
+>
+> **Không breaking theo `oasdiff`**: `33→34` và `27→34` đều không có dòng breaking. Module 3 không phải sinh lại client.
+
 > **`1.0.0-draft.33` (W-0354)** có hai thay đổi, và `oasdiff` chỉ thấy một trong hai. Nó mô tả thay đổi đó ngược chiều.
 >
 > 1. **`privacy_safe_order_summary.total_amount` nay là số đồng nguyên** (`multipleOf: 1`). Số lẻ như `210636.8` bị
@@ -133,7 +149,7 @@ and does not approve the external Sales contract.
 
 | Contract | Baseline | Current | Generated report |
 | --- | --- | --- | --- |
-| IVR-owned Target V1 draft | `1.0.0-draft.27` | `1.0.0-draft.33` | [IVR API changelog](api/changelog/ivr-order-confirmation.md) |
+| IVR-owned Target V1 draft | `1.0.0-draft.27` | `1.0.0-draft.34` | [IVR API changelog](api/changelog/ivr-order-confirmation.md) |
 | Sales callback Target V1 draft | `1.0.0-draft` | `1.0.0-draft` | [Sales callback changelog](api/changelog/order-core-ivr-callback.md) |
 
 `1.0.0-draft.3` (W-0095) added three read-only admin operations — `GET /dashboard`,

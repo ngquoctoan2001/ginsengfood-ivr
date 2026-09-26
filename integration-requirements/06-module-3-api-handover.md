@@ -5,7 +5,7 @@
 **Từ:** Team Module 8 — IVR Order Confirmation (.NET, service tách biệt)
 
 **Cập nhật:** 2026-09-03
-**Trạng thái:** `TARGET_V1_DRAFT` — chờ Module 3 review/sign-off; IVR repo đã alignment theo `W-0123`, external integration/production gates vẫn mở. **Thêm §4A ngày 28/08/2026:** hợp đồng bề mặt quản trị sau khi IVR xoá toàn bộ hệ thống tài khoản/phân quyền (`W-0128`) — phần này M3 chưa từng nhận, và client viết theo bản trước 28/08 sẽ hỏng. **OpenAPI hiện hành `1.0.0-draft.33` (đối soát 25/09; `draft.33` ghi đúng kiểu OpenAPI 3.1 cho ba field có thể null của `audit-evidence` và bắt `total_amount` là số đồng nguyên; `draft.32` thêm endpoint replay callback ở tầng `danger`, §4A.3):** lịch sử `draft.23` đã gỡ auth/accounts; 11 endpoint auth/accounts đã bị gỡ khỏi spec, M3 cần sinh lại client (§4A.7). **Thêm §3.5A ngày 03/09/2026:** M8 ký đề xuất `golden_hour_session_id`; code/OpenAPI/DB chưa được phép đổi trước chữ ký M3 (`W-0146`).
+**Trạng thái:** `TARGET_V1_DRAFT` — chờ Module 3 review/sign-off; IVR repo đã alignment theo `W-0123`, external integration/production gates vẫn mở. **Thêm §4A ngày 28/08/2026:** hợp đồng bề mặt quản trị sau khi IVR xoá toàn bộ hệ thống tài khoản/phân quyền (`W-0128`) — phần này M3 chưa từng nhận, và client viết theo bản trước 28/08 sẽ hỏng. **OpenAPI hiện hành `1.0.0-draft.34` (26/09: intake từ chối tóm tắt đơn không đọc được thành lời, phát lại callback có giới hạn tuổi và nhận `AUTH_REJECTED`; đối soát 25/09: `draft.33` ghi đúng kiểu OpenAPI 3.1 cho ba field có thể null của `audit-evidence` và bắt `total_amount` là số đồng nguyên; `draft.32` thêm endpoint replay callback ở tầng `danger`, §4A.3):** lịch sử `draft.23` đã gỡ auth/accounts; 11 endpoint auth/accounts đã bị gỡ khỏi spec, M3 cần sinh lại client (§4A.7). **Thêm §3.5A ngày 03/09/2026:** M8 ký đề xuất `golden_hour_session_id`; code/OpenAPI/DB chưa được phép đổi trước chữ ký M3 (`W-0146`).
 
 > **Ranh giới đã được owner làm rõ ngày 2026-08-27:** **Module 3 quyết định nghiệp vụ; IVR thực thi cuộc gọi.**
 >
@@ -22,11 +22,11 @@ Nguồn kỹ thuật liên quan — **đường dẫn tính từ gốc repositor
 | Callback OpenAPI Target V1 | `specs/api/openapi/order-core-ivr-callback.target-v1.yaml` |
 | Closure pack T-01…T-09 | `docs/contracts/target-v1-closure-pack/README.md` |
 | Decisions log | `plan/ivr-orther/decisions-log.md` |
-| **OpenAPI IVR — bản hiện hành `1.0.0-draft.33`** | `specs/api/openapi/ivr-order-confirmation.v1.yaml` |
+| **OpenAPI IVR — bản hiện hành `1.0.0-draft.34`** | `specs/api/openapi/ivr-order-confirmation.v1.yaml` |
 | **So sánh draft.20 → draft.22** | `docs/api/changelog/ivr-order-confirmation.v1.0.0-draft.20-to-v1.0.0-draft.22.md` |
 | **So sánh draft.22 → draft.23** | `docs/api/changelog/ivr-order-confirmation.v1.0.0-draft.22-to-v1.0.0-draft.23.md` |
 | **So sánh draft.23 → draft.24 — có breaking, đọc trước khi sinh client** | `docs/api/changelog/ivr-order-confirmation.v1.0.0-draft.23-to-v1.0.0-draft.24.md` |
-| **So sánh draft.25 → 26 → 27 → 28 → 29 → 30 → 31 → 32 → 33** | [25→26](../docs/api/changelog/ivr-order-confirmation.v1.0.0-draft.25-to-v1.0.0-draft.26.md), [26→27](../docs/api/changelog/ivr-order-confirmation.v1.0.0-draft.26-to-v1.0.0-draft.27.md), [27→28](../docs/api/changelog/ivr-order-confirmation.v1.0.0-draft.27-to-v1.0.0-draft.28.md), [28→29](../docs/api/changelog/ivr-order-confirmation.v1.0.0-draft.28-to-v1.0.0-draft.29.md), [29→30](../docs/api/changelog/ivr-order-confirmation.v1.0.0-draft.29-to-v1.0.0-draft.30.md), [30→31](../docs/api/changelog/ivr-order-confirmation.v1.0.0-draft.30-to-v1.0.0-draft.31.md), [31→32](../docs/api/changelog/ivr-order-confirmation.v1.0.0-draft.31-to-v1.0.0-draft.32.md), [32→33](../docs/api/changelog/ivr-order-confirmation.v1.0.0-draft.32-to-v1.0.0-draft.33.md); sinh bằng oasdiff đã ghim; oasdiff không báo breaking ở bước nào — `28→29` **thêm** `GET /audit-evidence` (`W-0307`) và hai schema; `29→30` thêm field tuỳ chọn `phone_e164` (`W-0311`); `30→31` nới `dial_token` + `dial_token_expires_at` thành *"cặp token **hoặc** số"* (`W-0312`, §3.4.0); `32→33` (`W-0354`) thêm `multipleOf: 1` cho `total_amount` — số lẻ nay bị `400`, oasdiff không tính là breaking nhưng đó **là** một phép siết, nên có đính chính ngày `25/09` ở `IR-07` — và đổi `nullable: true` (không có trong OpenAPI 3.1, nên trước đây bị bỏ qua) thành `type: [string, 'null']` ở ba field của `IvrAuditEvidenceRow`. Baseline CI giữ `draft.27` để lượt sau còn so được. *Link `28→29` từng trỏ tới một file không tồn tại (`…draft.28-to-…draft.30.md`) — dấu vết của lần thay chuỗi version trần ở `W-0311`, sửa ở `W-0312`* |
+| **So sánh draft.25 → 26 → 27 → 28 → 29 → 30 → 31 → 32 → 33 → 34** | [25→26](../docs/api/changelog/ivr-order-confirmation.v1.0.0-draft.25-to-v1.0.0-draft.26.md), [26→27](../docs/api/changelog/ivr-order-confirmation.v1.0.0-draft.26-to-v1.0.0-draft.27.md), [27→28](../docs/api/changelog/ivr-order-confirmation.v1.0.0-draft.27-to-v1.0.0-draft.28.md), [28→29](../docs/api/changelog/ivr-order-confirmation.v1.0.0-draft.28-to-v1.0.0-draft.29.md), [29→30](../docs/api/changelog/ivr-order-confirmation.v1.0.0-draft.29-to-v1.0.0-draft.30.md), [30→31](../docs/api/changelog/ivr-order-confirmation.v1.0.0-draft.30-to-v1.0.0-draft.31.md), [31→32](../docs/api/changelog/ivr-order-confirmation.v1.0.0-draft.31-to-v1.0.0-draft.32.md), [32→33](../docs/api/changelog/ivr-order-confirmation.v1.0.0-draft.32-to-v1.0.0-draft.33.md), [33→34](../docs/api/changelog/ivr-order-confirmation.v1.0.0-draft.33-to-v1.0.0-draft.34.md); sinh bằng oasdiff đã ghim; oasdiff không báo breaking ở bước nào — `28→29` **thêm** `GET /audit-evidence` (`W-0307`) và hai schema; `29→30` thêm field tuỳ chọn `phone_e164` (`W-0311`); `30→31` nới `dial_token` + `dial_token_expires_at` thành *"cặp token **hoặc** số"* (`W-0312`, §3.4.0); `32→33` (`W-0354`) thêm `multipleOf: 1` cho `total_amount` — số lẻ nay bị `400`, oasdiff không tính là breaking nhưng đó **là** một phép siết, nên có đính chính ngày `25/09` ở `IR-07` — và đổi `nullable: true` (không có trong OpenAPI 3.1, nên trước đây bị bỏ qua) thành `type: [string, 'null']` ở ba field của `IvrAuditEvidenceRow`. Baseline CI giữ `draft.27` để lượt sau còn so được. *Link `28→29` từng trỏ tới một file không tồn tại (`…draft.28-to-…draft.30.md`) — dấu vết của lần thay chuỗi version trần ở `W-0311`, sửa ở `W-0312`* |
 | **Bảng nhãn tiếng Việt cho mọi enum** | `specs/ui/enum-labels.vi.json` |
 | **M8-06 — Upstream session trace sign-off** | `plan/ivr-orther/m8-06-upstream-session-trace-signoff-2026-09-03.md` |
 
@@ -67,7 +67,7 @@ Ngoài hai API nghiệp vụ trên còn **một bề mặt thứ ba** và hai de
 
 | # | Lấy gì | Ở đâu |
 | ---: | --- | --- |
-| 1 | Contract hiện hành `1.0.0-draft.33` | `specs/api/openapi/ivr-order-confirmation.v1.yaml` |
+| 1 | Contract hiện hành `1.0.0-draft.34` | `specs/api/openapi/ivr-order-confirmation.v1.yaml` |
 | 2 | **Đọc trước khi sinh client**: `draft.23 → draft.24` **có breaking** | `docs/api/changelog/ivr-order-confirmation.v1.0.0-draft.23-to-v1.0.0-draft.24.md` |
 | 3 | Fixture âm/dương để tự kiểm producer | `seed/sales-target-v1.sample.json` — 10 task hợp lệ (trong đó `golden-hour-online-number-only` chỉ gửi số, §3.4.0), 17 `schema_negative` (`400`; thêm `NEG-SCHEMA-AMOUNT-01` ngày 25/09), 13 `domain_negative` |
 | 4 | Nhãn tiếng Việt cho mọi enum, nếu dựng console | `specs/ui/enum-labels.vi.json` + đặc tả màn hình `specs/ui/` |
@@ -549,7 +549,7 @@ scheduler và test vẫn **CODE_NOT_AUTHORIZED**. Mẫu phản hồi/CDC đầy 
 | `customer_display_name` | string | Tên/xưng hô an toàn, ví dụ `chị An` |
 | `order_code_short` | string | Mã rút gọn để đọc |
 | `items[]` | array | Ít nhất một item; mỗi item có `public_name`, `quantity`, optional `unit_label` |
-| `total_amount` | number | Số **đồng nguyên** khách phải trả, sau lần làm tròn cuối — cùng nguồn với số phải thu `final_payable` phía Module 3. Không âm. Từ `draft.33` có `multipleOf: 1`: số lẻ (ví dụ `210636.8`) bị `400 IVR_MALFORMED_REQUEST`. Số này được đọc cho khách nghe, và tiền đồng đọc thành lời không có phần lẻ. *Sửa `25/09` (mục `B16` trong danh sách chief): bản trước ghi "Số không âm; IVR tự đọc thành lời"* |
+| `total_amount` | number | Số **đồng nguyên** khách phải trả, sau lần làm tròn cuối — cùng nguồn với số phải thu `final_payable` phía Module 3. Không âm. Từ `draft.33` có `multipleOf: 1`: số lẻ (ví dụ `210636.8`) bị `400 IVR_MALFORMED_REQUEST`. Số này được đọc cho khách nghe, và tiền đồng đọc thành lời không có phần lẻ. *Sửa `25/09` (mục `B16` trong danh sách chief): bản trước ghi "Số không âm; IVR tự đọc thành lời"*. Từ `draft.34` (`Q-16`) số lớn hơn `999999999999` không đọc được thành lời, nên intake trả `422 IVR_PII_POLICY_VIOLATION` (bảng từ chối ở §3.10, mục R4). *Thêm `26/09`* |
 | `currency` | string | Chỉ `VND` |
 | `delivery_area_short` | string | Chỉ khu vực rút gọn; không gửi địa chỉ đầy đủ |
 | `program_display_name` | string | Tên chương trình để đọc |
@@ -744,6 +744,7 @@ sau service:
 | `phone_validation_status` khác `VALID` | `PHONE_VALIDATION_STATUS_NOT_VALID` | `400 IVR_MALFORMED_REQUEST` từ `draft.24`; schema chặn trước service |
 | contact/dial-token sai (sáu mã còn lại) | một trong bảy mã W-0129 | `422 IVR_CONTACT_INVALID` |
 | `total_amount` có phần lẻ | *(không có — schema chặn trước service)* | `400 IVR_MALFORMED_REQUEST` từ `draft.33` (`W-0354`); trước đó intake nhận rồi hỏng lúc quay số. *Thêm `25/09`* |
+| tóm tắt đơn không dựng được thành lời thoại theo kịch bản đã duyệt: `total_amount` lớn hơn `999999999999`, lời thoại quá `1.200` ký tự, hoặc giá trị guard lời nói từ chối | `SPEECH_SUMMARY_NOT_RENDERABLE` | `422 IVR_PII_POLICY_VIOLATION` từ `draft.34` (`Q-16`): intake dựng thử bằng đúng bộ dựng lời thoại của lúc quay. Trước đó intake nhận rồi mọi lần quay đều hỏng tới hết cửa sổ. *Thêm `26/09`* |
 
 Vì vậy M3 không được branch trên các reason chi tiết này ở public client. Đưa safe reason vào error
 details hoặc đổi reject sang `200 decision` là contract change cần M3/owner ký; W-0129 chỉ khóa
@@ -1233,16 +1234,17 @@ Ba route `/dev` **không được đăng ký** khi môi trường là production
 | `POST` | `/feature-flags/{environment}` | Kill switch. Đòi thêm `Idempotency-Key`; nhận `X-Destination-Ref` tuỳ chọn |
 | `POST` | `/result-callbacks/{callbackId}:replay` | **Gửi lại cho Sales một kết quả đã chết** |
 
-`POST /result-callbacks/{callbackId}:replay` (**mới `W-0203`**, `draft.32`) đưa một callback đã chết (`RETRY_EXHAUSTED` hoặc `INVALID_DEAD_LETTER`) trở lại hàng đợi gửi. Trước bản này việc đó chỉ làm được bằng một lệnh `UPDATE` gõ thẳng vào database. Payload, hash và idempotency key giữ nguyên, nên Sales nhận lại đúng các byte của lần gửi đầu; lần gửi lại mà Sales đã xử lý là bản trùng để Sales nhận ra theo idempotency key. `409` và không ghi gì khi callback chưa chết hoặc task xác nhận của nó không còn. Mục review mà dead letter đã mở vẫn mở, đóng qua `/admin-reviews` sau khi giao được.
+`POST /result-callbacks/{callbackId}:replay` (**mới `W-0203`**, `draft.32`) đưa một callback đã chết (`RETRY_EXHAUSTED`, `INVALID_DEAD_LETTER`, và từ `draft.34` cả `AUTH_REJECTED`) trở lại hàng đợi gửi. Trước bản này việc đó chỉ làm được bằng một lệnh `UPDATE` gõ thẳng vào database. Payload, hash và idempotency key giữ nguyên, nên Sales nhận lại đúng các byte của lần gửi đầu; lần gửi lại mà Sales đã xử lý là bản trùng để Sales nhận ra theo idempotency key. `409` và không ghi gì khi callback chưa chết, khi task xác nhận của nó không còn, hoặc từ `draft.34` khi callback đã cũ hơn giới hạn phát lại (mục ngay dưới). Mục review mà dead letter đã mở vẫn mở, đóng qua `/admin-reviews` sau khi giao được.
 
-> **Bổ sung `25/09` (`W-0354`, mục `C21` trong danh sách của chief) — phát lại muộn.** Endpoint **không** giới hạn
-> tuổi của callback: một callback chết từ nhiều ngày trước vẫn gửi lại được. `M3-10` đề xuất M3 giữ
+> **Bổ sung `25/09` (`W-0354`, mục `C21` trong danh sách của chief) — phát lại muộn.** *Sửa `26/09` (`Q-19`, `draft.34`):*
+> endpoint nay **có** giới hạn tuổi: callback tạo cách đây quá `7` ngày bị `409 IVR_VERSION_CONFLICT`, không ghi gì. Con
+> số là cấu hình của deployment, trong khoảng `1–30` ngày, mặc định theo đề xuất `M3-10`. `M3-10` đề xuất M3 giữ
 > `Idempotency-Key` tối thiểu `7` ngày. Phát lại sau thời hạn đó thì M3 không còn chặn trùng bằng key được nữa;
 > chỉ còn revalidate (`M3-11`). Vì vậy consumer của M3 phải xét `order_version` và trạng thái đơn trên **mọi**
 > callback, kể cả callback trông như lần đầu. Đơn đã hết hạn, đã hủy hoặc đã đổi version thì trả `REJECTED_STALE`
 > hoặc `BLOCKED_BY_CORE`, **không** xác nhận lại. Thêm vào `D-5` một ca: phát lại một `IVR_CONFIRMED` sau khi đơn
-> đã hết hạn ⇒ M3 trả `REJECTED_STALE`. Phía IVR chưa đặt giới hạn tuổi; sẽ đặt khi M3 chốt thời hạn giữ key ở
-> `M3-10`, để hai con số khớp nhau.
+> đã hết hạn ⇒ M3 trả `REJECTED_STALE`. Giới hạn phía IVR không thay được việc đó: một callback trong `7` ngày vẫn
+> có thể tới sau khi đơn đã đổi. Nếu `M3-10` chốt số khác `7`, IVR đổi cấu hình cho khớp, không đổi contract.
 
 `:terminate` và `:terminate-all` là **hai route riêng, hai lần bấm riêng, hai lý do riêng**. Kill switch chặn cuộc *tiếp theo*; `:terminate-all` cắt cuộc *đang nói*. Giao diện M3 không nên gộp hai nút này.
 
@@ -1347,7 +1349,7 @@ Nguyên nhân 1 và 5 chặn ở tầng policy, trước khi handler chạy. Ngu
 >   một môi trường dựng từ migration **không có** phê duyệt sống: mọi thay đổi feature flag không thuần
 >   giảm rủi ro — ví dụ tắt kill switch, mở rộng allowlist — bị `409 IVR_OPERATIONAL_BLOCKED`, dù token
 >   và header đều đúng. Thay đổi thuần giảm rủi ro, như bật kill switch, không cần phê duyệt. Chữ
->   *"granted to Admin per OD-V1-20"* trong summary OpenAPI đã cũ, sửa ở lần bump contract kế tiếp.
+>   *"granted to Admin per OD-V1-20"* trong summary OpenAPI đã cũ; `draft.34` sửa summary theo đúng đoạn này.
 > - **`IVR_SCRIPT_*` không phải nhãn.** Đó là giá trị header `X-Script-Permissions` (§4A.5), và IVR
 >   **kiểm thật**: `ScriptLifecycleApiService` chỉ trao cho actor những quyền có trong header, rồi domain
 >   đòi đúng quyền cho từng bước. Module 3 **phải** ánh xạ vai trò của mình sang bảy giá trị này cho bốn
@@ -1377,7 +1379,7 @@ Nguyên nhân 1 và 5 chặn ở tầng policy, trước khi handler chạy. Ngu
 > (`1.0.0-draft.21` trở về trước) **vẫn còn** 11 endpoint đó. Sinh client từ bản cũ sẽ ra
 > `signInConsoleAccount()`, `listConsoleAccounts()`, `createConsoleAccount()`… — gọi vào là `404`.
 >
-> Lấy lại spec ở `specs/api/openapi/ivr-order-confirmation.v1.yaml`, phiên bản **`1.0.0-draft.33`**,
+> Lấy lại spec ở `specs/api/openapi/ivr-order-confirmation.v1.yaml`, phiên bản **`1.0.0-draft.34`**,
 > rồi sinh lại. So sánh đầy đủ nằm ở hai changelog nối nhau:
 > `docs/api/changelog/ivr-order-confirmation.v1.0.0-draft.20-to-v1.0.0-draft.22.md`,
 > `docs/api/changelog/ivr-order-confirmation.v1.0.0-draft.22-to-v1.0.0-draft.23.md`, rồi
@@ -1641,7 +1643,7 @@ thuật** mà chữ ký không gỡ được, và ghi ra đây để không ai �
 | `OD-V1-23` | Ranh giới opt-out là **explicit-only** | V1 **không có tín hiệu opt-out tường minh nào**: `DTMF-0` là phím **hủy đơn**, phím 9 ngoài scope và bị `TargetV1SpeechPolicy.ValidateTemplate` từ chối. Hệ quả thực tế: **V1 không có opt-out**; thêm tín hiệu là một `OD` mới |
 
 Không mục nào trong ba mục chạm vào contract task intake hay callback ở `§3`/`§4`. M3 tích hợp được
-ngay với `1.0.0-draft.33`.
+ngay với `1.0.0-draft.34`.
 
 ---
 
@@ -1712,7 +1714,7 @@ ngay với `1.0.0-draft.33`.
 - [ ] Xác nhận UI bắt buộc nhập `X-Action-Reason` trước khi gửi mọi thao tác tầng `danger`.
 - [ ] Chỉ định hai người khác nhau giữ quyền duyệt **nội dung** và **privacy/pháp lý** (§4A.5).
 - [ ] Xác nhận M3 không kỳ vọng IVR còn màn hình đăng nhập, bảng tài khoản hay endpoint `/api/auth/*` (§4A.7).
-- [ ] **Sinh lại client từ OpenAPI `1.0.0-draft.33`.** Bản trước đó vẫn công bố 11 endpoint `auth`/`accounts` nay đã bị gỡ (§4A.7).
+- [ ] **Sinh lại client từ OpenAPI `1.0.0-draft.34`.** Bản trước đó vẫn công bố 11 endpoint `auth`/`accounts` nay đã bị gỡ (§4A.7).
 
 ### Hạ tầng — owner IVR
 

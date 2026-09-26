@@ -162,7 +162,7 @@ Kết quả giả lập chọn theo **`task_id`**. Muốn tình huống nào th�
 mang `phone_e164` và **không có field token nào** — ra `IVR_CONFIRMED`, Module 3 **có** nhận. Đây không
 phải tình huống cuộc gọi thứ bảy, mà là cách gửi của phương án B. *(Sửa `25/09`: bản trước ghi "cách gửi mà Module 3
 sẽ dùng". Phương án B đang chờ Sếp trả lời mục B2 phiếu `25/09`; tới lúc đó Module 3 chưa nối producer gửi số thật.
-Sandbox, như contract `draft.33`, vẫn nhận cả hai dạng — xem [IR-07](./07-module-3-decision-sheet.md), đính chính `25/09`.)*
+Sandbox, như contract `draft.34`, vẫn nhận cả hai dạng — xem [IR-07](./07-module-3-decision-sheet.md), đính chính `25/09`.)*
 
 **Ba dòng "Không" là điều khoản hợp đồng, không phải thiếu sót.** Khi còn lượt gọi, IVR im lặng và sẽ
 gọi lại. Bên nào coi im lặng là thất bại rồi tự huỷ đơn là đang huỷ đơn mà IVR vẫn đang làm.
@@ -206,7 +206,7 @@ Trần này **đặt thấp có chủ ý**, không phải con số năng lực t
 Để thấp để client của bạn gặp `429` ở đây, chỗ rẻ, thay vì gặp lần đầu ở production.
 
 `retry_after_seconds` nằm trong `details` chứ không phải header `Retry-After`. Thêm header đó là một
-thay đổi hợp đồng trên cả 40 lệnh; tới `draft.33` chưa bản nào thêm. *(Sửa `25/09`: bản trước ghi "38 lệnh", đếm trước
+thay đổi hợp đồng trên cả 40 lệnh; tới `draft.34` chưa bản nào thêm. *(Sửa `25/09`: bản trước ghi "38 lệnh", đếm trước
 `draft.29` và `draft.32`, và hứa đưa vào bản hợp đồng kế tiếp.)*
 
 ---

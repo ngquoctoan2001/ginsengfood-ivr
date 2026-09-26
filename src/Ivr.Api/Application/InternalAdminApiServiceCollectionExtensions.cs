@@ -6,6 +6,7 @@ using Ivr.Api.Internal;
 using Ivr.Domain.Errors;
 using Ivr.Domain.Policies;
 using Ivr.Domain.Privacy;
+using Ivr.Infrastructure.Callbacks;
 using Ivr.Infrastructure.Configuration;
 using Ivr.Infrastructure.DevTooling;
 using Ivr.Infrastructure.FeatureFlags;
@@ -55,6 +56,13 @@ public static class InternalAdminApiServiceCollectionExtensions
         // share the idempotency wrapper, the context factory and the validation helpers; splitting
         // it would duplicate those or invent a third type to hold them. What the callers see is
         // split, which is where the coupling was costing something.
+        // Q-19 (PA2, 2026-09-26). The replay age limit, validated at startup so a limit outside one
+        // to thirty days fails the deployment rather than every replay.
+        services.AddOptions<CallbackReplayOptions>()
+            .Bind(configuration.GetSection(CallbackReplayOptions.SectionName))
+            .ValidateOnStart();
+        services.TryAddEnumerable(ServiceDescriptor.Singleton<
+            IValidateOptions<CallbackReplayOptions>, CallbackReplayOptionsValidator>());
         services.AddSingleton<InternalAdminApiService>();
         services.AddSingleton<IIvrLifecycleApiService>(
             provider => provider.GetRequiredService<InternalAdminApiService>());

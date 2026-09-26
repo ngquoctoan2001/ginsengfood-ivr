@@ -16,6 +16,11 @@ using Microsoft.Extensions.Options;
 
 namespace Ivr.Infrastructure.Intake;
 
+/// <param name="speechRenderer">
+/// Q-16 (PA2, 2026-09-26). The renderer the dial path speaks with, so intake can refuse an order
+/// whose summary it cannot speak instead of accepting it and failing at every dial. Without it
+/// (hand-built services in tests and tools) intake does not render, as before.
+/// </param>
 public sealed class TaskIntakeService(
     ITaskIntakeStore store,
     IAttemptPolicyRegistry policyRegistry,
@@ -24,10 +29,25 @@ public sealed class TaskIntakeService(
     SpeechSummaryLimits speechLimits,
     TimeProvider timeProvider,
     Ivr.Infrastructure.Scheduling.CallingWindow callingWindow,
-    IOptions<IvrOptions> options) : ITaskIntakeService
+    IOptions<IvrOptions> options,
+    ISpeechRenderer? speechRenderer = null) : ITaskIntakeService
 {
     private const string MockEvidencePolicyVersion = "mock-evidence-v1";
     private const string MockPrivacyPolicyVersion = "mock-privacy-v1";
+
+    /// <summary>
+    /// Q-16. The reason intake gives when the order summary cannot be rendered into the approved
+    /// script: an amount or a quantity the speller cannot say, a script past the length bound, a
+    /// value the spoken-text guard refuses. Reported like the other summary refusal
+    /// (<c>PRIVACY_SAFE_SPEECH_REJECTED</c>): held for admin review, <c>IVR_PII_POLICY_VIOLATION</c>.
+    /// </summary>
+    public const string SpeechSummaryNotRenderable = "SPEECH_SUMMARY_NOT_RENDERABLE";
+
+    /// <summary>
+    /// Q-16. Whether this service renders the summary before accepting a task. The one the
+    /// container builds always does; a service built by hand without a renderer does not.
+    /// </summary>
+    public bool RendersBeforeAccepting => speechRenderer is not null;
 
     public async Task<TaskIntakeOutcome> IntakeAsync(
         TaskIntakeCommand command,
@@ -255,6 +275,35 @@ public sealed class TaskIntakeService(
                 null,
                 ["REAL_CUSTOMER_CALL_ALLOWED_NO"],
                 source.Evidence_ref));
+        }
+
+        // Q-16 (PA2, 2026-09-26). Render the summary into the approved script now, with the
+        // renderer the dial path uses, and refuse the task if it cannot be spoken. Every value the
+        // speller refuses, every script past the length bound and every value the spoken-text
+        // guard refuses used to be accepted here and then fail at each dial - twice, then
+        // WINDOW_EXPIRED - while Module 3 had been told the task was accepted (B16).
+        if (speechRenderer is not null)
+        {
+            try
+            {
+                _ = await speechRenderer.RenderAsync(
+                    speech,
+                    templateId,
+                    scriptVersion,
+                    command.ExecutionMode,
+                    cancellationToken);
+            }
+            catch (Exception exception) when (
+                exception is Ivr.Infrastructure.Speech.SpeechRenderRejectedException
+                    or Ivr.Infrastructure.Speech.SpeechRenderPolicyRejectedException)
+            {
+                return Failed(
+                    source,
+                    TaskIntakeDecisions.HeldAdminReview,
+                    IvrErrorCodes.PiiPolicyViolation,
+                    "The order summary cannot be read out in the approved confirmation script.",
+                    SpeechSummaryNotRenderable);
+            }
         }
 
         ConfirmationTaskSnapshot snapshot = TargetV1TaskMapper.CreateDomainSnapshot(

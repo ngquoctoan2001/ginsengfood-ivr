@@ -625,6 +625,109 @@ public sealed class InternalAdminApiTests(PostgresPersistenceFixture fixture)
         Assert.Empty(await after.AdminActions.AsNoTracking().ToListAsync());
     }
 
+    /// <summary>
+    /// Q-19 (PA2, 2026-09-26). A dead letter older than the replay limit - seven days by default,
+    /// the time Module 3 proposed to keep a callback's idempotency key (M3-10) - is refused like a
+    /// live one: 409, and nothing written. Past that limit the replay's key is no longer one Module 3
+    /// recognises, so the replay would be a new outcome, days after the order moved on.
+    /// </summary>
+    [Fact]
+    [Trait("TestId", "IT-API-DEADLETTER-15")]
+    public async Task ReplayRefusesACallbackOlderThanTheLimitAndWritesNothing()
+    {
+        await fixture.ResetAsync();
+        await SeedGraphAsync(includeTerminalResult: true, attemptStatus: "NORMALIZED_FINAL");
+        await DeadLetterAsync("RETRY_EXHAUSTED", DateTimeOffset.UtcNow.AddDays(-8));
+        await using InternalAdminApiTestApplication app = await StartAsync();
+        int auditBefore;
+        await using (IvrDbContext before = await Factory().CreateDbContextAsync())
+        {
+            auditBefore = await before.AuditLog.AsNoTracking().CountAsync();
+        }
+
+        using HttpResponseMessage refused = await SendAdminAsync(
+            app,
+            HttpMethod.Post,
+            "/v1/ivr/order-confirmation/result-callbacks/CALLBACK-P2-8:replay",
+            new AdminMutationRequest("resend an outcome from last week"),
+            IvrPermissions.CallbackReplay);
+
+        Assert.Equal(HttpStatusCode.Conflict, refused.StatusCode);
+        Assert.Contains(IvrErrorCodes.VersionConflict, await refused.Content.ReadAsStringAsync(), StringComparison.Ordinal);
+        await using IvrDbContext after = await Factory().CreateDbContextAsync();
+        ResultCallbackEntity callback = await after.ResultCallbacks.AsNoTracking().SingleAsync();
+        Assert.Equal("RETRY_EXHAUSTED", callback.DeliveryStatus);
+        Assert.Equal(3, callback.RetryCount);
+        Assert.Equal(auditBefore, await after.AuditLog.AsNoTracking().CountAsync());
+        Assert.Empty(await after.AdminActions.AsNoTracking().ToListAsync());
+    }
+
+    /// <summary>
+    /// Q-19. The limit is a line, not a rough age: a dead letter still inside it is replayed as
+    /// before, even a few minutes short of seven days.
+    /// </summary>
+    [Fact]
+    [Trait("TestId", "IT-API-DEADLETTER-16")]
+    public async Task ReplayStillWorksInsideTheLimit()
+    {
+        await fixture.ResetAsync();
+        await SeedGraphAsync(includeTerminalResult: true, attemptStatus: "NORMALIZED_FINAL");
+        await DeadLetterAsync("RETRY_EXHAUSTED", DateTimeOffset.UtcNow.AddDays(-7).AddMinutes(10));
+        await using InternalAdminApiTestApplication app = await StartAsync();
+
+        using HttpResponseMessage replayed = await SendAdminAsync(
+            app,
+            HttpMethod.Post,
+            "/v1/ivr/order-confirmation/result-callbacks/CALLBACK-P2-8:replay",
+            new AdminMutationRequest("resend an outcome from six days ago"),
+            IvrPermissions.CallbackReplay);
+
+        Assert.Equal(HttpStatusCode.OK, replayed.StatusCode);
+        await using IvrDbContext after = await Factory().CreateDbContextAsync();
+        Assert.Equal("RETRY_PENDING", (await after.ResultCallbacks.AsNoTracking().SingleAsync()).DeliveryStatus);
+    }
+
+    /// <summary>
+    /// Q-19. <c>AUTH_REJECTED</c> is a dead letter the replay now takes. Once IVR authenticates its
+    /// callbacks (C11), a wrong credential leaves every result in that state, and before this only
+    /// an <c>UPDATE</c> typed into the database could bring them back.
+    /// </summary>
+    [Fact]
+    [Trait("TestId", "IT-API-DEADLETTER-17")]
+    public async Task ReplayTakesACallbackTheReceiverRefusedToAuthenticate()
+    {
+        await fixture.ResetAsync();
+        await SeedGraphAsync(includeTerminalResult: true, attemptStatus: "NORMALIZED_FINAL");
+        await DeadLetterAsync("AUTH_REJECTED", DateTimeOffset.UtcNow.AddHours(-2));
+        await using InternalAdminApiTestApplication app = await StartAsync();
+
+        using HttpResponseMessage replayed = await SendAdminAsync(
+            app,
+            HttpMethod.Post,
+            "/v1/ivr/order-confirmation/result-callbacks/CALLBACK-P2-8:replay",
+            new AdminMutationRequest("credential fixed; resend the outcome"),
+            IvrPermissions.CallbackReplay);
+
+        Assert.Equal(HttpStatusCode.OK, replayed.StatusCode);
+        await using IvrDbContext after = await Factory().CreateDbContextAsync();
+        ResultCallbackEntity callback = await after.ResultCallbacks.AsNoTracking().SingleAsync();
+        Assert.Equal("RETRY_PENDING", callback.DeliveryStatus);
+        Assert.Contains("AUTH_REJECTED", (await after.AdminActions.AsNoTracking().SingleAsync()).BeforeStateJson, StringComparison.Ordinal);
+    }
+
+    private async Task DeadLetterAsync(string deadStatus, DateTimeOffset createdAt)
+    {
+        await using IvrDbContext setup = await Factory().CreateDbContextAsync();
+        ResultCallbackEntity dead = await setup.ResultCallbacks.SingleAsync();
+        dead.DeliveryStatus = deadStatus;
+        dead.RetryCount = 3;
+        dead.NextRetryAt = null;
+        dead.LeaseToken = null;
+        dead.LeaseExpiresAt = null;
+        dead.CreatedAt = createdAt;
+        await setup.SaveChangesAsync();
+    }
+
     [Fact]
     [Trait("TestId", "IT-API-QUEUE-08")]
     public async Task PauseBlocksOnlyNewClaimsAndResumeRestoresClaiming()

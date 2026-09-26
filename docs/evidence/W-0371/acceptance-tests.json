@@ -1,0 +1,27 @@
+{
+  "schema": "ivr-acceptance-tests/v1",
+  "workId": "W-0371",
+  "scope": "software",
+  "requiredTestIds": [
+    "UT-INTAKE-RENDER-01",
+    "UT-INTAKE-RENDER-02",
+    "IT-INTAKE-RENDER-01",
+    "UT-CB-REPLAY-AGE-01",
+    "IT-API-DEADLETTER-15",
+    "IT-API-DEADLETTER-16",
+    "IT-API-DEADLETTER-17",
+    "CT-M3-AUTHORITY-08"
+  ],
+  "gates": [
+    "generate-test-traceability.mjs",
+    "gate-status.mjs",
+    "contract-freeze-verifier.mjs",
+    "openapi-contract-drift.mjs",
+    "docs-selftest.mjs",
+    "openapi-lint-gate.mjs",
+    "d06-revalidation-evidence-validator.mjs",
+    "dial-token-production-bundle-validator.mjs",
+    "opt-out-suppression-bundle-validator.mjs",
+    "upstream-session-signoff-validator.mjs"
+  ]
+}

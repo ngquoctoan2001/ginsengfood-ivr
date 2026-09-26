@@ -143,6 +143,9 @@ namespace Ivr.Contracts.Generated.IvrServer.V1
         [System.ComponentModel.DataAnnotations.StringLength(160, MinimumLength = 1)]
         public required string Public_name { get; init; }
 
+        /// <summary>
+        /// Read aloud as words with up to three decimal places; a longer fraction is read as its digits. From 1.0.0-draft.34 an item whose quantity cannot be read aloud refuses the whole task at intake, as described under total_amount.
+        /// </summary>
         [System.Text.Json.Serialization.JsonPropertyName("quantity")]
         public required double Quantity { get; init; }
 
@@ -172,7 +175,7 @@ namespace Ivr.Contracts.Generated.IvrServer.V1
         public required System.Collections.Generic.ICollection<OrderSpeechItem> Items { get; init; }
 
         /// <summary>
-        /// What the customer pays, in whole dong, after the order's one final rounding - the same source as Module 3's final payable amount. From 1.0.0-draft.33 (W-0354) a fraction is refused with 400 IVR_MALFORMED_REQUEST: the amount is read aloud to the customer and VND has no spoken subunit, so before this a fraction was accepted and failed only at dial time.
+        /// What the customer pays, in whole dong, after the order's one final rounding - the same source as Module 3's final payable amount. From 1.0.0-draft.33 (W-0354) a fraction is refused with 400 IVR_MALFORMED_REQUEST: the amount is read aloud to the customer and VND has no spoken subunit, so before this a fraction was accepted and failed only at dial time. From 1.0.0-draft.34 (Q-16) intake also renders the whole summary into the approved script before it accepts the task, and refuses a summary it cannot read aloud with 422 IVR_PII_POLICY_VIOLATION (blocked reason SPEECH_SUMMARY_NOT_RENDERABLE): an amount above 999999999999, a script longer than 1200 characters, or a value the spoken-text guard refuses. The limits are stated here rather than in the schema, so a sender past one is told why instead of receiving a schema error; before draft.34 such a task was accepted and then failed at every dial until its window expired.
         /// </summary>
         [System.Text.Json.Serialization.JsonPropertyName("total_amount")]
         [System.ComponentModel.DataAnnotations.Range(0D, double.MaxValue)]

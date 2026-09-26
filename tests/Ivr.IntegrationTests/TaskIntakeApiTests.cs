@@ -1061,6 +1061,44 @@ public sealed class TaskIntakeApiTests
             entry => JsonSerializer.Serialize(entry).Contains(nsn, StringComparison.Ordinal));
     }
 
+    /// <summary>
+    /// Q-16 (PA2, 2026-09-26). What Module 3 sees for an order the dial path cannot speak: a 422
+    /// with <c>IVR_PII_POLICY_VIOLATION</c> when it sends the task, the same answer as for any other
+    /// summary IVR refuses, instead of a 200 followed by a window that expires with nobody called.
+    /// The intake service the API composes is the one that renders.
+    /// </summary>
+    [Fact]
+    [Trait("TestId", "IT-INTAKE-RENDER-01")]
+    public async Task AnOrderTheDialPathCannotSpeakIsRefusedWhenItIsSent()
+    {
+        await using TaskIntakeApiTestApplication app = await TaskIntakeApiTestApplication.StartAsync();
+        Assert.True(Assert.IsType<TaskIntakeService>(
+            app.Services.GetRequiredService<ITaskIntakeService>()).RendersBeforeAccepting);
+
+        // One more than the speller can say.
+        JsonObject tooLarge = CreateBody();
+        tooLarge["privacy_safe_order_summary"]!["total_amount"] = 1_000_000_000_000;
+        using HttpResponseMessage refused = await SendAsync(app.Client, tooLarge);
+        string refusal = await refused.Content.ReadAsStringAsync();
+        Assert.True(
+            refused.StatusCode == HttpStatusCode.UnprocessableEntity,
+            $"intake answered {(int)refused.StatusCode}: {refusal}");
+        Assert.Contains(IvrErrorCodes.PiiPolicyViolation, refusal, StringComparison.Ordinal);
+        Assert.Equal(0, app.Store.CallJobCount);
+
+        // A product name the dial path can now speak (Q-12) is still accepted.
+        JsonObject birdsNest = CreateBody();
+        birdsNest["task_id"] = "TASK-API-RENDER-OK";
+        birdsNest["order_id"] = "ORDER-API-RENDER-OK";
+        birdsNest["privacy_safe_order_summary"]!["items"]![0]!["public_name"] = "Tổ yến";
+        using HttpResponseMessage accepted = await SendAsync(
+            app.Client,
+            birdsNest,
+            idempotencyKey: "idem-api-render-ok");
+        Assert.Equal(HttpStatusCode.OK, accepted.StatusCode);
+        Assert.Equal(1, app.Store.CallJobCount);
+    }
+
     private static async Task<HttpResponseMessage> SendAsync(
         HttpClient client,
         JsonObject body,

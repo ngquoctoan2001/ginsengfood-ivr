@@ -12,6 +12,23 @@ compared byte-for-byte in GitLab CI. A breaking change fails
 and does not approve the external Sales contract.</p>
 <h2>Current comparisons</h2>
 <blockquote>
+<p><strong><code>1.0.0-draft.34</code> (<code>Q-16</code>, <code>Q-19</code>, <code>26/09</code>)</strong> chỉ đổi mô tả; schema không đổi, và <code>oasdiff</code> in <em>&quot;No changes to
+report, but the specs are different&quot;</em> cho <code>33→34</code>.</p>
+<ol>
+<li><strong>Intake dựng thử lời thoại trước khi nhận</strong> (<code>Q-16</code>). Tóm tắt đơn không đọc được thành lời theo kịch bản đã duyệt
+— <code>total_amount</code> lớn hơn <code>999999999999</code>, lời thoại quá <code>1.200</code> ký tự, hoặc giá trị mà guard lời nói từ chối — bị
+<code>422 IVR_PII_POLICY_VIOLATION</code> (reason <code>SPEECH_SUMMARY_NOT_RENDERABLE</code>). Trước bản này intake trả <code>200</code>, rồi mọi
+lần quay đều hỏng tới hết cửa sổ. Giới hạn ghi trong mô tả của <code>total_amount</code> và <code>quantity</code>, không ghi vào schema,
+để người gửi nhận được lý do thay vì một lỗi schema.</li>
+<li><strong>Phát lại callback đã chết</strong> (<code>Q-19</code>) nhận thêm <code>AUTH_REJECTED</code>, và từ chối (<code>409</code>, không ghi gì) callback cũ hơn
+giới hạn phát lại: <code>7</code> ngày, cấu hình <code>1–30</code>. Lần phát lại dùng lại idempotency key của lần gửi đầu, mà Module 3
+chỉ giữ key chừng ấy (<code>M3-10</code>).</li>
+<li>Summary của <code>POST /feature-flags/{environment}</code> sửa theo <code>IR-06</code>: dòng phê duyệt <code>RUNTIME_GATE_ADMIN</code> đã bị thu
+hồi, nên thay đổi không thuần giảm rủi ro nhận <code>409 IVR_OPERATIONAL_BLOCKED</code> (<code>K-15</code>).</li>
+</ol>
+<p><strong>Không breaking theo <code>oasdiff</code></strong>: <code>33→34</code> và <code>27→34</code> đều không có dòng breaking. Module 3 không phải sinh lại client.</p>
+</blockquote>
+<blockquote>
 <p><strong><code>1.0.0-draft.33</code> (W-0354)</strong> có hai thay đổi, và <code>oasdiff</code> chỉ thấy một trong hai. Nó mô tả thay đổi đó ngược chiều.</p>
 <ol>
 <li><strong><code>privacy_safe_order_summary.total_amount</code> nay là số đồng nguyên</strong> (<code>multipleOf: 1</code>). Số lẻ như <code>210636.8</code> bị
@@ -136,7 +153,7 @@ Xem <code>docs/evidence/W-0275/README.md</code>.</p>
 <tbody><tr>
 <td>IVR-owned Target V1 draft</td>
 <td><code>1.0.0-draft.27</code></td>
-<td><code>1.0.0-draft.33</code></td>
+<td><code>1.0.0-draft.34</code></td>
 <td><a href="ivr-order-confirmation-changelog.html">IVR API changelog</a></td>
 </tr>
 <tr>

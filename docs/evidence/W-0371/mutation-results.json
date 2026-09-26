@@ -1,0 +1,119 @@
+{
+  "schema": "ivr-mutation-results/v1",
+  "workId": "W-0371",
+  "captured_at": "2026-09-26",
+  "method": "Each check breaks one thing the lot added, in an isolated copy of 0e6bb73e plus this lot. A code check rebuilds the project the named tests live in, runs them, and writes the original bytes back (never git checkout); every named test must fail and the named neighbour stay green. A contract check changes one pointer or pin and requires the named gate to lose its pass marker while a neighbour gate keeps its own. Controls run after restoring: the intake render, replay option and intake service unit tests, the render and replay integration TestIds, and the two gates. The combined tree is re-verified on main in the README.",
+  "results": [
+    {
+      "id": "Q-16 intake never renders the summary",
+      "tests": {
+        "UT-INTAKE-RENDER-01": "Failed!  - Failed:     1, Passed:     3, Skipped:     0, Total:     4, Duration: 333 ms",
+        "UT-INTAKE-RENDER-02": "Failed!  - Failed:     1, Passed:     0, Skipped:     0, Total:     1, Duration: 401 ms"
+      },
+      "neighbour": "UT-INTAKE-PII-23",
+      "neighbourSummary": "Passed!  - Failed:     0, Passed:     1, Skipped:     0, Total:     1, Duration: 196 ms",
+      "verdict": "RED_AS_EXPECTED"
+    },
+    {
+      "id": "Q-16 a value the speller refuses escapes intake as an exception",
+      "tests": {
+        "UT-INTAKE-RENDER-01": "Failed!  - Failed:     1, Passed:     3, Skipped:     0, Total:     4, Duration: 551 ms",
+        "UT-INTAKE-RENDER-02": "Failed!  - Failed:     1, Passed:     0, Skipped:     0, Total:     1, Duration: 182 ms"
+      },
+      "neighbour": "UT-INTAKE-PII-23",
+      "neighbourSummary": "Passed!  - Failed:     0, Passed:     1, Skipped:     0, Total:     1, Duration: 185 ms",
+      "verdict": "RED_AS_EXPECTED"
+    },
+    {
+      "id": "Q-16 a script the policy refuses escapes intake as an exception",
+      "tests": {
+        "UT-INTAKE-RENDER-02": "Failed!  - Failed:     1, Passed:     0, Skipped:     0, Total:     1, Duration: 222 ms"
+      },
+      "neighbour": "UT-INTAKE-RENDER-01",
+      "neighbourSummary": "Passed!  - Failed:     0, Passed:     4, Skipped:     0, Total:     4, Duration: 260 ms",
+      "verdict": "RED_AS_EXPECTED"
+    },
+    {
+      "id": "Q-16 any failure of the renderer is reported as a refusal",
+      "tests": {
+        "UT-INTAKE-RENDER-02": "Failed!  - Failed:     1, Passed:     0, Skipped:     0, Total:     1, Duration: 234 ms"
+      },
+      "neighbour": "UT-INTAKE-RENDER-01",
+      "neighbourSummary": "Passed!  - Failed:     0, Passed:     4, Skipped:     0, Total:     4, Duration: 461 ms",
+      "verdict": "RED_AS_EXPECTED"
+    },
+    {
+      "id": "Q-16 the refusal carries the privacy reason instead of its own",
+      "tests": {
+        "UT-INTAKE-RENDER-01": "Failed!  - Failed:     1, Passed:     3, Skipped:     0, Total:     4, Duration: 458 ms",
+        "UT-INTAKE-RENDER-02": "Failed!  - Failed:     1, Passed:     0, Skipped:     0, Total:     1, Duration: 189 ms"
+      },
+      "neighbour": "UT-INTAKE-PII-23",
+      "neighbourSummary": "Passed!  - Failed:     0, Passed:     1, Skipped:     0, Total:     1, Duration: 189 ms",
+      "verdict": "RED_AS_EXPECTED"
+    },
+    {
+      "id": "Q-19 a replay has no age limit",
+      "tests": {
+        "IT-API-DEADLETTER-15": "Failed!  - Failed:     1, Passed:     0, Skipped:     0, Total:     1, Duration: 9 s"
+      },
+      "neighbour": "IT-API-DEADLETTER-16",
+      "neighbourSummary": "Passed!  - Failed:     0, Passed:     1, Skipped:     0, Total:     1, Duration: 5 s",
+      "verdict": "RED_AS_EXPECTED"
+    },
+    {
+      "id": "Q-19 AUTH_REJECTED is still refused",
+      "tests": {
+        "IT-API-DEADLETTER-17": "Failed!  - Failed:     1, Passed:     0, Skipped:     0, Total:     1, Duration: 11 s"
+      },
+      "neighbour": "IT-API-DEADLETTER-13",
+      "neighbourSummary": "Passed!  - Failed:     0, Passed:     2, Skipped:     0, Total:     2, Duration: 6 s",
+      "verdict": "RED_AS_EXPECTED"
+    },
+    {
+      "id": "Q-19 the default limit is thirty days",
+      "tests": {
+        "UT-CB-REPLAY-AGE-01": "Failed!  - Failed:     6, Passed:     0, Skipped:     0, Total:     6, Duration: 31 ms"
+      },
+      "neighbour": "UT-INTAKE-RENDER-01",
+      "neighbourSummary": "Passed!  - Failed:     0, Passed:     4, Skipped:     0, Total:     4, Duration: 295 ms",
+      "verdict": "RED_AS_EXPECTED"
+    },
+    {
+      "id": "Q-19 a limit of zero days passes validation",
+      "tests": {
+        "UT-CB-REPLAY-AGE-01": "Failed!  - Failed:     1, Passed:     5, Skipped:     0, Total:     6, Duration: 32 ms"
+      },
+      "neighbour": "UT-INTAKE-RENDER-01",
+      "neighbourSummary": "Passed!  - Failed:     0, Passed:     4, Skipped:     0, Total:     4, Duration: 182 ms",
+      "verdict": "RED_AS_EXPECTED"
+    },
+    {
+      "id": "draft.34 IR-06 still tells Module 3 to generate its client from draft.33",
+      "gate": "contract-freeze-verifier.mjs: exit 1, no pass marker",
+      "neighbour": "openapi-contract-drift.mjs: exit 0, OPENAPI_HUMAN_DIFF_CURRENT=YES",
+      "verdict": "RED_AS_EXPECTED"
+    },
+    {
+      "id": "draft.34 the d06 validator keeps the IR-06 hash from before this lot",
+      "gate": "d06-revalidation-evidence-validator.mjs: exit 1, no pass marker",
+      "neighbour": "contract-freeze-verifier.mjs: exit 0, CONTRACT_FREEZE=PASS",
+      "verdict": "RED_AS_EXPECTED"
+    },
+    {
+      "id": "CONTROL unit, restored (intake render check, replay options, intake service)",
+      "summary": "Passed!  - Failed:     0, Passed:    45, Skipped:     0, Total:    45, Duration: 159 ms",
+      "verdict": "GREEN_AS_EXPECTED"
+    },
+    {
+      "id": "CONTROL integration, restored (intake render over HTTP, callback replay)",
+      "summary": "Passed!  - Failed:     0, Passed:     6, Skipped:     0, Total:     6, Duration: 17 s",
+      "verdict": "GREEN_AS_EXPECTED"
+    },
+    {
+      "id": "CONTROL gates, restored (contract freeze, d06 self-test)",
+      "summary": "contract-freeze-verifier.mjs: exit 0, CONTRACT_FREEZE=PASS; d06-revalidation-evidence-validator.mjs: exit 0, W0178_SELFTEST_PASS",
+      "verdict": "GREEN_AS_EXPECTED"
+    }
+  ]
+}
