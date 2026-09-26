@@ -372,14 +372,20 @@ public sealed class PostgresSchedulerStore(
         List<CallJobEntity> jobs = await context.CallJobs.FromSqlInterpolated($$"""
             SELECT job.*
             FROM ivr_call_jobs job
-            WHERE job.eligible IS TRUE
+            WHERE ((job.eligible IS TRUE
+                    AND job.status IN (
+                        'READY_FOR_SCHEDULER',
+                        'DISPATCH_LEASED',
+                        'DRY_RUN',
+                        'HELD_ADMIN_REVIEW'))
+                   -- W-0362 / K-52. A job the eligibility check held for capacity is not eligible
+                   -- and never becomes so. The branch above never saw it and nothing else would
+                   -- ever close it, so Module 3 waited on an order IVR had already given up on.
+                   -- The fences below apply to both branches alike.
+                   OR (job.eligible IS FALSE
+                    AND job.status = 'CAPACITY_HELD'))
               AND job.closed_at IS NULL
               AND job.expires_at <= {{detectedAt}}
-              AND job.status IN (
-                  'READY_FOR_SCHEDULER',
-                  'DISPATCH_LEASED',
-                  'DRY_RUN',
-                  'HELD_ADMIN_REVIEW')
               AND NOT EXISTS (
                   SELECT 1 FROM ivr_call_results result
                   WHERE result.ivr_call_job_id = job.ivr_call_job_id
@@ -437,14 +443,17 @@ public sealed class PostgresSchedulerStore(
                 ? recorded
                 : AttemptProgress.None;
 
-            // A capacity miss is a claim about why the deadline passed, and this is the only shape
-            // that supports it: the job was queued for dispatch and no channel ever came. A job
-            // held for review was kept back on purpose, a dry run never wanted a channel, and a
-            // leased job already had one. Reporting those as capacity shortage inflates the very
-            // counter that sizes the SIM order (M8-OD-A), so they close as what they are -- a
-            // confirmation window that ran out.
+            // A capacity miss is a claim about why the deadline passed, and only two shapes support
+            // it: the job was queued for dispatch and no channel ever came, or the eligibility
+            // check held it because none would (W-0362 / K-52). A job held for review was kept
+            // back on purpose, a dry run never wanted a channel, and a leased job already had one.
+            // Reporting those as capacity shortage inflates the very counter that sizes the SIM
+            // order (M8-OD-A), so they close as what they are -- a confirmation window that ran
+            // out.
+            bool capacityHeld = string.Equals(job.Status, "CAPACITY_HELD", StringComparison.Ordinal);
             bool capacityMiss = progress.TotalAttempts == 0
-                && string.Equals(job.Status, "READY_FOR_SCHEDULER", StringComparison.Ordinal);
+                && (capacityHeld
+                    || string.Equals(job.Status, "READY_FOR_SCHEDULER", StringComparison.Ordinal));
 
             // The customer side of the same question, and it is not the same question. Reaching
             // the customer at least once means the confirmation genuinely lapsed and Core can
@@ -453,8 +462,13 @@ public sealed class PostgresSchedulerStore(
             // goes to a human instead.
             bool customerWasReached = progress.CountedAttempts > 0;
 
-            string incidentId = string.Concat("CAP-", Guid.NewGuid().ToString("N"));
-            if (capacityMiss)
+            // W-0362 / K-52. A held job already has its incident: eligibility opened one when it
+            // decided no channel would come in time. Opening a second here would count a single
+            // shortage twice in the table that sizes the SIM order, so the close points at that
+            // one, and only a job that was queued and never served opens a new incident.
+            string? heldIncidentId = capacityMiss && capacityHeld ? job.CapacityIncidentId : null;
+            string incidentId = heldIncidentId ?? string.Concat("CAP-", Guid.NewGuid().ToString("N"));
+            if (capacityMiss && heldIncidentId is null)
             {
                 context.CapacityIncidents.Add(new CapacityIncidentEntity
                 {

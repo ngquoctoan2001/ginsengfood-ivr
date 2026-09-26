@@ -259,6 +259,47 @@ public sealed class TtsProviderTests
         Assert.Equal(0, provider.Calls);
     }
 
+    /// <summary>
+    /// W-0362 / K-42. The same refusal when the caller passes a mode that is not production: a
+    /// deployment configured for production is production, whatever a gateway writes into the call.
+    /// B13 was a gateway passing the lab's mode on the production path; with the check reading only
+    /// the argument, that one argument would have skipped the approval record.
+    /// </summary>
+    [Fact]
+    [Trait("TestId", "UT-TTS-WHITELIST-08")]
+    public async Task AProductionDeploymentIsProductionWhateverModeTheCallerPasses()
+    {
+        PrivacySafeOrderSummary summary = TestData.Summary();
+        RenderedSpeech text = await RenderAsync(summary);
+        var provider = new CountingTtsProvider();
+        SpeechSynthesisService service = CreateService(
+            provider,
+            new FixedTimeProvider(Now),
+            out _,
+            new TtsProviderOptions
+            {
+                ExecutionMode = "PRODUCTION_REAL",
+                Provider = TtsProviderOptions.ExternalProvider,
+                ProductionWhitelistApprovalRecord = string.Empty,
+            });
+
+        foreach (ExecutionMode passed in new[] { ExecutionMode.Mock, ExecutionMode.LabRealSim })
+        {
+            IvrFailureException failure = await Assert.ThrowsAsync<IvrFailureException>(() =>
+                service.SynthesizeAsync(
+                    text,
+                    summary,
+                    "SCRIPT-ORDER-CONFIRM",
+                    "v1-test-approved",
+                    passed,
+                    Now.AddMinutes(5),
+                    CancellationToken.None));
+            Assert.Equal(IvrErrorCodes.OperationalBlocked, failure.ErrorCode);
+        }
+
+        Assert.Equal(0, provider.Calls);
+    }
+
     private static PrivacySafeOrderSummary Summary(
         IEnumerable<SpeechItem> items,
         decimal amount) => PrivacySafeOrderSummary.Create(

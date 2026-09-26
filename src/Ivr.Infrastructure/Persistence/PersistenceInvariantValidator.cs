@@ -103,6 +103,42 @@ internal static class PersistenceInvariantValidator
                 throw new InvalidOperationException("A callback outbox payload is immutable.");
             }
         }
+
+        foreach (EntityEntry<AuditLogEntity> entry in changeTracker
+                     .Entries<AuditLogEntity>()
+                     .Where(entry => entry.State == EntityState.Added))
+        {
+            ValidateAudit(entry.Entity);
+        }
+    }
+
+    /// <summary>
+    /// W-0362 / K-46. The checks <c>PostgresAuditLogger</c> runs on an audit event, run here on
+    /// the row, along with the columns that logger never fills: the dispatch and scheduler stores,
+    /// among others, add their audit rows directly and so never passed through it or its PII
+    /// guard. The target is re-joined into the entity ref the logger checks, so a type and id that
+    /// only read as restricted together are refused too. Field names are read back from the stored
+    /// JSON, top level only, which is where the logger checks its data keys.
+    /// </summary>
+    private static void ValidateAudit(AuditLogEntity audit)
+    {
+        PiiGuard.EnsureSafeText(audit.ActorId);
+        PiiGuard.EnsureSafeText(audit.ActorType);
+        PiiGuard.EnsureSafeText(audit.Action);
+        PiiGuard.EnsureSafeText(string.Concat(audit.TargetType, ":", audit.TargetId));
+        PiiGuard.EnsureSafeText(audit.Reason);
+        PiiGuard.EnsureSafeText(audit.CorrelationId);
+        PiiGuard.EnsureSafeText(audit.BeforeStateJson);
+        PiiGuard.EnsureSafeText(audit.AfterStateJson);
+        PiiGuard.EnsureSafeText(audit.DataJson);
+        using JsonDocument data = JsonDocument.Parse(audit.DataJson);
+        if (data.RootElement.ValueKind == JsonValueKind.Object)
+        {
+            foreach (JsonProperty field in data.RootElement.EnumerateObject())
+            {
+                PiiGuard.EnsureSafeField(field.Name);
+            }
+        }
     }
 
     private static void ValidateTask(ConfirmationTaskEntity task)

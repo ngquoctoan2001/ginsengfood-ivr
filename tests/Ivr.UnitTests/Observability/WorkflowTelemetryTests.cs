@@ -159,6 +159,50 @@ public sealed class WorkflowTelemetryTests
             item.Value?.ToString()?.Contains("customer", StringComparison.OrdinalIgnoreCase) == true);
     }
 
+    /// <summary>
+    /// W-0362 / K-53. The hangup warnings pass the exception as its type name, not as the
+    /// exception, so <c>exception.type</c> is never set on them and <c>ExceptionType</c> is the
+    /// only field saying what failed. The boundary used to drop it with every other unlisted
+    /// field. It is kept now, still screened like any listed value, and a field that is not on
+    /// the list is still dropped.
+    /// </summary>
+    [Fact]
+    [Trait("TestId", "UT-OBS-LOG-14")]
+    public void OtlpLogBoundaryKeepsTheExceptionTypeNameAndStillScreensIt()
+    {
+        using var capture = new CapturingLogRecordProcessor();
+        using ServiceProvider provider = new ServiceCollection()
+            .AddLogging(builder => builder.AddOpenTelemetry(options =>
+            {
+                options.IncludeFormattedMessage = false;
+                options.ParseStateValues = true;
+                options.AddProcessor(new PiiSafeLogRecordProcessor());
+                options.AddProcessor(capture);
+            }))
+            .BuildServiceProvider();
+        ILogger<WorkflowTelemetryTests> logger = provider
+            .GetRequiredService<ILogger<WorkflowTelemetryTests>>();
+        Action<ILogger, string, string, string, Exception?> write =
+            LoggerMessage.Define<string, string, string>(
+                LogLevel.Warning,
+                new EventId(2420, "HangupFailed"),
+                "hangup of {SimChannelId} failed. ReasonCode={ReasonCode} "
+                + "ExceptionType={ExceptionType}");
+
+        write(logger, "SIM-OBS-14", "HANGUP_FAILED", nameof(TimeoutException), null);
+        CapturedLogRecord kept = Assert.IsType<CapturedLogRecord>(capture.Record);
+        Assert.Contains(kept.Attributes, item =>
+            item.Key == "ExceptionType" && Equals(item.Value, nameof(TimeoutException)));
+        Assert.Contains(kept.Attributes, item =>
+            item.Key == "ReasonCode" && Equals(item.Value, "HANGUP_FAILED"));
+        Assert.DoesNotContain("SimChannelId", kept.Attributes.Select(item => item.Key));
+
+        write(logger, "SIM-OBS-14", "HANGUP_FAILED", "0912345678", null);
+        CapturedLogRecord screened = Assert.IsType<CapturedLogRecord>(capture.Record);
+        Assert.Contains(screened.Attributes, item =>
+            item.Key == "ExceptionType" && Equals(item.Value, PiiSafeLogRecordProcessor.Redacted));
+    }
+
     private sealed record CapturedLogRecord(
         string? Body,
         Exception? Exception,

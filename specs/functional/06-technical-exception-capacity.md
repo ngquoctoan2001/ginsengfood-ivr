@@ -26,7 +26,7 @@ CONFIRMED: **Lỗi kỹ thuật tuyệt đối không được tính là khách 
 >
 > - `exception_type` và `technical_exception_type` là **`string` tự do** ở cả DB lẫn OpenAPI
 >   (`{ type: string }`), không có CHECK constraint. Runtime ghi mã gốc của gateway — ví dụ
->   `ASTERISK_DIAL_TIMEOUT` (`src/Ivr.Infrastructure/Telephony/AsteriskAriSimGateway.cs:136`) —
+>   `ASTERISK_DIAL_TIMEOUT` (`src/Ivr.Infrastructure/Telephony/AsteriskAriSimGateway.cs:183`) —
 >   nên **không giá trị nào trong bảy nhãn trên từng xuất hiện trong dữ liệu**.
 > - Hệ quả: đừng viết consumer lọc theo `exception_type = 'SIM_GATEWAY_ERROR'`. Muốn biết "đây có
 >   phải lỗi kỹ thuật không", đọc `result_type`/`result_status` — đó mới là enum đóng (§DB-03 §4).

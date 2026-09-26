@@ -63,7 +63,18 @@ public sealed class SpeechSynthesisService(
         ArgumentException.ThrowIfNullOrWhiteSpace(scriptTemplateId);
         ArgumentException.ThrowIfNullOrWhiteSpace(scriptVersion);
         TtsProviderOptions configured = providerOptions.Value;
-        if (executionMode == ExecutionMode.ProductionReal
+
+        // W-0362 / K-42. Production is recognised from either side: the mode the caller passes, or
+        // the one this deployment is configured for. The caller's alone is one hard-coded argument
+        // away from being wrong - the Asterisk gateway passed LAB_REAL_SIM on the production path
+        // until W-0354 (B13) - and the approval record is the one check that must not be skipped
+        // because a caller said so.
+        bool production = executionMode == ExecutionMode.ProductionReal
+            || string.Equals(
+                configured.ExecutionMode,
+                ExecutionModes.ProductionReal,
+                StringComparison.OrdinalIgnoreCase);
+        if (production
             && string.IsNullOrWhiteSpace(configured.ProductionWhitelistApprovalRecord))
         {
             throw IvrErrors.OperationalBlocked(
@@ -71,11 +82,9 @@ public sealed class SpeechSynthesisService(
         }
 
         // W-0363 / K-49. N1, the Tech Lead's transition rule of 24/09: production does not
-        // synthesize speech at call time. Decided by the call's mode or the deployment's, so a
-        // caller passing the wrong mode cannot bring synthesis back; B13's production dial path
-        // still passes LabRealSim until K-42 lands.
-        bool runtimeSynthesisAllowed = executionMode != ExecutionMode.ProductionReal
-            && !string.Equals(configured.ExecutionMode, ExecutionModes.ProductionReal, StringComparison.OrdinalIgnoreCase);
+        // synthesize speech at call time. The same two-sided answer as the approval check above
+        // (W-0362 / K-42), so a caller passing the wrong mode cannot bring synthesis back.
+        bool runtimeSynthesisAllowed = !production;
 
         var hints = new Dictionary<string, string>(
             VietnameseProductDictionary,

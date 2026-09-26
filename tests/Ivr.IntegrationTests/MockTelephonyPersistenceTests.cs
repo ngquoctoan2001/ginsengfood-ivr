@@ -67,6 +67,83 @@ public sealed class MockTelephonyPersistenceTests(PostgresPersistenceFixture fix
         Assert.Empty(await verification.RawCallEvents.AsNoTracking().ToListAsync());
     }
 
+    /// <summary>
+    /// W-0362 / K-43. IT-TEL-REVOKE-02's revoke, dispatched through the gateway instead of read from
+    /// the store. The load refuses, as it should; what changed is what happens next. The refusal
+    /// used to leave DispatchAsync before its try: the channel stayed RESERVED until the lease ran
+    /// out, lease recovery then quarantined it and counted a DT-04 failure, and the job waited in
+    /// HELD_LEASE_RECOVERY. Now the attempt is recorded at once as an uncounted technical exception,
+    /// the lease is released and the channel goes back to idle with its record as it was. What a
+    /// revoked task should finally end as is C13's question.
+    /// </summary>
+    [Fact]
+    [Trait("TestId", "IT-TEL-LOAD-FAIL-01")]
+    public async Task AContextThatWillNotLoadEndsTheAttemptInsteadOfStrandingTheLease()
+    {
+        await fixture.ResetAsync();
+        IDbContextFactory<IvrDbContext> factory = Factory();
+        await SeedMockDispatchAsync(factory, "TASK-TEL-LOAD-01", "JOB-TEL-LOAD-01", "SIM-MOCK-01");
+        await using (IvrDbContext setup = await factory.CreateDbContextAsync())
+        {
+            SimChannelEntity seeded = await setup.SimChannels.SingleAsync();
+            seeded.FailCount = 1;
+            seeded.FailureWindowStartedAt = Now.AddMinutes(-2);
+            await setup.SaveChangesAsync();
+        }
+
+        var scheduler = new PostgresSchedulerStore(factory, new FixedTimeProvider(Now));
+        SchedulerDispatchLease lease = Assert.IsType<SchedulerDispatchLease>(
+            await scheduler.TryClaimDueDispatchAsync(
+                "worker-load-fail",
+                IvrOptions.MockExecutionMode,
+                TimeSpan.FromMinutes(2)));
+        await using (IvrDbContext revoking = await factory.CreateDbContextAsync())
+        {
+            ConfirmationTaskEntity task = await revoking.ConfirmationTasks
+                .SingleAsync(candidate => candidate.TaskId == "TASK-TEL-LOAD-01");
+            task.RevokedAt = Now;
+            task.RevokeReason = "ORDER_CANCELLED";
+            task.RevokeOrderVersion = "18";
+            await revoking.SaveChangesAsync();
+        }
+
+        var sim = new FakeSimGateway(
+            new Dictionary<string, FakeSimScenario>
+            {
+                [lease.AttemptId] = new(SimProviderDisposition.Answered, "1"),
+            },
+            timeProvider: new FixedTimeProvider(Now));
+        MockSchedulerDispatchGateway gateway = CreateGateway(
+            CreateStore(factory),
+            lease,
+            sim,
+            includeToken: true);
+
+        DispatchContextUnavailableException refused =
+            await Assert.ThrowsAsync<DispatchContextUnavailableException>(() => gateway.DispatchAsync(lease));
+        Assert.Contains("revoked", refused.InnerException!.Message, StringComparison.OrdinalIgnoreCase);
+
+        await using IvrDbContext verification = await factory.CreateDbContextAsync();
+        CallAttemptEntity attempt = await verification.CallAttempts.AsNoTracking().SingleAsync();
+        RawCallEventEntity rawEvent = await verification.RawCallEvents.AsNoTracking().SingleAsync();
+        SimChannelEntity channel = await verification.SimChannels.AsNoTracking().SingleAsync();
+        CallJobEntity job = await verification.CallJobs.AsNoTracking().SingleAsync();
+        Assert.Equal("PROVIDER_EVENT_PENDING_NORMALIZATION", attempt.Status);
+        Assert.Equal(DispatchContextUnavailableException.TechnicalCode, attempt.TechnicalExceptionType);
+        Assert.False(attempt.IsCountedCustomerAttempt);
+        Assert.Equal(DispatchContextUnavailableException.TechnicalCode, rawEvent.TechnicalErrorCode);
+        Assert.Equal("NOT_STARTED", rawEvent.AudioStatus);
+        Assert.Equal("HELD_NORMALIZATION", job.QueueStatus);
+        Assert.Equal("IDLE", channel.Status);
+        Assert.Null(channel.LeaseToken);
+        Assert.Null(channel.ActiveCallJobId);
+        Assert.Null(channel.QuarantineUntil);
+        Assert.Equal(1, channel.FailCount);
+        Assert.Equal(Now.AddMinutes(-2), channel.FailureWindowStartedAt);
+        // Nothing reached the SIM.
+        Assert.Empty(sim.Events);
+    }
+
     [Fact]
     [Trait("TestId", "IT-TEL-DISPATCH-01")]
     public async Task SchedulerLeaseRunsThroughMockGatewayAndPersistsFencedProviderEvent()
@@ -753,7 +830,15 @@ public sealed class MockTelephonyPersistenceTests(PostgresPersistenceFixture fix
                 TimeSpan.FromMinutes(2)));
         await CreateStore(factory).FailAsync(
             lease,
-            session: null,
+            // W-0362 / K-45. A call that was placed: only a channel that carried one earns a clean
+            // record. IT-TEL-HEALTH-UNTOUCHED-09 is the same outcome with no call.
+            new SimCallSession(
+                AttemptId.Create(lease.AttemptId),
+                lease.SimChannelId,
+                "provider-call-reset-08",
+                lease.FencingGeneration,
+                Now,
+                true),
             SimProviderDisposition.NetworkError,
             "PROVIDER_NETWORK_ERROR",
             channelHealthy: true,
@@ -764,6 +849,52 @@ public sealed class MockTelephonyPersistenceTests(PostgresPersistenceFixture fix
         Assert.Equal(0, persisted.FailCount);
         Assert.Null(persisted.FailureWindowStartedAt);
         Assert.Equal("IDLE", persisted.Status);
+    }
+
+    /// <summary>
+    /// W-0362 / K-45. IT-TEL-HEALTH-RESET-08's channel - two failures inside the window - meets a
+    /// failure that never reached it: here a render refusal, but a refused token, a closed gate or
+    /// a context that will not load end the same way. That outcome is healthy, and it used to clear
+    /// the streak, so the SIM went back to the front of the queue with a clean record, one fault
+    /// from auto-disable. It now leaves the streak as it was.
+    /// </summary>
+    [Fact]
+    [Trait("TestId", "IT-TEL-HEALTH-UNTOUCHED-09")]
+    public async Task AFailureThatNeverReachedTheChannelLeavesItsStreakAlone()
+    {
+        await fixture.ResetAsync();
+        IDbContextFactory<IvrDbContext> factory = Factory();
+        await SeedMockDispatchAsync(factory, "TASK-TEL-09U", "JOB-TEL-09U", "SIM-MOCK-09U");
+        await using (IvrDbContext setup = await factory.CreateDbContextAsync())
+        {
+            SimChannelEntity channel = await setup.SimChannels.SingleAsync();
+            channel.FailCount = 2;
+            channel.FailureWindowStartedAt = Now.AddMinutes(-5);
+            await setup.SaveChangesAsync();
+        }
+
+        var scheduler = new PostgresSchedulerStore(factory, new FixedTimeProvider(Now));
+        SchedulerDispatchLease lease = Assert.IsType<SchedulerDispatchLease>(
+            await scheduler.TryClaimDueDispatchAsync(
+                "worker-health-untouched",
+                IvrOptions.MockExecutionMode,
+                TimeSpan.FromMinutes(2)));
+        await CreateStore(factory).FailAsync(
+            lease,
+            session: null,
+            SimProviderDisposition.AudioError,
+            SpeechRenderRejectedException.TechnicalCode,
+            channelHealthy: true,
+            TimeSpan.FromSeconds(5));
+
+        await using IvrDbContext verification = await factory.CreateDbContextAsync();
+        SimChannelEntity persisted = await verification.SimChannels.AsNoTracking().SingleAsync();
+        Assert.Equal(2, persisted.FailCount);
+        Assert.Equal(Now.AddMinutes(-5), persisted.FailureWindowStartedAt);
+        Assert.Equal("IDLE", persisted.Status);
+        Assert.Null(persisted.QuarantineUntil);
+        Assert.Null(persisted.DisabledReason);
+        Assert.Null(persisted.LeaseToken);
     }
 
     private IDbContextFactory<IvrDbContext> Factory() => fixture.Services

@@ -377,6 +377,58 @@ public sealed class ArchitectureDependencyTests
             + string.Join("\n  ", offenders));
     }
 
+    /// <summary>
+    /// W-0362 / K-42. A dispatch gateway takes the mode it renders, synthesises and dials in from the
+    /// deployment, never from a mode written into the call. B13 was exactly that: the Asterisk
+    /// gateway passed the lab's mode on the path production dispatches through, so a production
+    /// call would have been checked against lab approvals. W-0354 fixed that gateway by hand; this
+    /// keeps the written mode out of every gateway, the mock one included.
+    /// </summary>
+    [Fact]
+    [Trait("TestId", "ARCH-DISPATCH-MODE-01")]
+    public void DispatchGatewaysNeverWriteAnExecutionModeIntoTheCall()
+    {
+        string repositoryRoot = FindRepositoryRoot();
+        string[] gateways =
+        [
+            .. Directory.GetFiles(
+                    Path.Combine(repositoryRoot, "src"), "*DispatchGateway.cs", SearchOption.AllDirectories)
+                .Where(file => !file.Contains(
+                        $"{Path.DirectorySeparatorChar}obj{Path.DirectorySeparatorChar}", StringComparison.Ordinal)
+                    && !file.Contains(
+                        $"{Path.DirectorySeparatorChar}bin{Path.DirectorySeparatorChar}", StringComparison.Ordinal)),
+        ];
+
+        // Not vacuous: both gateways the scheduler dispatches through are read.
+        Assert.Contains(gateways, file => file.EndsWith("AsteriskSchedulerDispatchGateway.cs", StringComparison.Ordinal));
+        Assert.Contains(gateways, file => file.EndsWith("MockTelephonyDispatchGateway.cs", StringComparison.Ordinal));
+
+        List<string> offenders = [];
+        foreach (string file in gateways)
+        {
+            string[] lines = File.ReadAllLines(file);
+            for (int index = 0; index < lines.Length; index++)
+            {
+                foreach (string written in new[]
+                         {
+                             "ExecutionMode.Mock", "ExecutionMode.LabRealSim", "ExecutionMode.ProductionReal",
+                         })
+                {
+                    if (lines[index].Contains(written, StringComparison.Ordinal))
+                    {
+                        offenders.Add(
+                            $"{Path.GetRelativePath(repositoryRoot, file)}:{index + 1} writes {written}");
+                    }
+                }
+            }
+        }
+
+        Assert.True(
+            offenders.Count == 0,
+            "A dispatch gateway takes its mode from SchedulerExecutionContext.ToDomainMode():\n  "
+            + string.Join("\n  ", offenders));
+    }
+
     [Fact]
     [Trait("TestId", "ARCH-ASYNC-01")]
     public void ProductionCodeDoesNotWriteConfigureAwait()

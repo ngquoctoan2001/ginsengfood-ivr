@@ -31,6 +31,10 @@ internal static class SimChannelFailurePolicy
         return channel.FailCount >= AutoDisableThreshold;
     }
 
+    /// <summary>
+    /// Clears the failure streak. Only for an outcome where the channel carried a call: a failure
+    /// that never reached the SIM leaves the streak alone (W-0362 / K-45).
+    /// </summary>
     internal static void RecordHealthy(SimChannelEntity channel)
     {
         ArgumentNullException.ThrowIfNull(channel);

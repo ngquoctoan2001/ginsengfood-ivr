@@ -76,6 +76,24 @@ public sealed class CallTerminatedException(CallTerminationRequest request)
     public CallTerminationRequest Request { get; } = request;
 }
 
+/// <summary>
+/// W-0362 / K-43. The dispatch context could not be loaded after the lease was taken: the task was
+/// revoked, its stored data no longer reads, or the database failed the read.
+/// <para>
+/// Thrown by the gateways around <c>LoadAsync</c> so the failure ends the attempt through the
+/// loop's own failure path - lease released, channel handed back healthy, attempt recorded as an
+/// uncounted technical exception - instead of escaping it. Nothing was dialled, so the channel is
+/// not at fault. What a revoked task should end as is its own question (C13); until then it ends
+/// as this.
+/// </para>
+/// </summary>
+public sealed class DispatchContextUnavailableException(Exception innerException)
+    : InvalidOperationException("The dispatch context could not be loaded.", innerException)
+{
+    /// <summary>Recorded as the attempt's technical exception type.</summary>
+    public const string TechnicalCode = "DISPATCH_CONTEXT_UNAVAILABLE";
+}
+
 public interface ITelephonyDispatchStore
 {
     /// <summary>
@@ -271,7 +289,12 @@ public sealed class PostgresTelephonyDispatchStore(
                         ["sim_channel_id"] = lease.SimChannelId,
                         ["fencing_generation"] = lease.FencingGeneration,
                         ["provider_call_ref"] = session.ProviderCallReference,
-                        ["recording"] = "DISABLED",
+
+                        // W-0362 / K-46. Not "recording": PiiGuard refuses that field name, because a
+                        // field of that name would carry a recording, and every audit row is now
+                        // checked the way PostgresAuditLogger checks one. The value says recording
+                        // was off (DT-05); the name says what it is.
+                        ["recording_mode"] = "DISABLED",
 
                         // Also in the audit log, which is append-only. The column can be
                         // corrected by a later write; the audit row cannot, and an evidence pack
@@ -394,15 +417,21 @@ public sealed class PostgresTelephonyDispatchStore(
                 job.Status = "DISPOSITION_PENDING_NORMALIZATION";
                 job.QueueStatus = "HELD_NORMALIZATION";
 
-                bool autoDisabled;
-                if (channelHealthy)
-                {
-                    SimChannelFailurePolicy.RecordHealthy(channel);
-                    autoDisabled = false;
-                }
-                else
+                // W-0362 / K-45. A healthy outcome clears the channel's failure streak only when the
+                // channel carried a call. A failure that ended before any dial - a render or data
+                // refusal, a refused token, a closed gate, a context that would not load - says
+                // nothing about the SIM, and clearing the streak on it wiped out real SIM failures
+                // just before it: a channel two faults from DT-04's auto-disable went back to the
+                // front of the queue with a clean record. Such an outcome now leaves the streak as
+                // it found it.
+                bool autoDisabled = false;
+                if (!channelHealthy)
                 {
                     autoDisabled = SimChannelFailurePolicy.RecordFailure(channel, endedAt);
+                }
+                else if (session is not null)
+                {
+                    SimChannelFailurePolicy.RecordHealthy(channel);
                 }
 
                 channel.LastHealthCheckAt = endedAt;
@@ -441,7 +470,7 @@ public sealed class PostgresTelephonyDispatchStore(
                         ["channel_fail_count"] = channel.FailCount,
                         ["failure_window_started_at"] = channel.FailureWindowStartedAt,
                         ["channel_auto_disabled"] = autoDisabled,
-                        ["recording"] = "DISABLED",
+                        ["recording_mode"] = "DISABLED",
                         ["is_counted_customer_attempt"] = false,
                     }));
                 await Task.CompletedTask;

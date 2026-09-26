@@ -1,10 +1,20 @@
+using System.Globalization;
+using System.Net;
+using System.Net.Sockets;
+using System.Net.WebSockets;
+using System.Security.Cryptography;
+using System.Text;
+using System.Text.Json;
 using Ivr.Domain.Confirmation;
 using Ivr.Domain.Ports;
+using Ivr.Domain.Scripts;
 using Ivr.Domain.Speech;
+using Ivr.Infrastructure.Audit;
 using Ivr.Infrastructure.Configuration;
 using Ivr.Infrastructure.FeatureFlags;
 using Ivr.Infrastructure.Persistence.Security;
 using Ivr.Infrastructure.Scheduling;
+using Ivr.Infrastructure.Scripts;
 using Ivr.Infrastructure.Speech;
 using Ivr.Infrastructure.Telephony;
 using Ivr.UnitTests.Confirmation;
@@ -180,6 +190,303 @@ public sealed class AsteriskLabTelephonyTests
         Assert.Contains("ASTERISK_HANGUP_FAILED", warning, StringComparison.Ordinal);
         Assert.DoesNotContain("provider-detail", warning, StringComparison.Ordinal);
         Assert.Equal(1L, Assert.Single(failing.FailClosed));
+    }
+
+    /// <summary>
+    /// W-0362 / K-44. The gate is asked again immediately before the dial. Its first answer comes
+    /// before speech is rendered and synthesised, which can take as long as the TTS timeout allows;
+    /// an emergency stop thrown in that time has to stop this call, not only the next one.
+    /// </summary>
+    [Fact]
+    [Trait("TestId", "UT-AST-GATE-03")]
+    public async Task AKillSwitchThrownWhileSpeechIsPreparedStopsTheDial()
+    {
+        var store = new RecordingDispatchStore(DispatchContext());
+        var sim = new ScriptedAriSimGateway(hangupFailure: null);
+        var gate = new AllowOnceDispatchGate();
+
+        AsteriskAriOperationException refused =
+            await Assert.ThrowsAsync<AsteriskAriOperationException>(() => OpenGateway(
+                    store,
+                    new FixedSpeechRenderer(),
+                    sim,
+                    gate: gate)
+                .DispatchAsync(Lease(), CancellationToken.None));
+
+        Assert.Equal("ASTERISK_GATE_GLOBAL_KILL_SWITCH_ON", refused.TechnicalErrorCode);
+        Assert.Equal(2, gate.Calls);
+        Assert.Equal(0, sim.DialCalls);
+        Assert.Equal(0, store.ActivatedCalls);
+        RecordedDispatchFailure failure = Assert.Single(store.Failures);
+        Assert.Equal("ASTERISK_GATE_GLOBAL_KILL_SWITCH_ON", failure.TechnicalErrorCode);
+        Assert.Equal(SimProviderDisposition.NetworkError, failure.Disposition);
+        Assert.True(failure.ChannelHealthy);
+        Assert.Null(failure.Session);
+    }
+
+    /// <summary>
+    /// W-0362 / K-42. The lab dials only what the lab approved. The seeded script is approved for
+    /// MOCK and not for the lab; dispatched by the lab gateway through the real renderer and the
+    /// real registry, it is refused before anything is dialled, because the gateway hands the
+    /// renderer the deployment's mode and the registry answers for that mode.
+    /// </summary>
+    [Fact]
+    [Trait("TestId", "UT-AST-SCRIPT-01")]
+    public async Task AScriptWithoutLabApprovalIsRefusedAtDispatchAndNothingIsDialled()
+    {
+        var clock = new FixedTimeProvider();
+        using var scripts = new InMemoryScriptRegistry(
+            new InMemoryAuditLogger(clock),
+            clock,
+            Microsoft.Extensions.Options.Options.Create(new ScriptContentOptions()));
+        Assert.NotNull(await scripts.TryGetApproved(
+            TargetV1SpeechPolicy.MockTemplateId,
+            TargetV1SpeechPolicy.MockTemplateVersion,
+            ExecutionMode.Mock));
+        Assert.Null(await scripts.TryGetApproved(
+            TargetV1SpeechPolicy.MockTemplateId,
+            TargetV1SpeechPolicy.MockTemplateVersion,
+            ExecutionMode.LabRealSim));
+        var renderer = new ApprovedVietnameseSpeechRenderer(
+            scripts,
+            new VietnameseOrderScriptRenderer(),
+            new RegionalVoiceMap(Microsoft.Extensions.Options.Options.Create(new TtsProviderOptions
+            {
+                ExecutionMode = IvrOptions.MockExecutionMode,
+                Provider = TtsProviderOptions.FakeProvider,
+            })));
+        var store = new RecordingDispatchStore(new TelephonyDispatchContext(
+            TaskId.Create("TASK-LAB-1"),
+            DialTokenReference.Create("enc:lab-sha256:SAFE", Now.AddMinutes(5)),
+            TestData.Summary(),
+            TargetV1SpeechPolicy.MockTemplateId,
+            TargetV1SpeechPolicy.MockTemplateVersion,
+            3));
+        var sim = new ScriptedAriSimGateway(hangupFailure: null);
+
+        await Assert.ThrowsAsync<SpeechRenderPolicyRejectedException>(() =>
+            OpenGateway(store, renderer, sim).DispatchAsync(Lease(), CancellationToken.None));
+
+        RecordedDispatchFailure failure = Assert.Single(store.Failures);
+        Assert.Equal(SpeechRenderPolicyRejectedException.TechnicalCode, failure.TechnicalErrorCode);
+        Assert.True(failure.ChannelHealthy);
+        Assert.Null(failure.Session);
+        Assert.Equal(0, sim.DialCalls);
+    }
+
+    /// <summary>
+    /// W-0362 / K-43. A context that will not load - here a task revoked after the claim - ends the
+    /// attempt through the failure path: recorded once, the channel handed back healthy, nothing
+    /// dialled. The load used to sit outside the try, so the lease stood until it expired and lease
+    /// recovery quarantined a SIM nobody had used.
+    /// </summary>
+    [Fact]
+    [Trait("TestId", "UT-AST-LOAD-FAIL-01")]
+    public async Task AContextThatWillNotLoadIsRecordedAsAFailureAndNothingIsDialled()
+    {
+        var revoked = new InvalidOperationException("Task was revoked before dispatch.");
+        var store = new RecordingDispatchStore(DispatchContext(), loadFailure: revoked);
+        var sim = new ScriptedAriSimGateway(hangupFailure: null);
+
+        DispatchContextUnavailableException failure =
+            await Assert.ThrowsAsync<DispatchContextUnavailableException>(() =>
+                OpenGateway(store, new FixedSpeechRenderer(), sim)
+                    .DispatchAsync(Lease(), CancellationToken.None));
+
+        Assert.Same(revoked, failure.InnerException);
+        RecordedDispatchFailure recorded = Assert.Single(store.Failures);
+        Assert.Equal("DISPATCH_CONTEXT_UNAVAILABLE", recorded.TechnicalErrorCode);
+        Assert.Equal(SimProviderDisposition.NetworkError, recorded.Disposition);
+        Assert.True(recorded.ChannelHealthy);
+        Assert.Null(recorded.Session);
+        Assert.Equal(0, sim.DialCalls);
+    }
+
+    /// <summary>
+    /// W-0362 / K-47 (V6-6). Losing the ARI event stream ends every call still open on it, at once,
+    /// as a network error that does not count against the customer.
+    /// <para>
+    /// Two calls are open when the fake Asterisk drops the TCP connection under the event stream:
+    /// one answered and waiting for a key, one still ringing. Before the fix neither heard about
+    /// it. Each waited out its own timeout (no input for the first, a ring timeout for the second)
+    /// and each was recorded as the customer's doing: a counted attempt, and on the last attempt
+    /// <c>IVR_NO_ANSWER_FINAL</c>, which is what M3 cancels a COD order on. Both timeouts here are
+    /// far longer than the test is allowed to wait, so a call can only end in time if the lost
+    /// stream ends it; and the normalization runs as the last attempt, where the stakes are.
+    /// </para>
+    /// <para>
+    /// Only this side ended those calls. Asterisk may still hold the customer, or still be ringing
+    /// them, so each hangup that follows has to reach it as a DELETE.
+    /// </para>
+    /// </summary>
+    [Fact]
+    [Trait("TestId", "UT-AST-EVENTS-11")]
+    public async Task LosingTheAriEventStreamEndsEveryOpenCallAtOnceAsAnUncountedNetworkError()
+    {
+        using var asterisk = new FakeAsterisk();
+        AsteriskAriOptions configured = Options();
+        configured.BaseUrl = asterisk.BaseUrl;
+        configured.DialTimeoutSeconds = 600;
+        await using var gateway = new AsteriskAriSimGateway(
+            asterisk,
+            Microsoft.Extensions.Options.Options.Create(configured),
+            new FixedTimeProvider());
+
+        SimCallSession answered = await gateway.DialAsync(
+            DialRequest("attempt-lab-stream-answered"),
+            CancellationToken.None);
+        Assert.True(answered.IsConnected);
+        Task<SimDtmfCapture> keypress = gateway
+            .CaptureDtmfAsync(answered, TimeSpan.FromMinutes(10), CancellationToken.None)
+            .AsTask();
+
+        asterisk.AnswerDials = false;
+        Task<SimCallSession> ringing = gateway
+            .DialAsync(DialRequest("attempt-lab-stream-ringing"), CancellationToken.None)
+            .AsTask();
+        await asterisk.Ringing.WaitAsync(TimeSpan.FromSeconds(10));
+        Assert.False(keypress.IsCompleted);
+
+        await asterisk.DropEventStreamAsync();
+
+        SimDtmfCapture capture = await keypress.WaitAsync(TimeSpan.FromSeconds(10));
+        Assert.Null(capture.Key);
+        Assert.False(capture.NoInput);
+        Assert.Equal("ASTERISK_EVENT_STREAM_LOST", capture.TechnicalErrorCode);
+        SimCallSession unanswered = await ringing.WaitAsync(TimeSpan.FromSeconds(10));
+        Assert.False(unanswered.IsConnected);
+
+        foreach ((SimCallSession session, string? key) in new[]
+                 {
+                     (answered, capture.Key),
+                     (unanswered, (string?)null),
+                 })
+        {
+            // Exactly what the Asterisk dispatch path hands the store, and then the mapping the
+            // store's disposition is normalized by: the place is_counted is decided.
+            SimDispositionReport report = await gateway.GetDispositionAsync(
+                session,
+                CancellationToken.None);
+            Assert.Equal(SimProviderDisposition.NetworkError, report.Disposition);
+            Assert.Equal("ASTERISK_EVENT_STREAM_LOST", report.TechnicalErrorCode);
+            Assert.False(report.ChannelHealthy);
+
+            NormalizedResult result = DispositionMapper.Normalize(
+                report.Disposition,
+                key,
+                report.TechnicalErrorCode,
+                LastAttempt());
+            Assert.Equal(IvrResultType.IvrTechnicalException, result.ResultType);
+            Assert.False(result.IsCounted);
+            Assert.False(result.IsFinal);
+            Assert.Equal("ASTERISK_EVENT_STREAM_LOST", result.TechnicalErrorCode);
+        }
+
+        await gateway.HangupAsync(answered, CancellationToken.None);
+        await gateway.HangupAsync(unanswered, CancellationToken.None);
+        IReadOnlyList<string> requests = asterisk.Requests;
+        Assert.Single(requests, request => request == ChannelDelete(answered));
+        Assert.Single(requests, request => request == ChannelDelete(unanswered));
+    }
+
+    /// <summary>
+    /// W-0362 / K-47. Losing the event stream takes nothing from a call whose outcome is already
+    /// known. A call that captured 1 stays a confirmation, and a call Asterisk already ended keeps
+    /// the cause Asterisk gave; only the call still waiting is failed.
+    /// <para>
+    /// The waiting call is the witness: its capture ending proves the loss has been handled, so
+    /// the other two are read after it rather than raced against it. The hangups follow who ended
+    /// each call. The confirmed one is still up in Asterisk and gets its DELETE; the busy one,
+    /// which Asterisk ended itself, gets none.
+    /// </para>
+    /// </summary>
+    [Fact]
+    [Trait("TestId", "UT-AST-EVENTS-12")]
+    public async Task LosingTheAriEventStreamLeavesCallsWhoseOutcomeIsAlreadyKnownAlone()
+    {
+        using var asterisk = new FakeAsterisk();
+        AsteriskAriOptions configured = Options();
+        configured.BaseUrl = asterisk.BaseUrl;
+        configured.DialTimeoutSeconds = 600;
+        await using var gateway = new AsteriskAriSimGateway(
+            asterisk,
+            Microsoft.Extensions.Options.Options.Create(configured),
+            new FixedTimeProvider());
+
+        // A customer who answered and pressed 1.
+        SimCallSession confirmed = await gateway.DialAsync(
+            DialRequest("attempt-lab-stream-confirmed"),
+            CancellationToken.None);
+        await asterisk.SendEventAsync(new
+        {
+            type = "ChannelDtmfReceived",
+            channel = new { id = confirmed.ProviderCallReference },
+            digit = "1",
+        });
+        SimDtmfCapture pressed = await gateway
+            .CaptureDtmfAsync(confirmed, TimeSpan.FromMinutes(10), CancellationToken.None)
+            .AsTask()
+            .WaitAsync(TimeSpan.FromSeconds(10));
+        Assert.Equal("1", pressed.Key);
+
+        // A customer who answered and has not pressed anything yet.
+        SimCallSession waiting = await gateway.DialAsync(
+            DialRequest("attempt-lab-stream-waiting"),
+            CancellationToken.None);
+        Task<SimDtmfCapture> keypress = gateway
+            .CaptureDtmfAsync(waiting, TimeSpan.FromMinutes(10), CancellationToken.None)
+            .AsTask();
+
+        // A call Asterisk ended itself while it rang: the line was busy.
+        asterisk.AnswerDials = false;
+        Task<SimCallSession> dialling = gateway
+            .DialAsync(DialRequest("attempt-lab-stream-busy"), CancellationToken.None)
+            .AsTask();
+        string busyChannel = await asterisk.Ringing.WaitAsync(TimeSpan.FromSeconds(10));
+        await asterisk.SendEventAsync(new
+        {
+            type = "ChannelDestroyed",
+            channel = new { id = busyChannel },
+            cause = 17,
+            cause_txt = "User busy",
+        });
+        SimCallSession busy = await dialling.WaitAsync(TimeSpan.FromSeconds(10));
+        Assert.False(busy.IsConnected);
+        Assert.False(keypress.IsCompleted);
+
+        await asterisk.DropEventStreamAsync();
+        SimDtmfCapture lost = await keypress.WaitAsync(TimeSpan.FromSeconds(10));
+        Assert.Equal("ASTERISK_EVENT_STREAM_LOST", lost.TechnicalErrorCode);
+
+        // The confirmation stands: answered, the channel healthy, no stream-loss code, and still a
+        // confirmed order once normalized.
+        SimDispositionReport confirmedReport = await gateway.GetDispositionAsync(
+            confirmed,
+            CancellationToken.None);
+        Assert.Equal(SimProviderDisposition.Answered, confirmedReport.Disposition);
+        Assert.True(confirmedReport.ChannelHealthy);
+        Assert.Null(confirmedReport.TechnicalErrorCode);
+        NormalizedResult confirmation = DispositionMapper.Normalize(
+            confirmedReport.Disposition,
+            pressed.Key,
+            confirmedReport.TechnicalErrorCode,
+            LastAttempt());
+        Assert.Equal(IvrResultType.IvrConfirmed, confirmation.ResultType);
+        Assert.Equal("1", confirmation.DtmfKey);
+
+        // So does the cause Asterisk gave for the busy line.
+        SimDispositionReport busyReport = await gateway.GetDispositionAsync(
+            busy,
+            CancellationToken.None);
+        Assert.Equal(SimProviderDisposition.Busy, busyReport.Disposition);
+        Assert.Null(busyReport.TechnicalErrorCode);
+        Assert.True(busyReport.ChannelHealthy);
+
+        await gateway.HangupAsync(confirmed, CancellationToken.None);
+        await gateway.HangupAsync(busy, CancellationToken.None);
+        IReadOnlyList<string> requests = asterisk.Requests;
+        Assert.Single(requests, request => request == ChannelDelete(confirmed));
+        Assert.DoesNotContain(ChannelDelete(busy), requests);
     }
 
     /// <summary>
@@ -603,13 +910,14 @@ public sealed class AsteriskLabTelephonyTests
         RecordingDispatchStore store,
         ISpeechRenderer renderer,
         ISimGateway sim,
-        WarningCapturingLogger<AsteriskSchedulerDispatchGateway>? logger = null) => new(
+        WarningCapturingLogger<AsteriskSchedulerDispatchGateway>? logger = null,
+        IDispatchGate? gate = null) => new(
             store,
             new FixedResolver(),
             renderer,
             new PassThroughSpeechSynthesisService(),
             sim,
-            new AllowingDispatchGate(),
+            gate ?? new AllowingDispatchGate(),
             Microsoft.Extensions.Options.Options.Create(Options()),
             Microsoft.Extensions.Options.Options.Create(new IvrOptions
             {
@@ -662,6 +970,26 @@ public sealed class AsteriskLabTelephonyTests
             Task.FromResult(new DispatchGateDecision(true, "LAB_DESTINATION_APPROVED"));
     }
 
+    /// <summary>
+    /// W-0362 / K-44. Allows the first question and refuses every later one: the kill switch is
+    /// thrown between the gateway's first look at the gate and the dial.
+    /// </summary>
+    private sealed class AllowOnceDispatchGate : IDispatchGate
+    {
+        public int Calls { get; private set; }
+
+        public Task<DispatchGateDecision> EvaluateAsync(
+            string environment,
+            string destinationReference,
+            CancellationToken cancellationToken = default)
+        {
+            Calls++;
+            return Task.FromResult(Calls == 1
+                ? new DispatchGateDecision(true, "LAB_DESTINATION_APPROVED")
+                : new DispatchGateDecision(false, "GLOBAL_KILL_SWITCH_ON"));
+        }
+    }
+
     /// <summary>Refuses every order with the exception it was given, as the approved renderer does.</summary>
     private sealed class RefusingSpeechRenderer(Exception refusal) : ISpeechRenderer
     {
@@ -701,6 +1029,9 @@ public sealed class AsteriskLabTelephonyTests
     {
         public int HangupCalls { get; private set; }
 
+        /// <summary>How many calls were placed (W-0362).</summary>
+        public int DialCalls { get; private set; }
+
         public ValueTask<SimGatewayHealth> CheckHealthAsync(
             string simChannelId,
             CancellationToken cancellationToken) =>
@@ -716,6 +1047,7 @@ public sealed class AsteriskLabTelephonyTests
             CancellationToken cancellationToken)
         {
             ArgumentNullException.ThrowIfNull(request);
+            DialCalls++;
             return ValueTask.FromResult(new SimCallSession(
                 request.AttemptId,
                 request.SimChannelId,
@@ -757,6 +1089,196 @@ public sealed class AsteriskLabTelephonyTests
             }
 
             return ValueTask.CompletedTask;
+        }
+    }
+
+    // ------------------------------------------------------------------------------- W-0362
+
+    /// <summary>A lab dial to the pinned alias, for the ARI adapter itself rather than a dispatch.</summary>
+    private static SimDialRequest DialRequest(string attemptId) => new(
+        AttemptId.Create(attemptId),
+        TaskId.Create("TASK-LAB-1"),
+        "SIM-ASTERISK-001",
+        Guid.NewGuid(),
+        1,
+        DialAuthorization.CreateTrusted("LAB-A"),
+        SimRecordingMode.Disabled);
+
+    /// <summary>
+    /// The customer's third and last attempt, inside the confirmation window: where a result counted
+    /// against them would be final.
+    /// </summary>
+    private static AttemptNormalizationContext LastAttempt() =>
+        new(3, 3, Now, Now.AddHours(1), 0, 2);
+
+    /// <summary>The DELETE that hangs up <paramref name="session"/>'s channel, as the fake records it.</summary>
+    private static string ChannelDelete(SimCallSession session) =>
+        string.Concat("DELETE /ari/channels/", session.ProviderCallReference);
+
+    /// <summary>
+    /// W-0362 / K-47. A fake Asterisk for the ARI adapter: REST answered in process by this handler,
+    /// the event stream over a real loopback socket. The socket is the point. K-47 is about that
+    /// connection going away, and a ClientWebSocket can only lose a connection it really has.
+    /// <para>
+    /// A dial is answered with StasisStart on the event stream as soon as it is placed, unless
+    /// <see cref="AnswerDials"/> is off: then it is left ringing and <see cref="Ringing"/>
+    /// completes with its channel id. Every REST call succeeds and is kept, as method and path, in
+    /// <see cref="Requests"/>. Events go out one at a time, as the tests send them.
+    /// </para>
+    /// </summary>
+    private sealed class FakeAsterisk : HttpMessageHandler, IHttpClientFactory
+    {
+        private const string KeyHeader = "Sec-WebSocket-Key:";
+
+        // The fixed GUID RFC 6455 section 4.2.2 appends to the client's key.
+        private const string HandshakeGuid = "258EAFA5-E914-47DA-95CA-C5AB0DC85B11";
+
+        private readonly TcpListener listener = new(IPAddress.Loopback, 0);
+        private readonly TaskCompletionSource<string> ringing =
+            new(TaskCreationOptions.RunContinuationsAsynchronously);
+        private readonly List<string> requests = [];
+        private readonly Task accepted;
+        private TcpClient? connection;
+        private WebSocket? events;
+
+        public FakeAsterisk()
+        {
+            listener.Start();
+            accepted = AcceptEventStreamAsync();
+        }
+
+        public bool AnswerDials { get; set; } = true;
+
+        /// <summary>The channel id of the dial left ringing, once there is one.</summary>
+        public Task<string> Ringing => ringing.Task;
+
+        public IReadOnlyList<string> Requests
+        {
+            get
+            {
+                lock (requests)
+                {
+                    return [.. requests];
+                }
+            }
+        }
+
+        public string BaseUrl => string.Concat(
+            "http://127.0.0.1:",
+            ((IPEndPoint)listener.LocalEndpoint).Port.ToString(CultureInfo.InvariantCulture));
+
+        public HttpClient CreateClient(string name) => new(this, disposeHandler: false);
+
+        /// <summary>Sends one ARI event down the event stream, as Asterisk would.</summary>
+        public async Task SendEventAsync(object ariEvent)
+        {
+            await accepted;
+            await events!.SendAsync(
+                JsonSerializer.SerializeToUtf8Bytes(ariEvent),
+                WebSocketMessageType.Text,
+                true,
+                CancellationToken.None);
+        }
+
+        /// <summary>
+        /// Drops the event stream's TCP connection with a reset and no WebSocket close frame: a
+        /// network fault, or a proxy restarting, as the adapter sees one.
+        /// </summary>
+        public async Task DropEventStreamAsync()
+        {
+            await accepted;
+            connection!.Client.LingerState = new LingerOption(true, 0);
+            connection.Close();
+        }
+
+        protected override async Task<HttpResponseMessage> SendAsync(
+            HttpRequestMessage request,
+            CancellationToken cancellationToken)
+        {
+            Uri uri = request.RequestUri!;
+            lock (requests)
+            {
+                requests.Add(string.Concat(request.Method.Method, " ", uri.AbsolutePath));
+            }
+
+            if (request.Method == HttpMethod.Post && uri.AbsolutePath == "/ari/channels")
+            {
+                string channelId = QueryValue(uri, "channelId");
+                if (AnswerDials)
+                {
+                    await SendEventAsync(new { type = "StasisStart", channel = new { id = channelId } });
+                }
+                else
+                {
+                    ringing.TrySetResult(channelId);
+                }
+            }
+
+            return new HttpResponseMessage(HttpStatusCode.OK);
+        }
+
+        protected override void Dispose(bool disposing)
+        {
+            if (disposing)
+            {
+                events?.Dispose();
+                connection?.Dispose();
+                listener.Dispose();
+            }
+
+            base.Dispose(disposing);
+        }
+
+        private static string QueryValue(Uri uri, string name) => Uri.UnescapeDataString(uri.Query
+            .TrimStart('?')
+            .Split('&')
+            .Select(pair => pair.Split('=', 2))
+            .Single(pair => string.Equals(pair[0], name, StringComparison.Ordinal))[1]);
+
+        /// <summary>
+        /// Accepts the adapter's one event-stream connection and upgrades it by hand, since nothing
+        /// in this project hosts a WebSocket server.
+        /// </summary>
+        private async Task AcceptEventStreamAsync()
+        {
+            connection = await listener.AcceptTcpClientAsync();
+            NetworkStream stream = connection.GetStream();
+
+            // The upgrade request, up to the blank line that ends it. The client sends nothing
+            // more until it has an answer, so this cannot read past it.
+            var request = new StringBuilder();
+            var chunk = new byte[1024];
+            while (!request.ToString().Contains("\r\n\r\n", StringComparison.Ordinal))
+            {
+                int read = await stream.ReadAsync(chunk);
+                if (read == 0)
+                {
+                    throw new IOException("The adapter closed the event stream before upgrading it.");
+                }
+
+                request.Append(Encoding.ASCII.GetString(chunk, 0, read));
+            }
+
+            string key = request.ToString()
+                .Split("\r\n")
+                .Single(line => line.StartsWith(KeyHeader, StringComparison.OrdinalIgnoreCase))
+                [KeyHeader.Length..]
+                .Trim();
+
+            // SHA-1 because the protocol fixes it for this one purpose: it proves the upgrade and
+            // protects nothing.
+#pragma warning disable CA5350 // RFC 6455 mandates SHA-1 for the handshake answer.
+            string accept = Convert.ToBase64String(SHA1.HashData(
+                Encoding.ASCII.GetBytes(string.Concat(key, HandshakeGuid))));
+#pragma warning restore CA5350
+            await stream.WriteAsync(Encoding.ASCII.GetBytes(string.Concat(
+                "HTTP/1.1 101 Switching Protocols\r\n",
+                "Upgrade: websocket\r\n",
+                "Connection: Upgrade\r\n",
+                string.Concat("Sec-WebSocket-Accept: ", accept, "\r\n\r\n"))));
+            events = WebSocket.CreateFromStream(
+                stream,
+                new WebSocketCreationOptions { IsServer = true, KeepAliveInterval = TimeSpan.Zero });
         }
     }
 }

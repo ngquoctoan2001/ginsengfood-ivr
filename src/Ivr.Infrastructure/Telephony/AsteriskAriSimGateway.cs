@@ -52,6 +52,10 @@ public sealed class AsteriskAriSimGateway(
 
         public string? TechnicalErrorCode { get; set; }
 
+        // W-0362 / K-47. Ended on this side because the event stream failed. Asterisk never said
+        // the channel is gone, so it may still be up - ringing, or with a customer on the line.
+        public bool EndedWithoutAsterisk { get; set; }
+
         public TaskCompletionSource<bool> ConnectedOrEnded { get; } =
             new(TaskCreationOptions.RunContinuationsAsynchronously);
 
@@ -320,7 +324,10 @@ public sealed class AsteriskAriSimGateway(
             return;
         }
 
-        if (!state.EndedAt.HasValue)
+        // W-0362 / K-47. A call the event stream's failure ended is hung up like a live one: only
+        // this side considers it over, and the channel may still hold a customer. A call Asterisk
+        // ended itself, or that its originate timeout ends, needs no DELETE, as before.
+        if (!state.EndedAt.HasValue || state.EndedWithoutAsterisk)
         {
             using HttpResponseMessage response = await SendAsync(
                 HttpMethod.Delete,
@@ -466,37 +473,52 @@ public sealed class AsteriskAriSimGateway(
         CancellationToken cancellationToken)
     {
         var buffer = new byte[16_384];
-        while (activeSocket.State == WebSocketState.Open)
+        try
         {
-            using var message = new MemoryStream();
-            WebSocketReceiveResult result;
-            do
+            while (activeSocket.State == WebSocketState.Open)
             {
-                result = await activeSocket.ReceiveAsync(buffer, cancellationToken);
-                if (result.MessageType == WebSocketMessageType.Close)
+                using var message = new MemoryStream();
+                WebSocketReceiveResult result;
+                do
                 {
-                    FailOpenCalls("ASTERISK_EVENT_STREAM_CLOSED");
-                    return;
-                }
+                    result = await activeSocket.ReceiveAsync(buffer, cancellationToken);
+                    if (result.MessageType == WebSocketMessageType.Close)
+                    {
+                        FailOpenCalls("ASTERISK_EVENT_STREAM_CLOSED");
+                        return;
+                    }
 
-                message.Write(buffer, 0, result.Count);
-                if (message.Length > 256_000)
+                    message.Write(buffer, 0, result.Count);
+                    if (message.Length > 256_000)
+                    {
+                        FailOpenCalls("ASTERISK_EVENT_TOO_LARGE");
+                        return;
+                    }
+                }
+                while (!result.EndOfMessage);
+
+                try
                 {
-                    FailOpenCalls("ASTERISK_EVENT_TOO_LARGE");
-                    return;
+                    using JsonDocument document = JsonDocument.Parse(message.ToArray());
+                    ProcessEvent(document.RootElement);
+                }
+                catch (JsonException)
+                {
+                    // Ignore malformed provider telemetry; call timeouts remain fail-closed.
                 }
             }
-            while (!result.EndOfMessage);
-
-            try
-            {
-                using JsonDocument document = JsonDocument.Parse(message.ToArray());
-                ProcessEvent(document.RootElement);
-            }
-            catch (JsonException)
-            {
-                // Ignore malformed provider telemetry; call timeouts remain fail-closed.
-            }
+        }
+        catch
+        {
+            // W-0362 / K-47. A stream that drops without a close frame arrives here as ReceiveAsync
+            // throwing, and used to leave past every FailOpenCalls above. With nothing left to
+            // deliver StasisStart, a keypress or ChannelDestroyed, an open call waited out its own
+            // timeout and was recorded as the customer not answering or not pressing a key - an
+            // attempt counted against them. Losing the stream is our fault, not theirs, so it ends
+            // those calls the way a closed stream does: a network error, never counted. The
+            // exception still goes where it always went.
+            FailOpenCalls("ASTERISK_EVENT_STREAM_LOST");
+            throw;
         }
 
         FailOpenCalls("ASTERISK_EVENT_STREAM_CLOSED");
@@ -557,8 +579,18 @@ public sealed class AsteriskAriSimGateway(
     {
         foreach (AriCallState state in calls.Values)
         {
+            // W-0362 / K-47. Only calls whose outcome is still unknown. One Asterisk already ended
+            // keeps the cause Asterisk reported, and one that already captured a key keeps that
+            // key: turning either into a network error would discard a known outcome, and call a
+            // customer who pressed 1 all over again.
+            if (state.EndedAt.HasValue || state.Dtmf.Task.IsCompleted)
+            {
+                continue;
+            }
+
             state.TerminalDisposition = SimProviderDisposition.NetworkError;
             state.TechnicalErrorCode = technicalCode;
+            state.EndedWithoutAsterisk = true;
             state.EndedAt = timeProvider.GetUtcNow();
             state.ConnectedOrEnded.TrySetResult(false);
             state.Ended.TrySetResult(true);

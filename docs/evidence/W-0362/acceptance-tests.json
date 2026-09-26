@@ -1,0 +1,24 @@
+{
+  "schema": "ivr-acceptance-tests/v1",
+  "workId": "W-0362",
+  "scope": "software",
+  "requiredTestIds": [
+    "ARCH-DISPATCH-MODE-01",
+    "UT-TTS-WHITELIST-08",
+    "UT-AST-SCRIPT-01",
+    "UT-AST-LOAD-FAIL-01",
+    "IT-TEL-LOAD-FAIL-01",
+    "UT-AST-GATE-03",
+    "IT-TEL-HEALTH-UNTOUCHED-09",
+    "IT-TEL-HEALTH-RESET-08",
+    "IT-DB-AUDIT-PII-10",
+    "UT-AST-EVENTS-11",
+    "UT-AST-EVENTS-12",
+    "IT-SCH-CAPACITY-HELD-01",
+    "UT-OBS-LOG-14"
+  ],
+  "gates": [
+    "generate-test-traceability.mjs",
+    "gate-status.mjs"
+  ]
+}

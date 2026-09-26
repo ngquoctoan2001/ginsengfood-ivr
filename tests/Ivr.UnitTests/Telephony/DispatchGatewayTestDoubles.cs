@@ -35,9 +35,12 @@ internal sealed record HangupScenarioRun(
 /// <summary>
 /// A dispatch store that hands the gateway one fixed context and records every failure the
 /// gateway reports, so a test asserts the exact arguments rather than their effect on a database.
-/// Nothing completes: every scenario that uses it ends in a failure.
+/// Nothing completes: every scenario that uses it ends in a failure. Given
+/// <paramref name="loadFailure"/>, loading the context fails with it instead (W-0362 / K-43).
 /// </summary>
-internal sealed class RecordingDispatchStore(TelephonyDispatchContext context) : ITelephonyDispatchStore
+internal sealed class RecordingDispatchStore(
+    TelephonyDispatchContext context,
+    Exception? loadFailure = null) : ITelephonyDispatchStore
 {
     private readonly List<RecordedDispatchFailure> failures = [];
 
@@ -54,7 +57,9 @@ internal sealed class RecordingDispatchStore(TelephonyDispatchContext context) :
     public Task<TelephonyDispatchContext> LoadAsync(
         SchedulerDispatchLease lease,
         CancellationToken cancellationToken = default) =>
-        Task.FromResult(context);
+        loadFailure is null
+            ? Task.FromResult(context)
+            : Task.FromException<TelephonyDispatchContext>(loadFailure);
 
     public Task MarkActiveAsync(
         SchedulerDispatchLease lease,

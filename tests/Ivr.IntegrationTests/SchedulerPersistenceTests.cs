@@ -1191,6 +1191,152 @@ public sealed class SchedulerPersistenceTests(PostgresPersistenceFixture fixture
             (await verification.CallJobs.AsNoTracking().SingleAsync()).Status);
     }
 
+    /// <summary>
+    /// W-0362 / K-52. A job the eligibility check held for capacity used to stay open for good.
+    /// It is not eligible, the sweep only looked at eligible jobs, and so its window passed with
+    /// no result and no callback while Module 3 waited on an order IVR had already given up on.
+    /// <para>
+    /// The hold is written by the real eligibility path rather than imitated here. The defect was
+    /// a status one component wrote and no other read, and a test that wrote the status itself
+    /// would stay green through the next rename of it. The SIM pool is left empty, so it is the
+    /// scheduler's own capacity calculation that refuses the job.
+    /// </para>
+    /// </summary>
+    [Fact]
+    [Trait("TestId", "IT-SCH-CAPACITY-HELD-01")]
+    public async Task AJobHeldForCapacityClosesOnceAsACapacityExceptionWhenItsWindowPasses()
+    {
+        await fixture.ResetAsync();
+        IDbContextFactory<IvrDbContext> factory = Factory();
+        const string taskId = "TASK-SCH-CAPACITY-HELD-01";
+        DateTimeOffset windowCloses = Now.AddMinutes(4);
+        await SeedReadyJobAsync(
+            factory,
+            taskId,
+            "JOB-SCH-CAPACITY-HELD-01",
+            Now.AddMinutes(-1),
+            expiresAt: windowCloses);
+
+        // Back to the state intake leaves a task in, so that eligibility is what decides.
+        await using (IvrDbContext intake = await factory.CreateDbContextAsync())
+        {
+            ConfirmationTaskEntity task = await intake.ConfirmationTasks.SingleAsync();
+            task.EligibilityDecision = null;
+            task.EvidenceRefsJson = "[\"evidence://integration/sch-capacity-held-01/task\"]";
+            task.EligibilitySnapshotJson = JsonSerializer.Serialize(new
+            {
+                decision = "ELIGIBLE",
+                source_version = "sales-eligibility-v1",
+                captured_at = Now.AddSeconds(-30),
+                source_available = true,
+                blockers = Array.Empty<string>(),
+            });
+            CallJobEntity pending = await intake.CallJobs.SingleAsync();
+            pending.Status = "CREATED";
+            pending.QueueStatus = "HELD_ELIGIBILITY";
+            pending.Eligible = false;
+            pending.EligibilityDecision = EligibilityDecisions.Pending;
+            intake.TaskIntakeOutbox.Add(new TaskIntakeOutboxEntity
+            {
+                OutboxId = Guid.NewGuid(),
+                TaskId = taskId,
+                IvrCallJobId = pending.IvrCallJobId,
+                EventType = "IVR_TASK_READY_FOR_ELIGIBILITY",
+                Status = "READY_FOR_ELIGIBILITY",
+                CorrelationId = task.CorrelationId,
+                PayloadSha256 = new string('A', 64),
+                CreatedAt = Now.AddMinutes(-1),
+            });
+            await intake.SaveChangesAsync();
+        }
+
+        EligibilityEvaluation evaluation = await new EligibilityService(
+                new PostgresEligibilityRepository(factory),
+                new SchedulerEligibilityCapacityProvider(new PostgresSchedulerCapacityService(
+                    factory,
+                    new SchedulerExecutionContext(IvrOptions.LabRealSimExecutionMode),
+                    Options.Create(new SchedulerOptions()))),
+                new FixedTimeProvider(Now))
+            .EvaluateAsync(taskId, "corr-sch-capacity-held-01");
+        Assert.Equal(EligibilityDecisions.CapacityException, evaluation.Decision);
+        Assert.NotNull(evaluation.CapacityIncidentId);
+        string eligibilityIncidentId = evaluation.CapacityIncidentId;
+        await using (IvrDbContext held = await factory.CreateDbContextAsync())
+        {
+            CallJobEntity job = await held.CallJobs.AsNoTracking().SingleAsync();
+            Assert.Equal("CAPACITY_HELD", job.Status);
+            Assert.False(job.Eligible);
+            Assert.Equal(eligibilityIncidentId, job.CapacityIncidentId);
+        }
+
+        // Nobody will dial it, so it is not backlog either: the gauge reads the claim's
+        // conditions, and a held job fails the first of them. The sweep is what closes it.
+        Assert.Null(await new PostgresSchedulerQueueBacklogReader(factory)
+            .ReadOldestDueAtAsync(IvrOptions.LabRealSimExecutionMode, Now));
+
+        var store = new PostgresSchedulerStore(factory, new FixedTimeProvider(Now));
+        List<(string Instrument, string Taxonomy)> observed = [];
+        using (MeterListener listener = ListenForCapacityMetrics(observed))
+        {
+            // Not before its window has passed, then once, then never again.
+            Assert.Equal(0, await store.CloseMissedDeadlinesAsync(windowCloses.AddSeconds(-1), 16));
+            Assert.Equal(1, await store.CloseMissedDeadlinesAsync(windowCloses.AddSeconds(1), 16));
+            Assert.Equal(0, await store.CloseMissedDeadlinesAsync(windowCloses.AddSeconds(2), 16));
+            listener.RecordObservableInstruments();
+        }
+
+        // Counted as the capacity miss it is, once: the zero-tolerance deadline alert and the
+        // confirm-rate denominator both see this order, where before they never did.
+        Assert.Equal(2, observed.Count);
+        Assert.Contains(
+            observed,
+            measurement => measurement.Instrument == "ivr_missed_deadline_total"
+                && measurement.Taxonomy == "GOLDEN_HOUR");
+        Assert.Contains(
+            observed,
+            measurement => measurement.Instrument == "ivr_call_results_total"
+                && measurement.Taxonomy == "IVR_CAPACITY_EXCEPTION");
+
+        await using IvrDbContext verification = await factory.CreateDbContextAsync();
+        CallResultEntity result = await verification.CallResults.AsNoTracking().SingleAsync();
+        Assert.Equal("IVR_CAPACITY_EXCEPTION", result.ResultType);
+        Assert.Equal("NO_DISPATCH_BEFORE_DEADLINE", result.ResultReason);
+        Assert.True(result.IsFinalForIvr);
+        Assert.False(result.IsCountedCustomerAttempt);
+        Assert.Equal("REVALIDATE_AND_HOLD_ADMIN_REVIEW", result.RecommendedCoreAction);
+        Assert.True(result.HumanReviewRequired);
+
+        ResultCallbackEntity callback = await verification.ResultCallbacks.AsNoTracking().SingleAsync();
+        Assert.Equal(result.IvrCallResultId, callback.IvrCallResultId);
+        Assert.Equal("READY", callback.DeliveryStatus);
+        using (JsonDocument payload = JsonDocument.Parse(callback.PayloadJson))
+        {
+            Assert.Equal(
+                "IVR_CAPACITY_EXCEPTION",
+                payload.RootElement.GetProperty("result_type").GetString());
+            Assert.Equal(
+                "CORE_REVALIDATE_AND_HOLD_ADMIN_REVIEW",
+                payload.RootElement.GetProperty("recommended_core_action").GetString());
+        }
+
+        CallJobEntity closed = await verification.CallJobs.AsNoTracking().SingleAsync();
+        Assert.Equal("CAPACITY_MISSED", closed.Status);
+        Assert.Equal("CLOSED_CAPACITY", closed.QueueStatus);
+        Assert.Equal(windowCloses.AddSeconds(1), closed.ClosedAt);
+        Assert.Equal("IVR_CAPACITY_EXCEPTION", closed.ClosedReason);
+
+        // One shortage, one incident: the one eligibility opened, still the one the job names.
+        CapacityIncidentEntity incident = await verification.CapacityIncidents
+            .AsNoTracking()
+            .SingleAsync();
+        Assert.Equal(eligibilityIncidentId, incident.CapacityIncidentId);
+        Assert.Equal("ELIGIBILITY_DEADLINE", incident.Scope);
+        Assert.Equal(eligibilityIncidentId, closed.CapacityIncidentId);
+
+        // No call was ever placed, so no customer attempt exists to have been counted.
+        Assert.Equal(0, await verification.CallAttempts.CountAsync());
+    }
+
     [Fact]
     [Trait("TestId", "IT-SCH-HOLD-10")]
     public async Task JobScopedCapacityIncidentDoesNotFreezeUnrelatedDispatch()

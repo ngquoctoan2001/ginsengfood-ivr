@@ -647,6 +647,72 @@ public sealed class PostgresPersistenceTests(PostgresPersistenceFixture fixture)
         Assert.Empty(second);
     }
 
+    /// <summary>
+    /// W-0362 / K-46. The dispatch and scheduler stores add their own audit rows, and a row added
+    /// that way never passed through <c>PostgresAuditLogger</c>, so never through PiiGuard. It is
+    /// checked at SaveChanges now, before it can reach an append-only table that could never give
+    /// it back. A clean row shaped the same way is still accepted.
+    /// </summary>
+    [Fact]
+    [Trait("TestId", "IT-DB-AUDIT-PII-10")]
+    public async Task AuditRowsAddedDirectlyByAStorePassThePiiGuardAtSaveChanges()
+    {
+        await fixture.ResetAsync();
+
+        // One row per check: a number in a data value, a restricted field name over a harmless
+        // value, and a number in a column rather than in the JSON.
+        AuditLogEntity[] refused =
+        [
+            StoreStyleAudit(new Dictionary<string, object?> { ["provider_call_ref"] = "0912345678" }),
+            StoreStyleAudit(new Dictionary<string, object?> { ["phone_e164"] = "phone-ref-audit-pii" }),
+            StoreStyleAudit(
+                new Dictionary<string, object?> { ["job_id"] = "JOB-AUDIT-PII" },
+                targetId: "0912345678"),
+        ];
+        foreach (AuditLogEntity row in refused)
+        {
+            await using IvrDbContext refusing = await Factory().CreateDbContextAsync();
+            refusing.AuditLog.Add(row);
+            InvalidOperationException refusal = await Assert.ThrowsAsync<InvalidOperationException>(
+                () => refusing.SaveChangesAsync());
+            Assert.Contains("restricted PII", refusal.Message, StringComparison.Ordinal);
+        }
+
+        AuditLogEntity clean = StoreStyleAudit(new Dictionary<string, object?>
+        {
+            ["job_id"] = "JOB-AUDIT-PII",
+            ["sim_channel_id"] = "SIM-AUDIT-PII",
+            ["fencing_generation"] = 3,
+            ["is_counted_customer_attempt"] = false,
+        });
+        await using (IvrDbContext accepting = await Factory().CreateDbContextAsync())
+        {
+            accepting.AuditLog.Add(clean);
+            await accepting.SaveChangesAsync();
+        }
+
+        await using IvrDbContext verification = await Factory().CreateDbContextAsync();
+        AuditLogEntity persisted = await verification.AuditLog.AsNoTracking().SingleAsync();
+        Assert.Equal(clean.AuditId, persisted.AuditId);
+    }
+
+    /// <summary>The shape the scheduler and dispatch stores give the rows they add themselves.</summary>
+    private static AuditLogEntity StoreStyleAudit(
+        Dictionary<string, object?> data,
+        string targetId = "ATTEMPT-AUDIT-PII") => new()
+        {
+            AuditId = Guid.NewGuid(),
+            ActorId = "ivr-scheduler",
+            ActorType = "service",
+            Action = "SCHEDULER_DISPATCH_LEASED",
+            TargetType = "call-attempt",
+            TargetId = targetId,
+            Reason = "SCHEDULER_DISPATCH_LEASED",
+            CorrelationId = "TASK-AUDIT-PII",
+            DataJson = JsonSerializer.Serialize(data),
+            CreatedAt = DateTimeOffset.UtcNow,
+        };
+
     private IDbContextFactory<IvrDbContext> Factory() => fixture.Services
         .GetRequiredService<IDbContextFactory<IvrDbContext>>();
 

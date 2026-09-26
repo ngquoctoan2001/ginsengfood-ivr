@@ -223,26 +223,40 @@ public sealed partial class MockSchedulerDispatchGateway(
             throw new InvalidOperationException("MOCK telephony dispatch is not safely enabled.");
         }
 
-        TelephonyDispatchContext dispatch = await store.LoadAsync(
-            lease,
-            cancellationToken);
         SimCallSession? session = null;
         bool hungUp = false;
         TimeSpan cooldown = TimeSpan.FromSeconds(mockOptions.Value.CooldownSeconds);
         try
         {
+            // W-0362 / K-43. Inside the try, for the reason the Asterisk gateway gives: a context
+            // that cannot be loaded ends the attempt here rather than stranding the lease.
+            TelephonyDispatchContext dispatch;
+            try
+            {
+                dispatch = await store.LoadAsync(lease, cancellationToken);
+            }
+            catch (Exception exception) when (!cancellationToken.IsCancellationRequested)
+            {
+                throw new DispatchContextUnavailableException(exception);
+            }
+
+            // W-0362 / K-42. The deployment's own mode, as the Asterisk gateway has read it since
+            // W-0354 (B13), rather than one written into the call. IsReady admits MOCK only, so the
+            // value is the same today; ARCH-DISPATCH-MODE-01 keeps a written mode out of every
+            // dispatch gateway, so neither can drift back.
+            ExecutionMode mode = executionContext.ToDomainMode();
             RenderedSpeech speech = await speechRenderer.RenderAsync(
                 dispatch.SpeechSummary,
                 dispatch.ScriptTemplateId,
                 dispatch.ScriptVersion,
-                ExecutionMode.Mock,
+                mode,
                 cancellationToken);
             speech = await speechSynthesisService.SynthesizeAsync(
                 speech,
                 dispatch.SpeechSummary,
                 dispatch.ScriptTemplateId,
                 dispatch.ScriptVersion,
-                ExecutionMode.Mock,
+                mode,
                 lease.Deadline,
                 cancellationToken);
             SimGatewayHealth health = await simGateway.CheckHealthAsync(
@@ -367,6 +381,11 @@ public sealed partial class MockSchedulerDispatchGateway(
                     SpeechRenderPolicyRejectedException =>
                         (SimProviderDisposition.NetworkError,
                             SpeechRenderPolicyRejectedException.TechnicalCode,
+                            true),
+                    // W-0362 / K-43. Nothing was dialled: the context did not load.
+                    DispatchContextUnavailableException =>
+                        (SimProviderDisposition.NetworkError,
+                            DispatchContextUnavailableException.TechnicalCode,
                             true),
                     InvalidOperationException =>
                         (SimProviderDisposition.NetworkError, "MOCK_POLICY_OR_TOKEN_REJECTED", true),

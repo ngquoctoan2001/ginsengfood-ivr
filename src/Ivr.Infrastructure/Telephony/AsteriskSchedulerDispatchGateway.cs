@@ -74,14 +74,26 @@ public sealed partial class AsteriskSchedulerDispatchGateway(
             throw new InvalidOperationException("Asterisk lab dispatch is not safely enabled.");
         }
 
-        TelephonyDispatchContext dispatch = await store.LoadAsync(
-            lease,
-            cancellationToken);
         SimCallSession? session = null;
         bool hungUp = false;
         TimeSpan cooldown = TimeSpan.FromSeconds(configured.CooldownSeconds);
         try
         {
+            // W-0362 / K-43. Inside the try, so a context that cannot be loaded ends the attempt
+            // through FailAsync like every other refusal. Outside it, the exception left the lease
+            // standing: the channel stayed RESERVED until the lease ran out, lease recovery then
+            // quarantined it and counted a DT-04 failure against a SIM nobody had used, and the job
+            // waited in HELD_LEASE_RECOVERY.
+            TelephonyDispatchContext dispatch;
+            try
+            {
+                dispatch = await store.LoadAsync(lease, cancellationToken);
+            }
+            catch (Exception exception) when (!cancellationToken.IsCancellationRequested)
+            {
+                throw new DispatchContextUnavailableException(exception);
+            }
+
             DialAuthorization authorization = await dialTokenResolver.ResolveAsync(
                 new DialTokenResolutionRequest(
                     dispatch.DialToken,
@@ -143,6 +155,23 @@ public sealed partial class AsteriskSchedulerDispatchGateway(
                     "ASTERISK_CHANNEL_HEALTH_NOT_READY",
                     false,
                     "The Asterisk channel is not healthy.");
+            }
+
+            // W-0362 / K-44. The gate again, immediately before the dial. Its first answer was
+            // given before speech was rendered and synthesised, which can take as long as the TTS
+            // timeout allows; an emergency stop thrown in that time used to be read only by the
+            // next call, and this one went out anyway.
+            DispatchGateDecision beforeDial = await dispatchGate.EvaluateAsync(
+                configured.Environment,
+                destination,
+                cancellationToken);
+            if (!beforeDial.Allowed)
+            {
+                throw new AsteriskAriOperationException(
+                    SimProviderDisposition.NetworkError,
+                    SafeGateCode(beforeDial.Reason),
+                    true,
+                    "The runtime dispatch gate blocked the lab call just before the dial.");
             }
 
             session = await simGateway.DialAsync(
@@ -235,6 +264,13 @@ public sealed partial class AsteriskSchedulerDispatchGateway(
                     SpeechRenderPolicyRejectedException =>
                         (SimProviderDisposition.NetworkError,
                             SpeechRenderPolicyRejectedException.TechnicalCode,
+                            true),
+                    // W-0362 / K-43. Ahead of the generic arm for the same reason: nothing was
+                    // dialled, and the code says the context did not load rather than that a
+                    // token was refused.
+                    DispatchContextUnavailableException =>
+                        (SimProviderDisposition.NetworkError,
+                            DispatchContextUnavailableException.TechnicalCode,
                             true),
                     InvalidOperationException =>
                         (SimProviderDisposition.NetworkError, "ASTERISK_POLICY_OR_TOKEN_REJECTED", true),

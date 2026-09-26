@@ -194,6 +194,12 @@ public sealed class PiiSafeLogRecordProcessor : BaseProcessor<LogRecord>
             TelemetryTags.Outcome,
             "exception.type",
             "exception.stacktrace",
+
+            // W-0362 / K-53. A caught exception is logged by its type name as {ExceptionType} (the
+            // hangup warnings 2410/2420, FeatureFlagPlatform's read fallback), and while it was
+            // off this list the name never reached OTLP. A .NET type name is not customer data,
+            // and SafeValue still screens it like every other allowlisted value.
+            "ExceptionType",
         ],
         StringComparer.OrdinalIgnoreCase);
 

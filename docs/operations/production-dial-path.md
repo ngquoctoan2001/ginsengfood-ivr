@@ -30,7 +30,7 @@ them shows up as a refusal at boot:
 | What | Where | What it means |
 | --- | --- | --- |
 | `DispatchGate` refuses every production destination | `DispatchGate.EvaluateAsync`: `PiiGuard.EnsureSafeText(destination)` runs first, and the lab allowlist is checked before the production branch | A production destination is `sip:<number>@<carrier host>` (`ProductionDialTokenVault`). The guard reads the number in it and throws, and no lab allowlist holds it. With every lock above open, production still dials nothing. This needs a decision on how the gate treats a production destination, not a configuration change. |
-| The gate is checked once, before the speech is prepared | `AsteriskSchedulerDispatchGateway.DispatchAsync`: gate, then render and synthesis, then `DialAsync` | A kill switch thrown while speech is being synthesized does not stop the dial that follows. The gate has to be asked again immediately before `DialAsync`. |
+| The gate is checked once, before the speech is prepared | `AsteriskSchedulerDispatchGateway.DispatchAsync`: gate, then render and synthesis, then `DialAsync` | A kill switch thrown while speech is being synthesized does not stop the dial that follows. The gate has to be asked again immediately before `DialAsync`. **Fixed 2026-09-26 (W-0362, K-44):** the gate is asked again right before `DialAsync` (`UT-AST-GATE-03`). |
 | The number travels in the ARI request URL | `AsteriskAriSimGateway`: `POST /ari/channels` with `endpoint` as a query parameter | Asterisk's HTTP log and any proxy in front of ARI record the full number. Configure both before the first call, or the number lands in logs IVR does not control. |
 | How production speech is produced is not settled | Tech Lead's transitional rule of 2026-09-24: no speech synthesis at call time | The dial path renders and synthesizes speech for every attempt just before dialling. Until prerecorded audio replaces that, the production path cannot follow the rule. |
 | Who approves a production script | Pending decision on three distinct approvers (spec V6-2) | Until it is decided, nothing here enforces it. |
@@ -301,9 +301,9 @@ reasons on purpose.
 
 | Step | Bound | Where it comes from |
 | --- | --- | --- |
-| Kill switch → next dial decision | **The very next call** | `DispatchGate` reads the flag with `forceFresh: true` (`DispatchGate.cs:26`), so the 15-second snapshot cache is bypassed on this path |
+| Kill switch → next dial decision | **The very next dial**, including one whose speech was still being prepared when the switch was thrown (W-0362) | `DispatchGate` reads the flag with `forceFresh: true` (`DispatchGate.cs:26`), so the 15-second snapshot cache is bypassed on this path |
 | Worst case before a call would have started anyway | ~1 poll interval (**1s** at default) | `PollIntervalMilliseconds` |
-| `:terminate-all` → a live call hangs up | **≤ 500ms** | `TerminationPollMilliseconds`, floored at 200ms (`AsteriskSchedulerDispatchGateway.cs:268`) |
+| `:terminate-all` → a live call hangs up | **≤ 500ms** | `TerminationPollMilliseconds`, floored at 200ms (`AsteriskSchedulerDispatchGateway.cs:304`) |
 | Pod shutdown waits for in-flight calls | **180s** | `DispatchDrainSeconds`; `terminationGracePeriodSeconds: 210` in `deploy/helm/ivr/values.yaml:45` is set above it so a drain is never SIGKILLed |
 
 The 15-second flag cache is worth knowing about precisely because it does **not** apply here. Other
