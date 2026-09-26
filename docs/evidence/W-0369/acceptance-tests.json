@@ -1,0 +1,24 @@
+{
+  "schema": "ivr-acceptance-tests/v1",
+  "workId": "W-0369",
+  "scope": "software",
+  "requiredTestIds": [
+    "UT-AST-DISPOSE-01",
+    "UT-AST-DISPOSE-02",
+    "UT-AST-UNAVAILABLE-01",
+    "UT-AST-UNAVAILABLE-02",
+    "UT-AST-HEALTH-01",
+    "IT-ELIG-EXPIRED-01",
+    "IT-SLO-CAPACITY-04"
+  ],
+  "gates": [
+    "generate-test-traceability.mjs",
+    "gate-status.mjs",
+    "capacity-selftest.mjs",
+    "d06-revalidation-evidence-validator.mjs",
+    "dial-token-production-bundle-validator.mjs",
+    "opt-out-suppression-bundle-validator.mjs",
+    "upstream-session-signoff-validator.mjs",
+    "contract-freeze-verifier.mjs"
+  ]
+}

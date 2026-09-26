@@ -115,6 +115,15 @@ public sealed class InternalAdminApiService(
                     // it again, since a closed job is no longer pending work.
                     throw IvrErrors.PolicyMismatch("The call job is already closed.");
                 }
+                catch (InvalidOperationException exception) when (string.Equals(
+                    exception.Message,
+                    "The confirmation window has already closed.",
+                    StringComparison.Ordinal))
+                {
+                    // W-0369 / K-60. Same conflict one step earlier: the window passed while the
+                    // job was being evaluated, and the deadline sweep answers for it.
+                    throw IvrErrors.PolicyMismatch("The confirmation window has already closed.");
+                }
 
                 return new EligibilityApiResult(
                     taskId,

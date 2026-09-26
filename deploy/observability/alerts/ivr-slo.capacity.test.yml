@@ -5,6 +5,12 @@
 # never goes back down. `increase(...)` over a window is what makes it stop, and the third case
 # below is the one that proves it stops -- without that case the rule would look correct in review
 # and then page-storm on the first miss.
+#
+# W-0369 / K-61. Both rules on ivr_missed_deadline_total live here now. The capacity rule reads
+# only the capacity reason, so the fourth case hands it the other two and expects silence. The
+# rest are IvrConfirmationWindowsExpiringUndialled: it opens when windows keep closing with nothing
+# dialled, and stays shut while the dialler dials, for one order in a quiet half hour, and for the
+# calling hours ending.
 rule_files:
   - ivr-slo.rules.yml
 
@@ -54,5 +60,101 @@ tests:
         values: '0x5 1x55'
     alert_rule_test:
       - eval_time: 45m
+        alertname: IvrConfirmationDeadlineMissed
+        exp_alerts: []
+
+  - interval: 1m
+    name: a window that ran out for any other reason opens no capacity ticket
+    input_series:
+      # W-0369 / K-61. The first case's single miss, under the two reasons that are not a channel
+      # shortage. Before K-61 either one opened this ticket and sent the on-call to recalibrate a
+      # model that says nothing about them.
+      - series: 'ivr_missed_deadline_total{ivr_program="GOLDEN_HOUR", ivr_reason_code="WINDOW_EXPIRED_BEFORE_FINAL_RESULT"}'
+        values: '0x10 1x30'
+      - series: 'ivr_missed_deadline_total{ivr_program="GOLDEN_HOUR", ivr_reason_code="CALLING_HOURS_CLOSED_BEFORE_DISPATCH"}'
+        values: '0x10 1x30'
+    alert_rule_test:
+      - eval_time: 20m
+        alertname: IvrConfirmationDeadlineMissed
+        exp_alerts: []
+
+  - interval: 1m
+    name: windows that keep closing while nothing is dialled open a ticket
+    input_series:
+      # W-0369 / K-61. The eligibility loop stops at minute 10. The dialler works through the jobs
+      # already cleared and goes quiet; from minute 16 an order's window closes every minute with
+      # nobody having called it. The last attempt leaves the 30m lookback at minute 39, and the
+      # rule has held for its 20 minutes at minute 59 -- still pending at 55, open at 65.
+      - series: 'ivr_call_attempts_total{ivr_attempt_number="1"}'
+        values: '0+1x10 10x80'
+      - series: 'ivr_missed_deadline_total{ivr_program="TWENTY_FOUR_SEVEN", ivr_reason_code="WINDOW_EXPIRED_BEFORE_FINAL_RESULT"}'
+        values: '0x15 1+1x75'
+    alert_rule_test:
+      - eval_time: 55m
+        alertname: IvrConfirmationWindowsExpiringUndialled
+        exp_alerts: []
+      - eval_time: 65m
+        alertname: IvrConfirmationWindowsExpiringUndialled
+        exp_alerts:
+          - exp_labels:
+              severity: ticket
+              slo: dispatch_flow
+              slo_status: proposed
+            exp_annotations:
+              summary: Confirmation windows keep closing while nothing is dialled
+              description: For twenty minutes confirmation windows have kept closing without a final result, and no call has been dialled for half an hour. This is not a channel shortage, which closes under its own reason and opens IvrConfirmationDeadlineMissed. Orders are not reaching the dialler; start with the eligibility loop in the worker health body.
+              runbook_url: docs/slo.md#confirmation-windows-expiring-undialled
+      # And none of it is a capacity miss.
+      - eval_time: 65m
+        alertname: IvrConfirmationDeadlineMissed
+        exp_alerts: []
+
+  - interval: 1m
+    name: windows that run out while the dialler keeps dialling open nothing
+    input_series:
+      # W-0369 / K-61. The routine case: customers dialled and not reached before their windows
+      # closed, one a minute for over an hour. Every one of them had an attempt, so the rule never
+      # sees a window close with nothing dialled.
+      - series: 'ivr_call_attempts_total{ivr_attempt_number="1"}'
+        values: '0+1x90'
+      - series: 'ivr_missed_deadline_total{ivr_program="GOLDEN_HOUR", ivr_reason_code="WINDOW_EXPIRED_BEFORE_FINAL_RESULT"}'
+        values: '0x15 1+1x75'
+    alert_rule_test:
+      - eval_time: 70m
+        alertname: IvrConfirmationWindowsExpiringUndialled
+        exp_alerts: []
+
+  - interval: 1m
+    name: one order expiring in a quiet half hour opens no ticket
+    input_series:
+      # W-0369 / K-61. Nothing dialled all hour, and one order held for review expires at minute
+      # 21. Its increment stays inside the 15m lookback for fourteen minutes, never the twenty the
+      # rule has to hold for. 34m is the last minute the condition is true; 45m is after it.
+      - series: 'ivr_call_attempts_total{ivr_attempt_number="1"}'
+        values: '5x60'
+      - series: 'ivr_missed_deadline_total{ivr_program="GOLDEN_HOUR", ivr_reason_code="WINDOW_EXPIRED_BEFORE_FINAL_RESULT"}'
+        values: '0x20 1x40'
+    alert_rule_test:
+      - eval_time: 34m
+        alertname: IvrConfirmationWindowsExpiringUndialled
+        exp_alerts: []
+      - eval_time: 45m
+        alertname: IvrConfirmationWindowsExpiringUndialled
+        exp_alerts: []
+
+  - interval: 1m
+    name: the calling hours running out opens neither ticket
+    input_series:
+      # W-0369 / K-61. Calling stops at 21:08 and late orders keep running out of hours with
+      # nothing dialled. That is the calling day ending, not a fault, and not a shortage.
+      - series: 'ivr_call_attempts_total{ivr_attempt_number="1"}'
+        values: '0+1x10 10x80'
+      - series: 'ivr_missed_deadline_total{ivr_program="GOLDEN_HOUR", ivr_reason_code="CALLING_HOURS_CLOSED_BEFORE_DISPATCH"}'
+        values: '0x15 1+1x75'
+    alert_rule_test:
+      - eval_time: 70m
+        alertname: IvrConfirmationWindowsExpiringUndialled
+        exp_alerts: []
+      - eval_time: 70m
         alertname: IvrConfirmationDeadlineMissed
         exp_alerts: []

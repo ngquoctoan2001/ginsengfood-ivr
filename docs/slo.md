@@ -217,14 +217,32 @@ thấy gì; một counter nhích lên ở những lượt rỗng sẽ làm một
 (`ExpectedCallDurationSeconds`) trong khoảng từ lúc tới (hoặc `T0`) tới hạn cửa sổ, và giờ gọi thật sự đóng
 trong khoảng đó, được đếm với `ivr_reason_code=CALLING_HOURS_CLOSED_BEFORE_DISPATCH`, không mở sự cố dung
 lượng. Đó là đơn tới ở những giây cuối trước `21:08` hoặc sau đó, không phải thiếu kênh. Kết quả gửi Module 3
-không đổi (`IVR_CAPACITY_EXCEPTION`). Luật `IvrConfirmationDeadlineMissed` hiện vẫn cộng mọi lý do; lọc theo lý
-do là việc của `K-61`.
+không đổi (`IVR_CAPACITY_EXCEPTION`). ~~Luật `IvrConfirmationDeadlineMissed` hiện vẫn cộng mọi lý do; lọc theo lý
+do là việc của `K-61`.~~ Đã lọc, xem ngay dưới.
+
+*Sửa 26/09 (`K-61`):* luật chỉ đọc lý do thiếu kênh:
+`increase(ivr_missed_deadline_total{ivr_reason_code="NO_DISPATCH_BEFORE_DEADLINE"}[15m])`. Sweep đóng job với một
+trong ba lý do, và lập luận cho ngưỡng **không** ở dưới chỉ nói về một trong số đó. Trước `K-61` luật cộng cả ba,
+nên sau `K-52` và `K-54` một đơn bị giữ chờ duyệt, hay chưa từng được eligibility trả lời, cũng gửi người trực đi
+hiệu chỉnh mô hình dung lượng, vì một đơn mà không kênh nào cứu được.
+
+| `ivr_reason_code` | Job nào | Luật đọc nó |
+| --- | --- | --- |
+| `NO_DISPATCH_BEFORE_DEADLINE` | đã xếp hàng (`READY_FOR_SCHEDULER`), chưa quay lần nào, giờ gọi không cạn; hoặc eligibility giữ vì biết sẽ không có kênh (`CAPACITY_HELD`, `K-52`) | luật này |
+| `WINDOW_EXPIRED_BEFORE_FINAL_RESULT` | đã quay mà hết cửa sổ trước kết quả cuối; dry run; eligibility giữ chờ duyệt; eligibility chưa trả lời (`K-54`) | `IvrConfirmationWindowsExpiringUndialled` (§9a), chỉ khi cửa sổ cứ đóng mà không quay ai |
+| `CALLING_HOURS_CLOSED_BEFORE_DISPATCH` | hết giờ gọi trước khi kịp quay (`Q-22.2`) | không luật nào: đó là ngày gọi kết thúc, không phải lỗi |
+
+So bằng (`=`), không loại trừ (`!=`): một lý do thêm sau này đứng ngoài luật dung lượng cho tới khi có người quyết
+định nó thuộc về đâu. `CAP-ALERT-04` đọc lại các lý do từ `PostgresSchedulerStore.CloseMissedDeadlinesAsync` và nhãn
+từ `TelemetryTags.ReasonCode`, rồi đòi mỗi lý do có đúng một chỗ trong bảng trên, nên lý do thứ tư làm cổng đỏ thay
+vì lặng lẽ không ai đọc.
 
 ### Vì sao ngưỡng là **không**, và vì sao đó là suy ra chứ không phải chọn
 
 Mô hình dung lượng (`W-0054`) nói pool prod đang ship **phủ được đỉnh mô hình**. Dưới chính giả định
-của nó, **không cửa sổ xác nhận nào đóng lại mà chưa gọi**. Nên một lần trượt không báo "thiếu kênh"
-— nó **bác bỏ một giả định của mô hình**.
+của nó, **không cửa sổ xác nhận nào đóng lại mà chưa gọi vì thiếu kênh**. Nên một lần trượt không báo "thiếu kênh"
+— nó **bác bỏ một giả định của mô hình**. Mô hình chỉ nói về kênh; đơn bị giữ, đơn chưa được duyệt, đơn hết giờ gọi
+nằm ngoài nó, và đó là lý do luật chỉ đọc lý do thiếu kênh.
 
 Điều này quyết định cả runbook: người trực được gửi tới **hiệu chỉnh lại** (`W-0008`, thời lượng
 cuộc gọi đo được), **không** tới một đơn mua hàng. Mô hình `UNCALIBRATED` không đủ tư cách biện minh
@@ -238,11 +256,12 @@ Một luật không-khoan-nhượng chỉ trung thực **khi tiền đề còn �
 đỉnh mô hình thì chính pool đó bảo đảm sẽ có trượt, luật thành nhiễu **do cấu tạo**. `CAP-ALERT-04`
 khẳng định cả hai cùng lúc, nên luật không sống lâu hơn lý do của nó.
 
-### Ba chi tiết kỹ thuật
+### Bốn chi tiết kỹ thuật
 
 | Chi tiết | Cách sai nếu làm khác |
 | --- | --- |
 | `increase(...[15m])`, không đọc thẳng counter | counter đơn điệu so với 0 sẽ **nổ mãi mãi** sau lần nổ đầu, tới khi tiến trình khởi động lại. Ca thứ ba trong file promtool test tồn tại chỉ để chứng minh nó **tắt** |
+| chỉ `ivr_reason_code="NO_DISPATCH_BEFORE_DEADLINE"` (`K-61`) | cộng mọi lý do thì một đơn giữ chờ duyệt, chưa được eligibility trả lời hay hết giờ gọi cũng đọc thành "mô hình sai". Ca thứ tư trong file promtool test cho luật hai lý do kia và đòi nó **im** |
 | `ticket`, không `page` | job đã đóng, capacity incident đã bền, kết quả mang `REVALIDATE_AND_HOLD_ADMIN_REVIEW` — **đã có người sở hữu đơn đó**. Thứ còn thiếu là có ai nhận ra quy luật, mà đó là một hàng đợi chứ không phải một cái pager |
 | đếm cái **đã xảy ra**, không đếm cái **dự báo** | `SchedulerCapacityPlan.MissedDeadlineCount` là **dự báo**, tính lại ở mọi lượt đánh giá eligibility. Cùng một job đang chờ xuất hiện trong hàng chục dự báo; cộng nó vào counter là đếm **một đơn hàng chục lần** |
 
@@ -254,6 +273,50 @@ deadline **vắng mặt** khỏi `ivr_call_results_total`.
 
 Hệ quả: `confirm_rate` ở §7 có mẫu số **bỏ sót đúng phần thất bại**, nên đọc **cao hơn sự thật** —
 và khoảng lệch **lớn nhất đúng lúc dung lượng tệ nhất**. Nên call site ghi **cả hai** instrument.
+
+<a id="confirmation-windows-expiring-undialled"></a>
+
+## 9a. Cửa sổ cứ đóng mà không quay ai — đề xuất (`K-61`)
+
+| | |
+| --- | --- |
+| **Đo bằng** | `increase(ivr_missed_deadline_total{ivr_reason_code="WINDOW_EXPIRED_BEFORE_FINAL_RESULT"}[15m])`, `unless` có attempt trong `30m` (`ivr_call_attempts_total`) |
+| **Alert** | `IvrConfirmationWindowsExpiringUndialled` · `severity: ticket` · `for: 20m` |
+
+Phần còn lại của counter ở §9. Phần lớn job hết cửa sổ với `WINDOW_EXPIRED_BEFORE_FINAL_RESULT` không cần ai: khách
+đã được gọi mà chưa kịp có kết quả cuối là một kết quả Module 3 nhận (`IVR_CONFIRMATION_WINDOW_EXPIRED`); dry run
+không cần kênh; đơn eligibility giữ chờ duyệt đã được đếm vào `ivr_fail_closed_total` **lúc bị giữ**, và
+`IvrDownstreamFailClosedSpike` (§3) page khi tỉ lệ giữ vượt 20%, lúc cửa sổ còn mở. Chưa có baseline để đặt ngưỡng
+lên số lần hết cửa sổ, nên luật không đặt.
+
+Phần cần người là đơn **eligibility không bao giờ trả lời** (`K-54`): vòng eligibility của worker lượt nào cũng
+lỗi, hoặc bị tắt trong cấu hình. Không tín hiệu nào khác thấy nó:
+
+| Tín hiệu | Vì sao im |
+| --- | --- |
+| `IvrDownstreamFailClosedSpike` (§3) | không đánh giá thì không fail closed; intake vẫn đếm quyết định, nên tỉ lệ còn **giảm** |
+| liveness probe của worker | chỉ restart vòng **đứng**. Vòng chạy mà lượt nào cũng ném lỗi vẫn là `live`, cố ý (`WorkerLiveness`): restart không sửa được API không tới được hay token nội bộ bị từ chối. Vòng tắt trong cấu hình chỉ hiện `enabled: false` |
+| `IvrCallQueueBacklogAging` (§9b) | đơn chưa được duyệt không có attempt nào để chờ; gauge đứng ở `0` |
+
+Trước `K-61`, thứ duy nhất nổ cho ca này là `IvrConfirmationDeadlineMissed`, với runbook sai. Nhãn của metric không
+tách được đơn chưa được trả lời khỏi phần còn lại của lý do, nhưng hình dạng thì tách được: khi eligibility ngừng,
+không job mới nào tới dialler, nên sau đuôi các job đã duyệt, **cửa sổ cứ đóng mà không quay ai**.
+
+| Chi tiết | Vì sao |
+| --- | --- |
+| attempt nhìn `30m`, hết hạn nhìn `15m` | attempt của một job đã quay nằm trong cửa sổ của nó, tức không sớm hơn `15` phút (24/7, cửa sổ dài nhất) trước lúc hết hạn. `15 + 15` giữ attempt đó trong khung suốt lúc lần hết hạn còn được đếm, nên **job đã quay không bao giờ tự bật luật**; chỉ job chưa quay mới bật được. `CAP-ALERT-04` giữ bất đẳng thức này theo cửa sổ dài nhất của mô hình |
+| `for: 20m`, dài hơn khung `15m` | một lần hết hạn nằm trong khung chưa tới `15` phút, không bao giờ đủ `20`: một đơn giữ chờ duyệt hết hạn giữa nửa giờ vắng khách không mở ticket. Cửa sổ phải **cứ** đóng. Vòng eligibility ngừng lúc `t` thì ticket mở vào khoảng `t + 1h`: đuôi attempt của các job đã duyệt, `30m` để attempt cuối rời khung, rồi `20m` |
+| `sum`, không `by (ivr_program)` | `ivr_call_attempts_total` không mang nhãn chương trình, và vòng eligibility là một cho mọi chương trình |
+| không đọc `CALLING_HOURS_CLOSED_BEFORE_DISPATCH` | lý do đó nảy ra đúng lúc giờ gọi đóng, khi không ai được quay theo thiết kế; đọc nó thì luật nổ mỗi tối |
+| ticket, không page | như §9: job đã đóng, kết quả đã vào outbox gửi Module 3, và đơn chưa gặp được khách mang `REVALIDATE_AND_HOLD_ADMIN_REVIEW` |
+
+**Người trực kiểm tra, theo thứ tự:** body `/healthz` của worker, vòng `eligibility`: `enabled`, `consecutive_faults`,
+`last_fault_kind`; log `2360` (tắt trong cấu hình) và `2361` (lượt lỗi). Vòng gọi API của chính release bằng token
+nội bộ, nên `HttpRequestException` liên tục thường là API không tới được, token bị từ chối hoặc API trả lỗi. Nếu
+`IvrDownstreamFailClosedSpike` đang nổ, eligibility **có** trả lời: nó đang giữ mọi đơn, và đó là việc của §3. Nếu
+`IvrCallQueueBacklogAging` hay `IvrConfirmationDeadlineMissed` cũng đang nổ, đơn đã tới được dialler: chỗ hỏng là
+dialler (§9b) hoặc dung lượng (§9), không phải eligibility. **Không** hiệu chỉnh mô hình dung lượng và **không** thêm
+kênh vì luật này: không đơn nào nó đếm từng xin kênh.
 
 <a id="call-queue-backlog-aging"></a>
 
@@ -380,6 +443,10 @@ lặp lại ở mọi lượt và được thấy từ lượt thứ hai.
   `2026-08-19`** — xem §7 và §8. `confirm_rate`, `cancel_rate`, `no_answer_rate` (`ARCH-06` §1) giờ
   đo được.
 - ~~**`missed_deadline_count` chưa có instrument.**~~ **Đã đóng `2026-08-19`** — xem §9.
+- **Eligibility hỏng một phần không có alert** (`K-61`). §9a chỉ thấy khi **không quay được ai**: một vòng
+  eligibility còn trả lời được một phần đơn vẫn giữ dialler chạy, và counter không mang nhãn nào nói đơn hết hạn khi
+  eligibility chưa trả lời. Tách được thì cần một lý do riêng trên counter, như `Q-22.2` đã làm cho giờ gọi. Tới lúc
+  đó, phân biệt nằm ở dòng audit của sweep (`eligibility_decision`).
 - **`cost_per_confirmed_order`** (`ARCH-06` §1) vẫn **không có instrument**, và sẽ không có
   cho tới khi có báo giá. **Mẫu số đã đo được** (`analytics.agg_kpi_daily.confirmed_count`,
   `W-0055`); **tử số thì không** — cả 6 dòng đầu vào ở `docs/cost-model.md` §3 đều còn trống

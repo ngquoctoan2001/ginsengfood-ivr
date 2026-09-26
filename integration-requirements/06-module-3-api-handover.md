@@ -760,7 +760,7 @@ Bảng này là **danh sách đối chiếu bắt buộc trước buổi lab**. 
 | --- | --- | --- | --- |
 | `program_code` | `GOLDEN_HOUR` / `TWENTY_FOUR_SEVEN` | `24_7` | Enum deserialize lỗi → **`400`**. Ồn ào, phát hiện ngay |
 | `phone_validation_status` | `VALID` | `PHONE_VALID` | Enum deserialize lỗi → **`400 IVR_MALFORMED_REQUEST`** từ `draft.24`. Ồn ào, phát hiện ngay — cùng kiểu `program_code` ở dòng trên. Trước `draft.24` là `422 IVR_CONTACT_INVALID` |
-| `eligibility_snapshot.decision` | `ELIGIBLE` | `ELIGIBLE_FOR_IVR` | → `200 TASK_HELD_ADMIN_REVIEW`. **Im lặng**, và mọi task dồn vào hàng đợi review |
+| `eligibility_snapshot.decision` | `ELIGIBLE` | `ELIGIBLE_FOR_IVR` | → Intake **không** kiểm giá trị này: task vẫn được nhận (`200 TASK_ACCEPTED_CALL_JOB_CREATED`). Bước kiểm eligibility sau intake giữ job chờ người duyệt (`TASK_HELD_ADMIN_REVIEW`, reason `ELIGIBILITY_SNAPSHOT_UNKNOWN`): khách không được gọi, mọi task dồn vào hàng đợi review. **Im lặng tới hết cửa sổ**, rồi Module 3 nhận callback `IVR_CONFIRMATION_WINDOW_EXPIRED` + `CORE_REVALIDATE_AND_HOLD_ADMIN_REVIEW` — trên dây không phân biệt được với đơn không gọi được vì lỗi phía IVR (§4.3). *Sửa `26/09` (`K-59`): bản trước ghi "→ `200 TASK_HELD_ADMIN_REVIEW`. Im lặng". Trạng thái giữ do bước eligibility ghi, không nằm trong response intake; và trước `K-54` (`W-0365`) job bị giữ không bao giờ đóng, Module 3 không nhận gì* |
 | `order_state` | `CONFIRMING` | khớp | — |
 | `payment_method_snapshot` | `ONLINE` / `COD` | khớp | — |
 
@@ -891,8 +891,20 @@ kết quả. Đề xuất phía M8:
 > khoá thêm `recommended_core_action`, ở **cả hai** chương trình: với kết quả này action **không** còn
 > là gợi ý — Module 3 **bắt buộc** đọc nó. IVR phát `CORE_REVALIDATE_AND_EXPIRE_CONFIRMATION` khi trước
 > lúc hết cửa sổ đã có ít nhất một attempt tính lượt khách, và `CORE_REVALIDATE_AND_HOLD_ADMIN_REVIEW`
-> khi chưa có attempt nào như vậy, tức khách **chưa từng** được gọi tới vì lỗi phía IVR
-> (`PostgresSchedulerStore.CloseMissedDeadlinesAsync`).
+> khi chưa có attempt nào như vậy, tức khách **chưa từng** được gọi tới
+> (`PostgresSchedulerStore.CloseMissedDeadlinesAsync`). Cặp `IVR_CONFIRMATION_WINDOW_EXPIRED` +
+> `CORE_REVALIDATE_AND_HOLD_ADMIN_REVIEW` có ba nguyên nhân, trên dây giống hệt nhau: lỗi phía IVR; bước
+> kiểm eligibility sau intake giữ đơn chờ người duyệt (`TASK_HELD_ADMIN_REVIEW`) — lý do giữ phần lớn nằm
+> ở `eligibility_snapshot` Module 3 gửi, ví dụ `decision` sai chuỗi (§3.11); hoặc eligibility chưa kịp
+> xét đơn trước khi hết cửa sổ — lượt xét tới sau lúc đó bị từ chối (`K-60`), nên đơn vẫn đóng với đúng
+> cặp này. Đơn eligibility giữ vì hết dung lượng thì nhận `IVR_CAPACITY_EXCEPTION` khi hết cửa sổ, như
+> đơn đã xếp hàng mà không có kênh.
+>
+> *Sửa `26/09` (`K-59`): bản trước ghi "chưa từng được gọi tới vì lỗi phía IVR", và dòng `GOLDEN_HOUR`
+> có `CORE_REVALIDATE_AND_HOLD_ADMIN_REVIEW` ở bảng dưới ghi "(lỗi phía IVR)". Từ `K-52` (`W-0362`),
+> sweep hết hạn đóng đơn eligibility giữ vì hết dung lượng; từ `K-54` (`W-0365`), cả đơn eligibility
+> giữ chờ duyệt và đơn eligibility chưa xét. Trước đó ba loại đơn này không bao giờ đóng và Module 3
+> không nhận callback nào. Cách Module 3 xử lý theo bảng dưới không đổi.*
 >
 > | Chương trình của đơn | `result_type` (+ `recommended_core_action`) | Module 3 làm gì | `cancellation_reason_code` |
 > | --- | --- | --- | --- |
@@ -900,7 +912,7 @@ kết quả. Đề xuất phía M8:
 > | `TWENTY_FOUR_SEVEN` (COD) | `IVR_CONFIRMATION_WINDOW_EXPIRED` + `CORE_REVALIDATE_AND_EXPIRE_CONFIRMATION` | Hủy đơn | `IVR_CONFIRMATION_EXPIRED` |
 > | `TWENTY_FOUR_SEVEN` (COD) | `IVR_CONFIRMATION_WINDOW_EXPIRED` + `CORE_REVALIDATE_AND_HOLD_ADMIN_REVIEW`, hoặc `IVR_CAPACITY_EXCEPTION` | **Không tự hủy** — chuyển người trực. Người trực quyết hủy thì ghi mã ở cột phải | `IVR_CONFIRMATION_INVALID`, fault `NONE` |
 > | `GOLDEN_HOUR` | `IVR_NO_ANSWER_FINAL` | Cho xác nhận hết hiệu lực, nhả suất theo flow 05 — **không** hủy như đơn COD | `IVR_NO_ANSWER_MAX` |
-> | `GOLDEN_HOUR` | `IVR_CONFIRMATION_WINDOW_EXPIRED` + `CORE_REVALIDATE_AND_HOLD_ADMIN_REVIEW` (lỗi phía IVR) | Cho xác nhận hết hiệu lực theo flow 05 | `IVR_CONFIRMATION_INVALID` |
+> | `GOLDEN_HOUR` | `IVR_CONFIRMATION_WINDOW_EXPIRED` + `CORE_REVALIDATE_AND_HOLD_ADMIN_REVIEW` (khách chưa từng được gọi tới) | Cho xác nhận hết hiệu lực theo flow 05 | `IVR_CONFIRMATION_INVALID` |
 > | `GOLDEN_HOUR` | `IVR_CONFIRMATION_WINDOW_EXPIRED` + `CORE_REVALIDATE_AND_EXPIRE_CONFIRMATION` | Cho xác nhận hết hiệu lực theo flow 05 | *chờ nguyên văn `v1`* |
 >
 > **Chờ nguyên văn `v1`:** `IVR_CUSTOMER_CANCELLED` và `IVR_INVALID_PHONE_FINAL` ở cả hai chương
@@ -1649,7 +1661,7 @@ ngay với `1.0.0-draft.33`.
 - [ ] Xác định nguồn và vòng đời của `ivr_confirmation_required` — trả lời theo §3.10 R2: producer set ở **bước nào**, điều kiện nào làm nó thành `true`, và có đường nào gửi `false` sang IVR không.
 - [ ] Xác nhận producer rẽ nhánh theo trường `decision`, **không** chỉ theo HTTP status (§3.10 R1). Nêu rõ producer xử lý thế nào với từng `TASK_REJECTED_*` và `TASK_BLOCKED_OPERATIONAL`.
 - [ ] Xác nhận tổ hợp `program_code × payment_method_snapshot` thật sẽ gửi (§3.10 R3). **Đã đóng 27/08** bằng Flow 04/05; chỉ còn ký wire mapping.
-- [ ] Đối chiếu đủ 5 dòng bảng từ vựng §3.11 và 5 ô checklist cuối mục đó. Ba field đang lệch chuỗi, hai trong ba hỏng im lặng.
+- [ ] Đối chiếu đủ 5 dòng bảng từ vựng §3.11 và 5 ô checklist cuối mục đó. Ba field đang lệch chuỗi: hai bị chặn ồn ào bằng `400` ngay ở intake, còn `eligibility_snapshot.decision` qua intake và chỉ lộ ra ở callback khi hết cửa sổ. *Sửa `26/09` (`K-59`): bản trước ghi "hai trong ba hỏng im lặng" — sai với `phone_validation_status` từ `draft.24`, và với dòng eligibility từ `K-54`.*
 - [ ] Xác định khi nào `order_version` bump.
 - [ ] Ký đủ `ATP-01..ATP-15` theo [M8-11](../plan/ivr-orther/m8-11-attempt-policy-production-decision-pack-2026-09-03.md), đặc biệt canonical two-program version/bundle hash, window/attempts/offsets/T0, counting/retry/quiet-hours, cutover và pre-dial coherence.
 - [ ] Giao exact producer commit/OpenAPI/schema/CDC cho `attempt_policy_version`, `max_customer_attempts`, `attempt_offsets_seconds`, `confirmation_window_started_at`, `confirmation_window_expires_at`; payload sandbox phải khớp signed registry snapshot và chứng minh `409 IVR_POLICY_MISMATCH` được xử lý, không retry mù.

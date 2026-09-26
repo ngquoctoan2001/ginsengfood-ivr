@@ -80,20 +80,31 @@ groups:
 
       # ARCH-06 section 1. The threshold is zero, and that is derived rather than chosen: the
       # capacity model (W-0054) says the pool prod ships covers the modelled peak, so under the
-      # model's own assumptions no confirmation window closes uncalled. Any miss therefore
-      # falsifies an assumption -- which is why the runbook sends the on-call to recalibration
-      # (W-0008) and not to procurement.
+      # model's own assumptions no confirmation window closes uncalled for want of a channel. Any
+      # capacity miss therefore falsifies an assumption -- which is why the runbook sends the
+      # on-call to recalibration (W-0008) and not to procurement.
       #
       # A zero-tolerance rule is only honest while that premise holds. If the shipped pool ever
       # drops below the modelled peak, the pool itself guarantees misses and this rule becomes
       # noise by construction; `capacity-selftest.mjs` CAP-ALERT-04 asserts the two together so
       # the rule cannot outlive its own justification.
       #
+      # W-0369 / K-61. Only the capacity reason, because the argument above covers nothing else.
+      # The sweep closes a job under one of three reasons (ivr_reason_code), and only
+      # NO_DISPATCH_BEFORE_DEADLINE says a channel was missing: queued and none came, or held by
+      # eligibility because none would (K-52). WINDOW_EXPIRED_BEFORE_FINAL_RESULT is a job that was
+      # dialled, a dry run, one held for review or one eligibility never answered (K-54);
+      # CALLING_HOURS_CLOSED_BEFORE_DISPATCH is the calling hours running out (Q-22.2). The model
+      # says nothing about any of them, so summing them here sent the on-call to recalibrate it
+      # over orders no channel could have saved. An exact match, not an exclusion: a reason added
+      # later stays out of this rule until someone decides it belongs, and CAP-ALERT-04 reads the
+      # reasons back out of PostgresSchedulerStore so that it cannot go undecided.
+      #
       # Ticket, not page: the job is already closed, the capacity incident is durable and the
       # result carries REVALIDATE_AND_HOLD_ADMIN_REVIEW, so a human already owns the order. What
       # is missing is someone noticing the pattern, and that is a queue, not a pager.
       - alert: IvrConfirmationDeadlineMissed
-        expr: sum by (ivr_program) (increase(ivr_missed_deadline_total[15m])) > 0
+        expr: sum by (ivr_program) (increase(ivr_missed_deadline_total{ivr_reason_code="NO_DISPATCH_BEFORE_DEADLINE"}[15m])) > 0
         for: 5m
         labels:
           severity: ticket
@@ -104,6 +115,46 @@ groups:
           summary: A confirmation window closed with no call placed
           description: The capacity model says the shipped pool covers the modelled peak, so a miss on {{ $labels.ivr_program }} falsifies a model assumption. The fix is recalibration against a measured call duration (W-0008), not a bigger pool.
           runbook_url: docs/slo.md#capacity-deadline-missed
+
+      # W-0369 / K-61. The rest of the same counter. Most windows that run out without a final
+      # result need nobody: a customer dialled and not reached in time is a result Module 3
+      # receives, a dry run never wanted a channel, and an order held for review was counted in
+      # ivr_fail_closed_total when it was held -- IvrDownstreamFailClosedSpike pages on those while
+      # their windows are still open. There is no baseline for a threshold on the count, so this
+      # rule does not put one on it.
+      #
+      # What needs a person is an order eligibility never answered (K-54): the worker's
+      # eligibility loop failing every pass, or switched off. Nothing else sees that. Nothing is
+      # evaluated, so nothing fails closed; a loop that throws is still live to the probe, by
+      # design; and an order nobody cleared has no attempt for the backlog gauge to age. Before
+      # K-61 only the capacity rule fired for it, pointing at the model. The reason cannot tell
+      # those orders from the rest, but their shape can: windows keep closing while nothing at
+      # all is dialled.
+      #
+      # 30m of attempts against 15m of expiries. A dialled job's attempt falls inside its window,
+      # so at most 15 minutes (24/7, the longest) before it expires, and 15 + 15 keeps that attempt
+      # in view for as long as the expiry is counted: a job that was dialled can never raise this
+      # rule, only one that was not. for: 20m, the lookback plus the five minutes the rule above
+      # holds, so one order held in a quiet half hour cannot open a ticket -- windows have to keep
+      # closing. CAP-ALERT-04 holds both inequalities against the model's longest window.
+      #
+      # Not the hours reason: it closes jobs when calling stops for the night, when nothing is
+      # dialled by design, and would open a ticket every evening. Ticket, as above: every job here
+      # is already closed and its result is already queued for Module 3.
+      - alert: IvrConfirmationWindowsExpiringUndialled
+        expr: |
+          sum(increase(ivr_missed_deadline_total{ivr_reason_code="WINDOW_EXPIRED_BEFORE_FINAL_RESULT"}[15m])) > 0
+          unless
+          sum(increase(ivr_call_attempts_total[30m])) > 0
+        for: 20m
+        labels:
+          severity: ticket
+          slo: dispatch_flow
+          slo_status: proposed
+        annotations:
+          summary: Confirmation windows keep closing while nothing is dialled
+          description: For twenty minutes confirmation windows have kept closing without a final result, and no call has been dialled for half an hour. This is not a channel shortage, which closes under its own reason and opens IvrConfirmationDeadlineMissed. Orders are not reaching the dialler; start with the eligibility loop in the worker health body.
+          runbook_url: docs/slo.md#confirmation-windows-expiring-undialled
 
       - alert: IvrIntakeRejectionRatioHigh
         expr: |

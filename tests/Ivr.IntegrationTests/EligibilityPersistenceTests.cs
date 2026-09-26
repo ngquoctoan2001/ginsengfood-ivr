@@ -1084,6 +1084,88 @@ public sealed class EligibilityPersistenceTests(PostgresPersistenceFixture fixtu
         await AssertTheSweepsCloseStandsAsync(factory);
     }
 
+    /// <summary>
+    /// W-0369 / K-60. An evaluation that reaches a job after its window passed is refused, so the job
+    /// is closed by the deadline sweep with IVR_CONFIRMATION_WINDOW_EXPIRED and a callback. Before,
+    /// the rules blocked it as TASK_BLOCKED_OPERATIONAL: the job closed and Module 3 heard nothing,
+    /// or it got the callback, depending on which side took the row first. Nothing the evaluation
+    /// would have written is written, and the sweep then closes the job exactly as K-54 does.
+    /// </summary>
+    [Fact]
+    [Trait("TestId", "IT-ELIG-EXPIRED-01")]
+    public async Task AnEvaluationAfterTheWindowIsRefusedAndTheSweepAnswersForTheJob()
+    {
+        await fixture.ResetAsync();
+        IDbContextFactory<IvrDbContext> factory = fixture.Services
+            .GetRequiredService<IDbContextFactory<IvrDbContext>>();
+        await SeedPendingTaskAsync(
+            factory,
+            "TASK-ELIG-EXPIRED-01",
+            "JOB-ELIG-EXPIRED-01",
+            "CREATED",
+            "READY_FOR_ELIGIBILITY");
+        DateTimeOffset windowCloses = Now.AddMinutes(4);
+        string pendingRows = await ReadEveryRowAsync(factory);
+
+        // The evaluation's clock has passed the window: the rules alone would block the task.
+        var late = new EligibilityService(
+            new PostgresEligibilityRepository(factory),
+            new CapacityAvailableProvider(),
+            new FixedTimeProvider(windowCloses.AddSeconds(1)));
+        InvalidOperationException refused = await Assert.ThrowsAsync<InvalidOperationException>(
+            () => late.EvaluateAsync("TASK-ELIG-EXPIRED-01", "corr-elig-expired-01"));
+        Assert.Equal("The confirmation window has already closed.", refused.Message);
+        Assert.Equal(pendingRows, await ReadEveryRowAsync(factory));
+
+        Assert.Equal(1, await new PostgresSchedulerStore(factory, new FixedTimeProvider(windowCloses))
+            .CloseMissedDeadlinesAsync(windowCloses.AddSeconds(1), 16));
+        await AssertTheSweepsCloseStandsAsync(factory);
+    }
+
+    /// <summary>
+    /// W-0369 / K-60. What the worker is told for it: a 409 carrying IVR_POLICY_MISMATCH, as for a job
+    /// the sweep has already closed (K-54), and not a decision. The endpoint runs on the real clock,
+    /// long past this task's window; the job stays pending for the sweep.
+    /// </summary>
+    [Fact]
+    [Trait("TestId", "IT-ELIG-EXPIRED-01")]
+    public async Task TheEndpointAnswersALateEvaluationWithAConflictAndWritesNothing()
+    {
+        await fixture.ResetAsync();
+        IDbContextFactory<IvrDbContext> factory = fixture.Services
+            .GetRequiredService<IDbContextFactory<IvrDbContext>>();
+        await SeedPendingTaskAsync(
+            factory,
+            "TASK-ELIG-EXPIRED-01",
+            "JOB-ELIG-EXPIRED-01",
+            "CREATED",
+            "READY_FOR_ELIGIBILITY");
+        string pendingRows = await ReadEveryRowAsync(factory);
+
+        await using InternalAdminApiTestApplication app =
+            await InternalAdminApiTestApplication.StartAsync(fixture.ConnectionString);
+        using var request = new HttpRequestMessage(
+            HttpMethod.Post,
+            "/v1/ivr/order-confirmation/eligibility-checks")
+        {
+            Content = JsonContent.Create(
+                new Ivr.Api.Internal.EligibilityLifecycleRequest("TASK-ELIG-EXPIRED-01")),
+        };
+        request.Headers.Add("Authorization", $"Bearer {InternalAdminApiTestApplication.InternalToken}");
+        request.Headers.Add("X-Source-System", "ivr-worker");
+        request.Headers.Add("X-Service-Scope", "ivr.internal.write");
+        request.Headers.Add("X-Correlation-Id", "corr-elig-expired-01");
+        request.Headers.Add("Idempotency-Key", "elig-expired-01");
+        using HttpResponseMessage response = await app.Client.SendAsync(request);
+
+        Assert.Equal(HttpStatusCode.Conflict, response.StatusCode);
+        Assert.Contains(
+            "IVR_POLICY_MISMATCH",
+            await response.Content.ReadAsStringAsync(),
+            StringComparison.Ordinal);
+        Assert.Equal(pendingRows, await ReadEveryRowAsync(factory));
+    }
+
     private static EligibilityService ClosedJobEvaluator(
         IDbContextFactory<IvrDbContext> factory,
         string decision) => new(

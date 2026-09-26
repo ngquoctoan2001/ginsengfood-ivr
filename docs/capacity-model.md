@@ -228,7 +228,10 @@ là **không**, và một lần trượt đọc là "một giả định của m
 
 Mô hình cũng **không đủ tư cách** cho bất kỳ ngưỡng khác không nào: không có mô hình hàng đợi, không
 có mô hình lỗi kênh. `CAP-ALERT-04` đòi đúng ba điều — luật tồn tại, ngưỡng là `> 0`, và biểu thức
-đi qua `increase()` (một counter đơn điệu so thẳng với 0 sẽ **nổ mãi mãi** sau lần đầu).
+đi qua `increase()` (một counter đơn điệu so thẳng với 0 sẽ **nổ mãi mãi** sau lần đầu). *(Sửa `26/09`, `K-61`: nay
+thêm điều thứ tư — luật chỉ đọc lý do thiếu kênh, `NO_DISPATCH_BEFORE_DEADLINE`, và mỗi lý do sweep ghi, đọc lại từ
+code, có đúng một luật đọc nó. Đơn bị giữ chờ duyệt, chưa được eligibility trả lời hay hết giờ gọi không nói gì về mô
+hình; xem `docs/slo.md` §9 và §9a.)*
 
 Và nó buộc hai thứ vào nhau: **luật không-khoan-nhượng chỉ trung thực khi pool ship còn phủ được
 đỉnh mô hình**. Nếu `simPoolSize` prod tụt xuống dưới, chính pool đó bảo đảm sẽ trượt, luật thành

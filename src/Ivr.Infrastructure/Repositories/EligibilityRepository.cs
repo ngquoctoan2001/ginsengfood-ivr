@@ -113,6 +113,17 @@ public sealed class PostgresEligibilityRepository(
             throw new InvalidOperationException("The call job is already closed.");
         }
 
+        // W-0369 / K-60. A window that has passed is the deadline sweep's to close, not this
+        // evaluation's. The sweep answers such a job with IVR_CONFIRMATION_WINDOW_EXPIRED and a
+        // callback (K-54). The rules instead block an expired window as TASK_BLOCKED_OPERATIONAL,
+        // which closes the job and sends Module 3 nothing, so which of the two an order got
+        // depended on which side took the row first. The poller only picks open windows: this is an
+        // evaluation that was already under way when the window closed.
+        if (job.ExpiresAt <= evaluation.EvaluatedAt)
+        {
+            throw new InvalidOperationException("The confirmation window has already closed.");
+        }
+
         EligibilityPersistenceArtifacts artifacts = EligibilityPersistence.Apply(
             task,
             job,

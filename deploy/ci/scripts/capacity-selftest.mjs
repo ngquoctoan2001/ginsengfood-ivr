@@ -8,7 +8,8 @@
 //   CAP-SENS-02   the answer is a range with a named dominant input, not a point.
 //   CAP-CALIB-03  the model is checked against the only throughput measurement that exists, and
 //                 reports the gap where none exists.
-//   CAP-ALERT-04  the pool the chart ships matches what the model says it can serve.
+//   CAP-ALERT-04  the pool the chart ships matches what the model says it can serve, and the
+//                 capacity alert reads only the missed-deadline reason the model speaks to.
 import assert from "node:assert/strict";
 import fs from "node:fs/promises";
 import path from "node:path";
@@ -39,6 +40,19 @@ const SENSITIVITY_CALL_SECONDS = [25, CALL_DURATION_ASSUMPTIONS.modelCallSeconds
 // Every input `cost_per_confirmed_order` needs before it can exist. Pinned, so that answering a
 // row and deleting a row are equally visible -- both change the count.
 const COST_INPUT_COUNT = 6;
+
+// W-0369 / K-61. Every reason the missed-deadline sweep records, and the one alert rule allowed to
+// read it. Only the capacity reason is evidence of a channel shortage, which is the only thing the
+// zero threshold and the recalibration runbook are about. The window reason pages nobody on its
+// own and is read only for windows closing while nothing is dialled. null is a reason no rule
+// reads, deliberately: the calling hours ending (Q-22.2) is the calling day finishing, not a fault.
+const CAPACITY_ALERT = "IvrConfirmationDeadlineMissed";
+const UNDIALLED_ALERT = "IvrConfirmationWindowsExpiringUndialled";
+const MISSED_DEADLINE_REASONS = Object.freeze({
+  NO_DISPATCH_BEFORE_DEADLINE: CAPACITY_ALERT,
+  WINDOW_EXPIRED_BEFORE_FINAL_RESULT: UNDIALLED_ALERT,
+  CALLING_HOURS_CLOSED_BEFORE_DISPATCH: null,
+});
 
 // ---------------------------------------------------------------- CAP-MODEL-01
 
@@ -174,6 +188,160 @@ async function calibrationAgainstWhatWasActuallyMeasured() {
 
 // ---------------------------------------------------------------- CAP-ALERT-04
 
+// W-0369 / K-61. What the missed-deadline sweep records, read from the code rather than trusted
+// from a comment: the label the reason travels under and every value it can carry. The capacity
+// alert used to sum all of them, and after K-52 and K-54 that sent the on-call to recalibrate the
+// model over orders held for review or never evaluated. Reading the values back is what keeps a
+// reason added later from repeating that silently.
+async function missedDeadlineReasonsTheSweepRecords() {
+  const telemetry = await fs.readFile(
+    path.join(repositoryRoot, "src/Ivr.Infrastructure/Observability/IvrTelemetry.cs"), "utf8");
+  const tag = /public const string ReasonCode = "([a-z_.]+)";/u.exec(telemetry);
+  assert(tag, "could not find TelemetryTags.ReasonCode in IvrTelemetry.cs; the label the "
+    + "missed-deadline reason travels under can no longer be checked.");
+
+  const store = await fs.readFile(
+    path.join(repositoryRoot, "src/Ivr.Infrastructure/Scheduling/PostgresSchedulerStore.cs"), "utf8");
+  assert(
+    /IvrTelemetry\.RecordMissedDeadline\(\s*\(TelemetryTags\.Program,\s*\w+\),\s*\(TelemetryTags\.ReasonCode,\s*reasonCode\)\s*\);/u
+      .test(store),
+    "CloseMissedDeadlinesAsync no longer records ivr_missed_deadline_total as (program, reason), so "
+    + "the alert filters can no longer be checked against what the sweep emits.");
+
+  // The sweep's own choice between a capacity miss and a window that ran out...
+  const branch = /string reasonCode = capacityMiss\s*\?\s*"([A-Z_]+)"\s*:\s*"([A-Z_]+)";/u.exec(store);
+  assert(branch, "could not find how CloseMissedDeadlinesAsync picks its reason "
+    + "(string reasonCode = capacityMiss ? ... : ...).");
+
+  // ...and what actually reaches the counter, which may override it (Q-22.2): the last element of
+  // the tuple each closed job is queued with.
+  const queued = /closed\.Add\(\(([^;]*)\)\);/u.exec(store);
+  assert(queued, "could not find the tuple CloseMissedDeadlinesAsync queues each closed job with.");
+  const recorded = queued[1].split(",").at(-1);
+  const constants = new Map([...store.matchAll(/public const string (\w+) = "([A-Z_]+)";/gu)]
+    .map((match) => [match[1], match[2]]));
+  const emitted = new Set(/\breasonCode\b/u.test(recorded) ? [branch[1], branch[2]] : []);
+  for (const identifier of recorded.match(/\b[A-Z]\w*\b/gu) ?? []) {
+    assert(constants.has(identifier), `the recorded reason names ${identifier}, which is not a string `
+      + "constant of PostgresSchedulerStore, so this check cannot tell which value it carries.");
+    emitted.add(constants.get(identifier));
+  }
+
+  return {
+    // Prometheus labels cannot carry a dot; UT-DASH-PII-04 compares the allowlist in the same shape.
+    label: tag[1].replaceAll(".", "_"),
+    capacityReason: branch[1],
+    emitted,
+  };
+}
+
+// Every read of the counter in one expression, as the reason it is narrowed to -- or null for a
+// read with no exact match on the reason label, which sums reasons nobody has classified.
+function missedDeadlineReads(expr, label) {
+  const exact = new RegExp(`^${label}="([A-Z_]+)"$`, "u");
+  return [...expr.matchAll(/ivr_missed_deadline_total(?:\{([^}]*)\})?/gu)].map((match) => {
+    const onReason = (match[1] ?? "").split(",").map((part) => part.trim())
+      .filter((matcher) => matcher.startsWith(label));
+    return onReason.length === 1 ? exact.exec(onReason[0])?.[1] ?? null : null;
+  });
+}
+
+// One home per reason. A reason the sweep records and this file does not know fails here instead
+// of leaking into a rule that sums it; a rule that reads a reason it was not given fails too.
+function assertEveryReasonHasOneReader(alerts, reasons) {
+  const classified = Object.keys(MISSED_DEADLINE_REASONS);
+  const unclassified = [...reasons.emitted].filter((reason) => !classified.includes(reason));
+  assert(
+    unclassified.length === 0,
+    `CloseMissedDeadlinesAsync records ${unclassified.join(", ")} on ivr_missed_deadline_total and no `
+    + "rule has been told what it means. Decide whether it is evidence of a channel shortage "
+    + `(${CAPACITY_ALERT}), a window that ran out with nothing dialled (${UNDIALLED_ALERT}) or `
+    + "neither, and add it to MISSED_DEADLINE_REASONS. Summing reasons blind is what K-61 removed.");
+  const stale = classified.filter((reason) => !reasons.emitted.has(reason));
+  assert(
+    stale.length === 0,
+    `MISSED_DEADLINE_REASONS names ${stale.join(", ")}, which CloseMissedDeadlinesAsync no longer `
+    + "records. A rule filtering on it would watch a series that never moves.");
+  assert.equal(
+    MISSED_DEADLINE_REASONS[reasons.capacityReason],
+    CAPACITY_ALERT,
+    `the sweep's capacity branch records ${reasons.capacityReason}, but that is not the reason `
+    + `${CAPACITY_ALERT} is given. The zero threshold is only derived for a channel shortage.`);
+
+  const readers = alerts.filter(
+    (rule) => typeof rule.expr === "string" && rule.expr.includes("ivr_missed_deadline_total"));
+  for (const rule of readers) {
+    const name = rule.alert ?? rule.record;
+    const reads = missedDeadlineReads(rule.expr, reasons.label);
+    assert(
+      !reads.includes(null),
+      `${name} reads ivr_missed_deadline_total without an exact ${reasons.label}="..." match, so it `
+      + "sums every reason the sweep records, including the ones that say nothing about channels "
+      + `(${rule.expr.trim()}).`);
+    const given = classified.filter((reason) => MISSED_DEADLINE_REASONS[reason] === name);
+    assert.deepEqual(
+      [...new Set(reads)].sort(),
+      given.sort(),
+      `${name} reads ${[...new Set(reads)].join(", ")} but is given ${given.join(", ") || "no reason"} `
+      + "in MISSED_DEADLINE_REASONS.");
+  }
+  for (const name of [CAPACITY_ALERT, UNDIALLED_ALERT]) {
+    assert(
+      readers.some((rule) => rule.alert === name),
+      `no rule named ${name} reads ivr_missed_deadline_total. The counter has a call site `
+      + "(PostgresSchedulerStore.CloseMissedDeadlinesAsync), so a missing rule means windows are "
+      + "being lost and nobody is being told.");
+  }
+}
+
+const DURATION_UNIT_SECONDS = { s: 1, m: 60, h: 3_600 };
+
+function durationSeconds(text) {
+  const match = /^(\d+)([smh])$/u.exec(String(text ?? "").trim());
+  assert(match, `unreadable duration "${text}".`);
+  return Number(match[1]) * DURATION_UNIT_SECONDS[match[2]];
+}
+
+// W-0369 / K-61. The window reason on its own pages nobody: most such windows were dialled, or held
+// on purpose. The rule reads it only while nothing at all is dialled, and two inequalities are what
+// make that true rather than approximately true.
+function assertUndialledRuleSeesOnlyUndialledWindows(alerts) {
+  const rule = alerts.find((candidate) => candidate.alert === UNDIALLED_ALERT);
+  assert(rule !== undefined && typeof rule.expr === "string", `no alert rule named ${UNDIALLED_ALERT}.`);
+  const expr = rule.expr.trim();
+  const expiries = /ivr_missed_deadline_total\{[^}]*\}\[(\d+[smh])\]/u.exec(expr);
+  const silencer = /\bunless\s+sum\(increase\(ivr_call_attempts_total\[(\d+[smh])\]\)\)\s*>\s*0$/u.exec(expr);
+  assert(expiries, `${UNDIALLED_ALERT} does not read the counter over a range (${expr}).`);
+  assert(
+    silencer,
+    `${UNDIALLED_ALERT} is not silenced by a dial: it must end in `
+    + "\"unless sum(increase(ivr_call_attempts_total[...])) > 0\". Without that it fires on every "
+    + `customer dialled and not reached in time (${expr}).`);
+
+  // A dialled job's attempt falls inside its window, so at most one window before it expires. The
+  // attempt lookback has to outlast the expiry lookback by that much, or a job that WAS dialled can
+  // raise the rule once its own attempt ages out while its expiry is still counted.
+  const expirySeconds = durationSeconds(expiries[1]);
+  const attemptSeconds = durationSeconds(silencer[1]);
+  const longestWindow = Math.max(
+    ...Object.values(CANDIDATE_POLICIES).map((policy) => policy.windowSeconds));
+  assert(
+    attemptSeconds >= expirySeconds + longestWindow,
+    `${UNDIALLED_ALERT} looks ${attemptSeconds}s back for attempts and ${expirySeconds}s for expiries, `
+    + `but the longest confirmation window is ${longestWindow}s: a dialled job's attempt can leave `
+    + "the lookback while its expiry is still counted.");
+
+  // One expiry stays in the lookback for less than the lookback. Holding longer means windows have
+  // to keep closing, so a single order held for review in a quiet half hour cannot open a ticket.
+  const holdSeconds = durationSeconds(rule.for);
+  assert(
+    holdSeconds > expirySeconds,
+    `${UNDIALLED_ALERT} holds for ${holdSeconds}s, not longer than its ${expirySeconds}s lookback, so a `
+    + "single expired order in a quiet period opens a ticket.");
+
+  return { expirySeconds, attemptSeconds, holdSeconds, longestWindow };
+}
+
 async function theShippedPoolMatchesTheModel({ peak }) {
   const environments = ["dev", "staging", "lab", "prod"];
   const pools = {};
@@ -199,21 +367,23 @@ async function theShippedPoolMatchesTheModel({ peak }) {
     `sim pool sizes are not monotonic across the ladder: ${JSON.stringify(pools)}`);
 
   // The capacity alert now exists (W-0041 residual closed 2026-08-19), and this is where the rule
-  // and the model are tied together. The rule is zero-tolerance -- ANY missed deadline opens a
+  // and the model are tied together. The rule is zero-tolerance -- ANY capacity miss opens a
   // ticket -- and that is only defensible while the shipped pool covers the modelled peak. The
   // assert above is therefore not just a chart check any more: it is the premise the alert rests
   // on, and its failure message has to say so.
   const rules = YAML.parse(await fs.readFile(
     path.join(repositoryRoot, "deploy/observability/alerts/ivr-slo.rules.yml"), "utf8"));
   const alerts = rules.groups.flatMap((group) => group.rules ?? []);
-  const deadlineAlert = alerts.find(
-    (rule) => typeof rule.expr === "string" && rule.expr.includes("ivr_missed_deadline_total"));
+
+  // Found by name. W-0369 / K-61 put a second rule on the same counter, so "the first rule that
+  // reads ivr_missed_deadline_total" no longer names the capacity alert.
+  const deadlineAlert = alerts.find((rule) => rule.alert === CAPACITY_ALERT);
 
   assert(
-    deadlineAlert !== undefined,
-    "no alert rule reads ivr_missed_deadline_total. The metric has a call site "
-    + "(PostgresSchedulerStore.CloseMissedDeadlinesAsync), so a missing rule means misses are "
-    + "being counted and nobody is being told.");
+    deadlineAlert !== undefined && typeof deadlineAlert.expr === "string",
+    `no alert rule named ${CAPACITY_ALERT}. ivr_missed_deadline_total has a call site `
+    + "(PostgresSchedulerStore.CloseMissedDeadlinesAsync), so a missing rule means capacity misses "
+    + "are being counted and nobody is being told.");
 
   // Zero-tolerance, and asserted as such: a threshold above zero would be a number nobody derived.
   // The model cannot say "N misses per hour is acceptable" -- it has no queueing model and no
@@ -238,6 +408,18 @@ async function theShippedPoolMatchesTheModel({ peak }) {
     !/\b(buy|purchase|procure|mua thêm)\b/i.test(JSON.stringify(deadlineAlert.annotations ?? {})),
     "the capacity alert tells the on-call to buy capacity. The model is UNCALIBRATED (W-0008); it "
     + "cannot justify a purchase, only a recalibration.");
+
+  // W-0369 / K-61. And it must be told only about channel shortages. Everything above -- the zero,
+  // the recalibration, the tie to the pool -- is an argument about channels. A window that ran out
+  // on an order held for review, never evaluated, or out of calling hours says nothing about them,
+  // and counting it here is how an eligibility outage came to page the model.
+  const reasons = await missedDeadlineReasonsTheSweepRecords();
+  assertEveryReasonHasOneReader(alerts, reasons);
+  const undialled = assertUndialledRuleSeesOnlyUndialledWindows(alerts);
+  assert(
+    !/\b(buy|purchase|procure|mua thêm)\b/i.test(JSON.stringify(
+      alerts.find((rule) => rule.alert === UNDIALLED_ALERT).annotations ?? {})),
+    `${UNDIALLED_ALERT} tells the on-call to buy capacity. No order it counts ever asked for a channel.`);
 
   // The other half of the ARCH-06 section 1 gap, still open and still asserted so it cannot rot
   // into a silent omission: cost_per_confirmed_order has no instrument because it has no
@@ -271,7 +453,13 @@ async function theShippedPoolMatchesTheModel({ peak }) {
     `CAP-ALERT-04 PASS_WITH_NOT_PROVEN=COST_METRIC — prod ships ${pools.prod} channels against a `
     + `modelled peak of ${peak}, and the ladder is monotonic (${environments.map(
       (environment) => `${environment}=${pools[environment]}`).join(", ")}). ${deadlineAlert.alert} `
-    + "is zero-tolerance on ivr_missed_deadline_total, which the shipped pool justifies. "
+    + `is zero-tolerance on ivr_missed_deadline_total{${reasons.label}="${reasons.capacityReason}"} `
+    + "alone, which the shipped pool justifies. Each of the "
+    + `${reasons.emitted.size} reasons the sweep records has one reader (${Object.entries(
+      MISSED_DEADLINE_REASONS).map(([reason, rule]) => `${reason} -> ${rule ?? "none"}`).join(", ")}), `
+    + `and ${UNDIALLED_ALERT} keeps ${undialled.attemptSeconds}s of attempts over `
+    + `${undialled.expirySeconds}s of expiries plus the longest window (${undialled.longestWindow}s), `
+    + `holding ${undialled.holdSeconds}s. `
     + `cost_per_confirmed_order stays uninstrumented: ${quoteRows.length}/${quoteRows.length} `
     + "cost inputs are still blocked on a vendor quote (W-0008)\n");
 }

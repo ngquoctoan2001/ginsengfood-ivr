@@ -70,6 +70,18 @@ public sealed class AsteriskAriSimGateway(
             new(TaskCreationOptions.RunContinuationsAsynchronously);
     }
 
+    /// <summary>
+    /// How long disposal waits for Asterisk to answer the close frame it sends (W-0369 / K-58).
+    /// <para>
+    /// Asterisk on a working link answers at once, so the wait only runs out on a far end that is
+    /// not going to answer, and waiting longer buys nothing. Five seconds leaves a slow Asterisk
+    /// plenty of room and still fits the worker's way out: its grace period (210 s) leaves thirty
+    /// seconds after a full call drain (180 s), and a disposal that never ended used to spend all
+    /// of them and be killed.
+    /// </para>
+    /// </summary>
+    private static readonly TimeSpan EventStreamCloseTimeout = TimeSpan.FromSeconds(5);
+
     private readonly ConcurrentDictionary<string, AriCallState> calls =
         new(StringComparer.Ordinal);
     private readonly SemaphoreSlim socketGate = new(1, 1);
@@ -405,16 +417,17 @@ public sealed class AsteriskAriSimGateway(
         }
     }
 
+    /// <summary>
+    /// Closes the event stream and waits for its pump. Best-effort: nothing about the stream makes
+    /// it hang or throw (W-0369 / K-58).
+    /// </summary>
     public async ValueTask DisposeAsync()
     {
         if (socket is not null)
         {
             if (socket.State == WebSocketState.Open)
             {
-                await socket.CloseAsync(
-                    WebSocketCloseStatus.NormalClosure,
-                    "shutdown",
-                    CancellationToken.None);
+                await CloseEventStreamAsync(socket);
             }
 
             socket.Dispose();
@@ -427,9 +440,18 @@ public sealed class AsteriskAriSimGateway(
             {
                 await eventPump;
             }
-            catch (WebSocketException)
+#pragma warning disable CA1031 // Disposal is best-effort: the pump's failure was handled where it happened.
+            catch (Exception)
+#pragma warning restore CA1031
             {
-                // Disposal intentionally closes the event stream.
+                // W-0369 / K-58. Whatever ended the pump has been dealt with already: its own catch
+                // ended every call still open on the stream as a lost stream (K-47), and a stream
+                // being closed has nobody left to report to. Only a WebSocketException used to be
+                // swallowed here, so an exception an event threw past ProcessEvent (K-56) came out
+                // of DisposeAsync - as would the OperationCanceledException the abort in
+                // CloseEventStreamAsync leaves in the pump. The container stops at the first
+                // disposable that throws: every service created before this one went undisposed,
+                // and the worker ended its shutdown on an unhandled exception.
             }
         }
     }
@@ -484,16 +506,54 @@ public sealed class AsteriskAriSimGateway(
         }
         catch (Exception exception) when (exception is HttpRequestException or WebSocketException)
         {
+            // W-0369 / K-62. Asterisk out of reach says nothing about the SIM this dial was for, so
+            // the channel's health is left unsaid, as for a stream lost under a call (W-0367 /
+            // K-57). Reported unhealthy, it put a strike on every SIM dialled while Asterisk was
+            // down, and three inside DT-04's ten minutes left each in HEALTH_FAILED for good: the
+            // admin enable path takes MOCK channels only. Holding dialling back while Asterisk is
+            // down is SchedulerDispatchPump's job, not the channel's: this dispatch fails, and each
+            // failed dispatch pushes the next start further off, doubling up to thirty seconds,
+            // until one goes through.
             throw Failure(
                 SimProviderDisposition.NetworkError,
                 "ASTERISK_EVENT_STREAM_UNAVAILABLE",
-                false,
+                null,
                 "The ARI event stream is unavailable.",
                 exception);
         }
         finally
         {
             socketGate.Release();
+        }
+    }
+
+    /// <summary>
+    /// W-0369 / K-58. Sends the close frame and waits a bounded time for Asterisk to answer it.
+    /// <para>
+    /// The wait used to have no bound: an Asterisk that never answered held disposal, and the
+    /// worker's shutdown with it, for as long as the process was allowed to run - the way the first
+    /// tests to dispose an open stream hung on FakeAsterisk, until K-56 taught it to answer. A close
+    /// that runs out of time, or fails on the way, ends in an abort instead. The abort is what makes
+    /// the pump's pending receive return, so the wait for the pump that follows cannot inherit the
+    /// same silence; the pump then ends any call still open as a lost stream, which is what an
+    /// unanswered close is.
+    /// </para>
+    /// </summary>
+    private async Task CloseEventStreamAsync(ClientWebSocket open)
+    {
+        using var timeout = new CancellationTokenSource(EventStreamCloseTimeout, timeProvider);
+        try
+        {
+            await open.CloseAsync(
+                WebSocketCloseStatus.NormalClosure,
+                "shutdown",
+                timeout.Token);
+        }
+#pragma warning disable CA1031 // However the close fails, the stream ends the same way: aborted.
+        catch (Exception)
+#pragma warning restore CA1031
+        {
+            open.Abort();
         }
     }
 
@@ -682,10 +742,14 @@ public sealed class AsteriskAriSimGateway(
         }
         catch (HttpRequestException exception)
         {
+            // W-0369 / K-62. The SIM's health left unsaid, for the reason given where the event
+            // stream fails to connect: Asterisk out of reach is not the SIM's fault, and it is the
+            // dispatch pump's backoff after each failed dispatch, not a quarantined channel, that
+            // holds dialling back while it lasts.
             throw Failure(
                 SimProviderDisposition.NetworkError,
                 "ASTERISK_HTTP_UNAVAILABLE",
-                false,
+                null,
                 "The ARI HTTP endpoint is unavailable.",
                 exception);
         }

@@ -53,6 +53,10 @@ Trạng thái: `SRS_DRAFT` · Sinh bởi: `p05` · Nguồn: `phase-8/06` (SIM ad
   *Thêm `26/09` (`K-57`, `W-0367`):* chỉ lỗi của chính kênh SIM mới vào `fail_count`. Adapter mất luồng sự kiện
   của nó (ARI, `ASTERISK_EVENT_STREAM_*`) thì cuộc gọi kết thúc là lỗi mạng không tính lượt khách, nhưng chuỗi lỗi của SIM
   giữ nguyên, không cộng cũng không xoá: một luồng phục vụ mọi SIM của worker, nên đếm nó là đếm lỗi cho mọi SIM đang gọi.
+  Từ `K-62` (`W-0369`), Asterisk không truy cập được cũng không vào `fail_count` (`ASTERISK_HTTP_UNAVAILABLE`,
+  `ASTERISK_EVENT_STREAM_UNAVAILABLE`, và `ASTERISK_CHANNEL_HEALTH_NOT_READY` vì phép kiểm sức khoẻ trước khi quay chỉ ping
+  Asterisk); trong lúc Asterisk sập, thứ ngừng việc quay là backoff của dispatch pump (lùi dần tới 30 giây sau mỗi dispatch
+  lỗi, hết khi có dispatch thành công), không phải việc cách ly SIM.
 - Recording **OFF** mặc định (DT-05); nếu bật, chỉ lưu `recording_ref` + retention (DF-07 PENDING).
 
 ## 3. Disposition mapping (DT-02 — LOCKED; re-verify khi có SIM)

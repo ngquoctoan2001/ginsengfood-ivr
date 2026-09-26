@@ -156,10 +156,17 @@ public sealed partial class AsteriskSchedulerDispatchGateway(
 
             if (health.State != SimChannelHealthState.Healthy)
             {
+                // W-0369 / K-62. The health the ARI adapter reports is Asterisk's, not the SIM's: it
+                // pings /ari/asterisk/ping and gives that answer for whichever channel it was asked
+                // about. This check comes before the dial, so an Asterisk out of reach arrives here
+                // first, and this is where each SIM dialled while it was down took its strike. The
+                // channel's health is left unsaid, for the reason the adapter gives where its event
+                // stream fails to connect; the dispatch pump's backoff holds dialling back instead.
+                // The mock's MOCK_CHANNEL_HEALTH_NOT_READY stays counted: its health is per channel.
                 throw new AsteriskAriOperationException(
                     SimProviderDisposition.SimError,
                     "ASTERISK_CHANNEL_HEALTH_NOT_READY",
-                    false,
+                    null,
                     "The Asterisk channel is not healthy.");
             }
 

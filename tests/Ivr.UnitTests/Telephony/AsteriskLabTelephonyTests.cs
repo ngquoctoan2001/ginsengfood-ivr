@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using System.Globalization;
 using System.Net;
 using System.Net.Sockets;
@@ -355,14 +356,17 @@ public sealed class AsteriskLabTelephonyTests
         Assert.Null(lost.ChannelHealthy);
         Assert.False(lost.PlaybackStarted);
 
+        // W-0369 / K-62. A fault on the SIM's own route: the carrier network causes (34 to 44) the
+        // adapter names ASTERISK_NETWORK_FAILURE and reports as the channel's. ASTERISK_HTTP_UNAVAILABLE
+        // stood here until K-62 made an Asterisk out of reach say nothing about the SIM either.
         RecordedDispatchFailure afterPlayback = await DispatchThroughStagedAriAsync(
             playbackFailure: null,
             captureFailure: new AsteriskAriOperationException(
                 SimProviderDisposition.NetworkError,
-                "ASTERISK_HTTP_UNAVAILABLE",
+                "ASTERISK_NETWORK_FAILURE",
                 false,
-                "ARI stopped answering."));
-        Assert.Equal("ASTERISK_HTTP_UNAVAILABLE", afterPlayback.TechnicalErrorCode);
+                "The SIM's route failed under the call."));
+        Assert.Equal("ASTERISK_NETWORK_FAILURE", afterPlayback.TechnicalErrorCode);
         Assert.False(afterPlayback.ChannelHealthy);
         Assert.True(afterPlayback.PlaybackStarted);
     }
@@ -783,6 +787,211 @@ public sealed class AsteriskLabTelephonyTests
         Assert.DoesNotContain(requests, request => request.EndsWith("/play", StringComparison.Ordinal));
         Assert.Single(requests, request => request == ChannelDelete(lost));
         Assert.DoesNotContain(ChannelDelete(hungUp), requests);
+    }
+
+    /// <summary>
+    /// W-0369 / K-58. Disposal stops waiting for a close Asterisk never answers.
+    /// <para>
+    /// The fake reads the gateway's close frame and sends nothing back: an Asterisk that has hung,
+    /// or a proxy holding a connection whose far side is gone. Disposal used to wait for that answer
+    /// without a bound, which held the worker's shutdown until the pod was killed - the way the
+    /// first tests to dispose an open stream hung on this fake, until K-56 taught it to answer. It
+    /// now gives up once the five seconds of EventStreamCloseTimeout have passed, having asked: the
+    /// close frame did go out. The five seconds are spelled out rather than read from the gateway,
+    /// because they are spent out of the worker's shutdown budget, so changing them has to fail
+    /// here first.
+    /// </para>
+    /// <para>
+    /// A call still open at that point ends the way the pump ends every open call when its stream is
+    /// cut (K-47): as the stream's loss, an uncounted network error, and not a customer who never
+    /// pressed a key.
+    /// </para>
+    /// </summary>
+    [Fact]
+    [Trait("TestId", "UT-AST-DISPOSE-01")]
+    public async Task DisposalStopsWaitingForACloseAsteriskNeverAnswers()
+    {
+        using var asterisk = new FakeAsterisk { AnswerClose = false };
+        AsteriskAriOptions configured = Options();
+        configured.BaseUrl = asterisk.BaseUrl;
+        configured.DialTimeoutSeconds = 600;
+        await using var gateway = new AsteriskAriSimGateway(
+            asterisk,
+            Microsoft.Extensions.Options.Options.Create(configured),
+            new FixedTimeProvider());
+        SimCallSession open = await gateway.DialAsync(
+            DialRequest("attempt-lab-dispose-silent"),
+            CancellationToken.None);
+        Task<SimDtmfCapture> keypress = gateway
+            .CaptureDtmfAsync(open, TimeSpan.FromMinutes(10), CancellationToken.None)
+            .AsTask();
+
+        var elapsed = Stopwatch.StartNew();
+        await gateway.DisposeAsync().AsTask().WaitAsync(TimeSpan.FromSeconds(20));
+        elapsed.Stop();
+
+        await asterisk.CloseRequested.WaitAsync(TimeSpan.FromSeconds(5));
+        Assert.InRange(elapsed.Elapsed, TimeSpan.FromSeconds(4.5), TimeSpan.FromSeconds(15));
+
+        SimDtmfCapture capture = await keypress.WaitAsync(TimeSpan.FromSeconds(10));
+        Assert.Null(capture.Key);
+        Assert.False(capture.NoInput);
+        Assert.Equal("ASTERISK_EVENT_STREAM_LOST", capture.TechnicalErrorCode);
+    }
+
+    /// <summary>
+    /// W-0369 / K-58. Disposal does not throw what ended the event pump.
+    /// <para>
+    /// The pump dies here the way K-56 lets it on purpose: an event whose type is a string that
+    /// cannot be read. It is well-formed JSON in a well-formed text frame - a JSON escape for the
+    /// first half of a surrogate pair, the second half missing - so it passes the WebSocket's UTF-8
+    /// check and the parse, and throws only when the type is read: an InvalidOperationException,
+    /// past the pump's JsonException catch. The pump ends the open call as a lost stream, the
+    /// witness that it has died, and rethrows. Disposal swallowed only a WebSocketException, so it
+    /// threw this one again, out of the container's teardown.
+    /// </para>
+    /// <para>
+    /// The far end dropping the TCP connection does not reproduce it: the WebSocket reports that
+    /// as a WebSocketException, which disposal always swallowed (UT-AST-EVENTS-11 disposes after
+    /// exactly that). The other non-WebSocket ending, the OperationCanceledException of a socket
+    /// aborted under a pending receive, is the one UT-AST-DISPOSE-01's abort leaves behind.
+    /// </para>
+    /// </summary>
+    [Fact]
+    [Trait("TestId", "UT-AST-DISPOSE-02")]
+    public async Task DisposalDoesNotThrowWhatEndedTheEventPump()
+    {
+        using var asterisk = new FakeAsterisk();
+        AsteriskAriOptions configured = Options();
+        configured.BaseUrl = asterisk.BaseUrl;
+        configured.DialTimeoutSeconds = 600;
+        await using var gateway = new AsteriskAriSimGateway(
+            asterisk,
+            Microsoft.Extensions.Options.Options.Create(configured),
+            new FixedTimeProvider());
+        SimCallSession open = await gateway.DialAsync(
+            DialRequest("attempt-lab-dispose-pump"),
+            CancellationToken.None);
+        Task<SimDtmfCapture> keypress = gateway
+            .CaptureDtmfAsync(open, TimeSpan.FromMinutes(10), CancellationToken.None)
+            .AsTask();
+
+        await asterisk.SendRawEventAsync(string.Concat(
+            "{\"type\":\"",
+            JsonEscape,
+            "uD800\",\"channel\":{\"id\":\"",
+            open.ProviderCallReference,
+            "\"}}"));
+        SimDtmfCapture lost = await keypress.WaitAsync(TimeSpan.FromSeconds(10));
+        Assert.Equal("ASTERISK_EVENT_STREAM_LOST", lost.TechnicalErrorCode);
+
+        Exception? thrown = await Record.ExceptionAsync(
+            () => gateway.DisposeAsync().AsTask().WaitAsync(TimeSpan.FromSeconds(20)));
+        Assert.Null(thrown);
+    }
+
+    /// <summary>
+    /// W-0369 / K-62. An Asterisk out of reach fails the dial as a network error that says nothing
+    /// about the SIM.
+    /// <para>
+    /// The dial meets it two ways. Nothing listens where Asterisk should be, so the event stream the
+    /// dial opens first is refused: ASTERISK_EVENT_STREAM_UNAVAILABLE, and nothing was dialled. Or
+    /// the stream is up and ARI's HTTP side refuses the originate - the fake throws what
+    /// SocketsHttpHandler throws for a port nothing answers on: ASTERISK_HTTP_UNAVAILABLE. Both used
+    /// to report the channel unhealthy, which put a strike on every SIM dialled while Asterisk was
+    /// down, and three in ten minutes took each out of service with no way back.
+    /// </para>
+    /// </summary>
+    [Fact]
+    [Trait("TestId", "UT-AST-UNAVAILABLE-01")]
+    public async Task AnAsteriskOutOfReachFailsTheDialWithoutBlamingTheSim()
+    {
+        AsteriskAriOptions down = Options();
+        down.BaseUrl = UnreachableAsteriskUrl();
+        await using (var gateway = new AsteriskAriSimGateway(
+                         new SocketHttpClientFactory(),
+                         Microsoft.Extensions.Options.Options.Create(down),
+                         new FixedTimeProvider()))
+        {
+            AsteriskAriOperationException refused =
+                await Assert.ThrowsAsync<AsteriskAriOperationException>(
+                    () => gateway.DialAsync(
+                        DialRequest("attempt-lab-asterisk-down"),
+                        CancellationToken.None).AsTask());
+            Assert.Equal(SimProviderDisposition.NetworkError, refused.Disposition);
+            Assert.Equal("ASTERISK_EVENT_STREAM_UNAVAILABLE", refused.TechnicalErrorCode);
+            Assert.Null(refused.ChannelHealthy);
+        }
+
+        using var asterisk = new FakeAsterisk { RefuseRest = true };
+        AsteriskAriOptions configured = Options();
+        configured.BaseUrl = asterisk.BaseUrl;
+        await using var reachable = new AsteriskAriSimGateway(
+            asterisk,
+            Microsoft.Extensions.Options.Options.Create(configured),
+            new FixedTimeProvider());
+        AsteriskAriOperationException unanswered =
+            await Assert.ThrowsAsync<AsteriskAriOperationException>(
+                () => reachable.DialAsync(
+                    DialRequest("attempt-lab-ari-http-down"),
+                    CancellationToken.None).AsTask());
+        Assert.Equal(SimProviderDisposition.NetworkError, unanswered.Disposition);
+        Assert.Equal("ASTERISK_HTTP_UNAVAILABLE", unanswered.TechnicalErrorCode);
+        Assert.Null(unanswered.ChannelHealthy);
+
+        // The stream was up: what failed was the originate itself.
+        Assert.Equal(["POST /ari/channels"], asterisk.Requests);
+    }
+
+    /// <summary>
+    /// W-0369 / K-62. An Asterisk out of reach, met where a dispatch meets it first: the health check
+    /// before the dial. Through the real ARI adapter, the real dispatch gateway and the real dispatch
+    /// pump.
+    /// <para>
+    /// The adapter's health is a ping of Asterisk, and it answers for whichever channel it was asked
+    /// about, so ASTERISK_CHANNEL_HEALTH_NOT_READY was where each SIM dialled while Asterisk was down
+    /// took its strike - before the two codes of UT-AST-UNAVAILABLE-01 could be reached. The failure
+    /// is now recorded without a word about the SIM, so the store leaves its streak alone
+    /// (IT-TEL-HEALTH-NEUTRAL-10), and it still fails the dispatch, which is what makes the pump
+    /// stop starting calls: the breaker the quarantined channel used to be by accident.
+    /// </para>
+    /// </summary>
+    [Fact]
+    [Trait("TestId", "UT-AST-UNAVAILABLE-02")]
+    public async Task AnAsteriskOutOfReachAtTheHealthCheckHoldsThePumpBackAndNotTheSim()
+    {
+        AsteriskAriOptions configured = Options();
+        configured.BaseUrl = UnreachableAsteriskUrl();
+        await using var ari = new AsteriskAriSimGateway(
+            new SocketHttpClientFactory(),
+            Microsoft.Extensions.Options.Options.Create(configured),
+            new FixedTimeProvider());
+        var store = new RecordingDispatchStore(DispatchContext());
+        AsteriskSchedulerDispatchGateway gateway = OpenGateway(store, new FixedSpeechRenderer(), ari);
+        var pump = new SchedulerDispatchPump(
+            Microsoft.Extensions.Options.Options.Create(new SchedulerOptions()),
+            new FixedTimeProvider());
+
+        Assert.True(pump.TryReserve());
+        pump.Start(Lease(), gateway.DispatchAsync);
+        Assert.True(await pump.DrainAsync(TimeSpan.FromSeconds(30)));
+
+        // The dispatch failed at the health check, before anything was dialled...
+        SchedulerDispatchFailure failed = Assert.Single(pump.TakeFailures());
+        AsteriskAriOperationException refused =
+            Assert.IsType<AsteriskAriOperationException>(failed.Exception);
+        Assert.Equal("ASTERISK_CHANNEL_HEALTH_NOT_READY", refused.TechnicalErrorCode);
+        Assert.Equal(0, store.ActivatedCalls);
+
+        // ...was recorded without a word about the SIM...
+        RecordedDispatchFailure recorded = Assert.Single(store.Failures);
+        Assert.Equal("ASTERISK_CHANNEL_HEALTH_NOT_READY", recorded.TechnicalErrorCode);
+        Assert.Null(recorded.ChannelHealthy);
+        Assert.Null(recorded.Session);
+
+        // ...and it is the pump, not the channel, that holds the next call back.
+        Assert.NotNull(pump.SheddingUntil);
+        Assert.False(pump.TryReserve());
     }
 
     /// <summary>
@@ -1533,6 +1742,11 @@ public sealed class AsteriskLabTelephonyTests
     /// <see cref="Requests"/>. Events go out one at a time, as the tests send them. The adapter's
     /// close frame is answered, as Asterisk answers it (W-0365 / K-56).
     /// </para>
+    /// <para>
+    /// W-0369. Two failures on request: a close frame read and never answered
+    /// (<see cref="AnswerClose"/> off, K-58), and ARI's HTTP side refusing every call while the event
+    /// stream stays up (<see cref="RefuseRest"/>, K-62).
+    /// </para>
     /// </summary>
     private sealed class FakeAsterisk : HttpMessageHandler, IHttpClientFactory
     {
@@ -1543,6 +1757,8 @@ public sealed class AsteriskLabTelephonyTests
 
         private readonly TcpListener listener = new(IPAddress.Loopback, 0);
         private readonly TaskCompletionSource<string> ringing =
+            new(TaskCreationOptions.RunContinuationsAsynchronously);
+        private readonly TaskCompletionSource closeRequested =
             new(TaskCreationOptions.RunContinuationsAsynchronously);
         private readonly List<string> requests = [];
         private readonly Task accepted;
@@ -1557,8 +1773,23 @@ public sealed class AsteriskLabTelephonyTests
 
         public bool AnswerDials { get; set; } = true;
 
+        /// <summary>
+        /// W-0369 / K-58. Off, the adapter's close frame is read and nothing goes back, and the
+        /// connection is left open: an Asterisk that has hung, as disposal meets it.
+        /// </summary>
+        public bool AnswerClose { get; init; } = true;
+
+        /// <summary>
+        /// W-0369 / K-62. On, every REST call is refused the way SocketsHttpHandler reports a port
+        /// nothing answers on, after it is recorded. The event stream is not affected.
+        /// </summary>
+        public bool RefuseRest { get; set; }
+
         /// <summary>The channel id of the dial left ringing, once there is one.</summary>
         public Task<string> Ringing => ringing.Task;
+
+        /// <summary>Completes once the adapter's close frame has arrived, answered or not (K-58).</summary>
+        public Task CloseRequested => closeRequested.Task;
 
         public IReadOnlyList<string> Requests
         {
@@ -1589,6 +1820,19 @@ public sealed class AsteriskLabTelephonyTests
         }
 
         /// <summary>
+        /// W-0369 / K-58. Sends one event exactly as written, for one no serializer would produce.
+        /// </summary>
+        public async Task SendRawEventAsync(string json)
+        {
+            await accepted;
+            await events!.SendAsync(
+                Encoding.UTF8.GetBytes(json),
+                WebSocketMessageType.Text,
+                true,
+                CancellationToken.None);
+        }
+
+        /// <summary>
         /// Drops the event stream's TCP connection with a reset and no WebSocket close frame: a
         /// network fault, or a proxy restarting, as the adapter sees one.
         /// </summary>
@@ -1607,6 +1851,14 @@ public sealed class AsteriskLabTelephonyTests
             lock (requests)
             {
                 requests.Add(string.Concat(request.Method.Method, " ", uri.AbsolutePath));
+            }
+
+            if (RefuseRest)
+            {
+                throw new HttpRequestException(
+                    HttpRequestError.ConnectionError,
+                    "No connection could be made because the target machine actively refused it.",
+                    new SocketException((int)SocketError.ConnectionRefused));
             }
 
             if (request.Method == HttpMethod.Post && uri.AbsolutePath == "/ari/channels")
@@ -1694,9 +1946,10 @@ public sealed class AsteriskLabTelephonyTests
         /// W-0365 / K-56. Answers the adapter's close frame and then closes the connection, as a
         /// server ends the close handshake (RFC 6455 section 7.1.1). A gateway disposed while its
         /// stream is still up sends that frame and waits for the answer, which used to never come;
-        /// every test before K-56 lost its stream first and so never asked.
+        /// every test before K-56 lost its stream first and so never asked. With
+        /// <see cref="AnswerClose"/> off it reads the frame and stops there (W-0369 / K-58).
         /// </summary>
-        private static async Task AnswerCloseAsync(WebSocket stream, TcpClient client)
+        private async Task AnswerCloseAsync(WebSocket stream, TcpClient client)
         {
             var buffer = new byte[1024];
             try
@@ -1708,6 +1961,12 @@ public sealed class AsteriskLabTelephonyTests
                         CancellationToken.None);
                     if (received.MessageType == WebSocketMessageType.Close)
                     {
+                        closeRequested.TrySetResult();
+                        if (!AnswerClose)
+                        {
+                            return;
+                        }
+
                         await stream.CloseOutputAsync(
                             WebSocketCloseStatus.NormalClosure,
                             "shutdown",
@@ -1744,4 +2003,34 @@ public sealed class AsteriskLabTelephonyTests
             8_000,
             TimeSpan.FromSeconds(2),
             "sound:ivr-fixed-greeting"));
+
+    // ------------------------------------------------------------------------------- W-0369
+
+    /// <summary>
+    /// The character that opens a JSON escape, kept apart so an escape can be assembled in a test
+    /// without being written out whole (K-58).
+    /// </summary>
+    private const string JsonEscape = "\\";
+
+    /// <summary>
+    /// K-62. An Asterisk that is down, as the adapter meets it: a loopback port taken and handed
+    /// straight back, so nothing listens there and every connection is refused.
+    /// </summary>
+    private static string UnreachableAsteriskUrl()
+    {
+        using var listener = new TcpListener(IPAddress.Loopback, 0);
+        listener.Start();
+        int port = ((IPEndPoint)listener.LocalEndpoint).Port;
+        listener.Stop();
+        return string.Concat("http://127.0.0.1:", port.ToString(CultureInfo.InvariantCulture));
+    }
+
+    /// <summary>
+    /// K-62. Real HTTP clients, so an adapter pointed at <see cref="UnreachableAsteriskUrl"/> meets
+    /// the refusal the network gives rather than one a fake stages.
+    /// </summary>
+    private sealed class SocketHttpClientFactory : IHttpClientFactory
+    {
+        public HttpClient CreateClient(string name) => new();
+    }
 }
