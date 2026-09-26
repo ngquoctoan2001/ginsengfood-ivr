@@ -637,7 +637,7 @@ và viết hoa; bí danh "Owner module IVR"; tham chiếu trong repo; thiếu/sa
 | Việc sau khi quyết | Giờ | Trạng thái |
 | --- | ---: | --- |
 | `Q-22.1` Vị từ + test + tài liệu (gộp với `Q-13.1` nếu kịp) | 0,5 | ✅ c98c479 · 893/893 (W-0364) · UT-INTAKE-EVENING-01/02, UT-INTAKE-WINDOW-SWEEP-01; intake từ chối T0 từ 21:00:30 (24/7), 21:05:30 (Giờ Vàng); IR-06, IR-07 sửa theo, ghim lại hash |
-| `Q-22.2` Task nhận ở giây cuối trước 21:08 không kịp claim bị tính `capacityMiss` (incident OPEN + metric sizing SIM phồng, `PostgresSchedulerStore.cs:446-474`) → phân loại lại chỉ ở incident/metric, **không** đổi result gửi M3 | 1,25 | 🟡 26/09 09:38 · phiên soak và L5 (Q-22, Q-24, Q-28) · đợi K-54 vào main (cùng hàm sweep hết hạn) |
+| `Q-22.2` Task nhận ở giây cuối trước 21:08 không kịp claim bị tính `capacityMiss` (incident OPEN + metric sizing SIM phồng, `PostgresSchedulerStore.cs:446-474`) → phân loại lại chỉ ở incident/metric, **không** đổi result gửi M3 | 1,25 | 🟡 26/09 11:27 · phiên soak và L5 (Q-22.2) · ngưỡng Toàn chốt 26/09: dưới thời lượng một cuộc gọi (ExpectedCallDurationSeconds, 60 giây) |
 
 #### `Q-23` — Token tĩnh Order Core luôn được nhận 🆕 · Tech Lead (vai M3) qua chief; Platform (OD-V1-07)
 
