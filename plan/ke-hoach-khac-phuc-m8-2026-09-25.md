@@ -491,7 +491,7 @@ Quyết `Q-12` nên nói luôn cho tên khách.
 
 | Việc sau khi quyết | Giờ | Trạng thái |
 | --- | ---: | --- |
-| `Q-12.1` Sửa guard + test xuyên intake → dispatch với "Tổ yến" | 2 | 🟡 26/09 12:32 · phiên soak và L5 (Q-12, Q-15, Q-16, Q-19) |
+| `Q-12.1` Sửa guard + test xuyên intake → dispatch với "Tổ yến" | 2 | ✅ 8a5e6f7 · 936/936 (W-0370) · UT-PII-PRODUCT-04..06, IT-DB-TASK-SUMMARY-12, IT-TEL-PRODUCT-NAME-12; lộ thêm: bộ kiểm lưu trữ chặn mọi lần lưu lại task Tổ yến từ eligibility (đã sửa); Toàn 26/09: tên khách giữ guard toàn văn (chờ Privacy), tên hàng không dấu vẫn bị intake từ chối (K-27) |
 
 #### `Q-13` — B17: mô hình biên buổi sáng 🔥 · Toàn (audit giao dev chọn; báo chief vì đổi tài liệu gửi M3)
 
@@ -995,7 +995,7 @@ git commit -m "type(scope): W-XXXX mô tả" -- <paths>
 | `B12` | Telephony adapter production | ⛔ nhà mạng; `Q-27`, `Q-28` ✔ PA2 25/09 | `K-25`, `K-42…K-47`, `Q-27`, `Q-28`, `CB-12`, `CB-13` |
 | `B13`, `B14` | `LabRealSim` gán cứng | ✅ + bù | `K-42` |
 | `B15` | `ToString` record mang số | ✅ + bù | `K-37`, `K-38` |
-| `B16` | `total_amount` số lẻ, cách ly SIM | Một phần ✅; `Q-12` PA1, `Q-16` PA2 ✔ 26/09, đang làm (🟡 26/09) | `K-14`, `K-26`, `K-27`, `K-29`, `K-30`, `Q-12`, `Q-16` |
+| `B16` | `total_amount` số lẻ, cách ly SIM | Một phần ✅; `Q-12.1` ✅ `8a5e6f7` 26/09; `Q-16` PA2 ✔ 26/09, đang làm (🟡 26/09) | `K-14`, `K-26`, `K-27`, `K-29`, `K-30`, `Q-12`, `Q-16` |
 | `B17` | Guard W-0298 ở biên buổi sáng | `Q-13` ✅ `3d04eee`; `Q-22` ✔ PA2 25/09: `Q-22.1` ✅ `c98c479` 26/09, `Q-22.2` ✅ `5a41439` 26/09 | `Q-13`, `Q-22` |
 | `C1` | `program_code` | ⛔ M3 | `Q-33`, `CB-05` |
 | `C2` | 9 result code, dòng m8-05 | ✅ đính chính + còn câu trỏ; §13 ⛔ chief | `K-13`, `CB-16` |
