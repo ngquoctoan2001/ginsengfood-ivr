@@ -164,6 +164,7 @@
     "tts-container-selftest.mjs": { "argv": ["--self-test"], "expect": "TTS_CONTAINER_SELFTEST_PASS" },
     "tts-fixed-render-selftest.mjs": { "argv": ["--self-test"], "expect": "TTS_FIXED_RENDER_SELFTEST_PASS" },
     "tts-helm-selftest.mjs": { "argv": ["--self-test"], "expect": "TTS_HELM_SELFTEST_PASS" },
+    "speech-transition-gate.mjs": { "argv": ["--self-test"], "expect": "SPEECH_TRANSITION_GATE_PASS" },
     "tts-license-evidence-selftest.mjs": { "sweepable": false, "reason": "exports runLicenseEvidenceSelftest and has no top-level invocation; running it directly exits 0 having proved nothing", "runner": "tts-provenance-gate.mjs --selftest" },
     "tts-license-evidence.mjs": { "sweepable": false, "reason": "a library with no top-level invocation; verifyLicenseEvidence is called by the provenance gate", "runner": "tts-provenance-gate.mjs --selftest" },
     "tts-provenance-gate.mjs": { "argv": ["--selftest"], "expect": "TTS_PROVENANCE_STRUCTURE_PASS" },

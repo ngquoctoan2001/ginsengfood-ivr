@@ -177,6 +177,16 @@ public sealed class TtsProviderOptionsValidator : IValidateOptions<TtsProviderOp
             failures.Add("The deterministic fake TTS provider is restricted to MOCK execution.");
         }
 
+        // W-0363 / K-49. N1, the Tech Lead's transition rule of 24/09: production plays audio
+        // rendered ahead of time and never synthesizes at call time, so the VieNeu sidecar is not
+        // a provider production may name. LAB keeps it.
+        if (string.Equals(options.ExecutionMode, ExecutionModes.ProductionReal, StringComparison.OrdinalIgnoreCase)
+            && string.Equals(options.Provider, TtsProviderOptions.ExternalProvider, StringComparison.OrdinalIgnoreCase))
+        {
+            failures.Add(
+                "PRODUCTION_REAL may not synthesize speech at call time (N1, the transition rule of 24/09); the external VieNeu provider is refused there.");
+        }
+
         if (!new[]
             {
                 TtsProviderOptions.FakeProvider,
@@ -487,6 +497,13 @@ public static class SpeechServiceCollectionExtensions
         if (mock)
         {
             services.TryAddSingleton<ITtsProvider, FakeDeterministicTtsProvider>();
+        }
+        else if (string.Equals(executionMode, ExecutionModes.ProductionReal, StringComparison.OrdinalIgnoreCase))
+        {
+            // W-0363 / K-49. N1, the transition rule of 24/09: nothing in a production process may
+            // synthesize speech at call time, so production gets a provider that refuses and no
+            // HTTP client for the VieNeu sidecar at all.
+            services.TryAddSingleton<ITtsProvider, RuntimeSynthesisForbiddenTtsProvider>();
         }
         else
         {

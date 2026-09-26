@@ -30,6 +30,13 @@ public sealed class SpeechSynthesisService(
     IOptions<TtsProviderOptions> providerOptions,
     TimeProvider timeProvider) : ISpeechSynthesisService
 {
+    /// <summary>
+    /// W-0363 / K-48. The assembled call would need more pieces, or play longer, than one call's
+    /// audio may (<see cref="RenderedAudio.MaxPlaylistSegments"/>,
+    /// <see cref="RenderedAudio.MaxPlaylistDuration"/>).
+    /// </summary>
+    public const string PlaylistTooLongCode = "TTS_PLAYLIST_TOO_LONG";
+
     private readonly SpeechPreparationQueue preparationQueue = new();
 
     private static readonly IReadOnlyDictionary<string, FixedSegmentMediaEntry> EmptyCatalog =
@@ -62,6 +69,13 @@ public sealed class SpeechSynthesisService(
             throw IvrErrors.OperationalBlocked(
                 "Production TTS is blocked until the Target V1 speech whitelist has an approval record.");
         }
+
+        // W-0363 / K-49. N1, the Tech Lead's transition rule of 24/09: production does not
+        // synthesize speech at call time. Decided by the call's mode or the deployment's, so a
+        // caller passing the wrong mode cannot bring synthesis back; B13's production dial path
+        // still passes LabRealSim until K-42 lands.
+        bool runtimeSynthesisAllowed = executionMode != ExecutionMode.ProductionReal
+            && !string.Equals(configured.ExecutionMode, ExecutionModes.ProductionReal, StringComparison.OrdinalIgnoreCase);
 
         var hints = new Dictionary<string, string>(
             VietnameseProductDictionary,
@@ -109,7 +123,7 @@ public sealed class SpeechSynthesisService(
         }
 
         RenderedAudio audio = await SynthesizeWithAdmissionAsync(
-            script, request, configured, confirmationWindowExpiresAt, cancellationToken);
+            script, request, configured, confirmationWindowExpiresAt, runtimeSynthesisAllowed, cancellationToken);
 
         // W-0113. The selection above is the only place that decides which voice a customer
         // hears; attaching it here is what lets the dispatch loop record that decision instead
@@ -125,6 +139,7 @@ public sealed class SpeechSynthesisService(
         TtsOptions request,
         TtsProviderOptions configured,
         DateTimeOffset confirmationWindowExpiresAt,
+        bool runtimeSynthesisAllowed,
         CancellationToken cancellationToken)
     {
         bool external = string.Equals(configured.Provider, TtsProviderOptions.ExternalProvider,
@@ -155,8 +170,8 @@ public sealed class SpeechSynthesisService(
                 now.AddSeconds(configured.CacheMaximumTtlSeconds),
                 now.AddSeconds(configured.SpeechSnapshotRetentionSeconds));
             RenderedAudio audio = configured.Segmentation.Enabled && script.IsSegmented
-                ? await SynthesizeSegmentedAsync(script, request, configured, cacheExpiresAt, window.Token)
-                : await SynthesizeWholeAsync(script, request, configured, cacheExpiresAt, window.Token);
+                ? await SynthesizeSegmentedAsync(script, request, configured, cacheExpiresAt, runtimeSynthesisAllowed, window.Token)
+                : await SynthesizeWholeAsync(script, request, configured, cacheExpiresAt, runtimeSynthesisAllowed, window.Token);
             window.Token.ThrowIfCancellationRequested();
             if (external && timeProvider.GetUtcNow() >= confirmationWindowExpiresAt)
                 throw new TtsSynthesisException("TTS_CACHE_WINDOW_EXPIRED", "The confirmation window expired during speech preparation.");
@@ -178,8 +193,16 @@ public sealed class SpeechSynthesisService(
         TtsOptions request,
         TtsProviderOptions configured,
         DateTimeOffset cacheExpiresAt,
+        bool runtimeSynthesisAllowed,
         CancellationToken cancellationToken)
     {
+        // W-0363 / K-49. The whole script is synthesized at call time, so production refuses it
+        // before the cache, which only ever holds audio this process synthesized.
+        if (!runtimeSynthesisAllowed)
+        {
+            throw RuntimeSynthesisForbiddenTtsProvider.Refusal();
+        }
+
         AudioCacheKey cacheKey = AudioCacheKey.Create(
             script.TemplateId,
             script.TemplateVersion,
@@ -227,6 +250,7 @@ public sealed class SpeechSynthesisService(
         TtsOptions request,
         TtsProviderOptions configured,
         DateTimeOffset cacheExpiresAt,
+        bool runtimeSynthesisAllowed,
         CancellationToken cancellationToken)
     {
         bool useCatalog =
@@ -253,6 +277,14 @@ public sealed class SpeechSynthesisService(
                     TimeSpan.FromMilliseconds(entry.DurationMilliseconds)));
                 usageMeter.RecordSegment(segment.Kind, true, false);
                 continue;
+            }
+
+            // W-0363 / K-49. Anything that is not pre-rendered prose would be synthesized now.
+            // Production refuses it: the order's own values have no pre-rendered clips yet
+            // (Q-29.2), so the call fails closed rather than playing part of an order.
+            if (!runtimeSynthesisAllowed)
+            {
+                throw RuntimeSynthesisForbiddenTtsProvider.Refusal();
             }
 
             AudioCacheResult cached = await cache.GetOrCreateAsync(
@@ -293,6 +325,22 @@ public sealed class SpeechSynthesisService(
                 segment.TextHash,
                 cached.Audio.ContentRef,
                 cached.Audio.Duration));
+        }
+
+        // W-0363 / K-48. CreatePlaylist refuses a playlist past MaxPlaylistDuration with an
+        // ArgumentOutOfRangeException, which both dispatch gateways record as a SIM fault: the
+        // channel went into quarantine for an order that was too long. Pre-rendered pieces may each
+        // run to five minutes, so the sum is what can cross it. The 64-piece bound cannot be
+        // crossed from here: a speech segment's ordinal is capped at 64 when it is created.
+        TimeSpan total = TimeSpan.Zero;
+        foreach (RenderedAudioSegment piece in rendered)
+        {
+            total += piece.Duration;
+        }
+
+        if (total > RenderedAudio.MaxPlaylistDuration)
+        {
+            throw PlaylistTooLong();
         }
 
         RenderedAudio playlist = RenderedAudio.CreatePlaylist(
@@ -363,6 +411,10 @@ public sealed class SpeechSynthesisService(
                 exception);
         }
     }
+
+    private static TtsSynthesisException PlaylistTooLong() => new(
+        PlaylistTooLongCode,
+        "The assembled speech needs more pieces, or plays longer, than one call's audio may.");
 
     private static DateTimeOffset Minimum(
         DateTimeOffset first,

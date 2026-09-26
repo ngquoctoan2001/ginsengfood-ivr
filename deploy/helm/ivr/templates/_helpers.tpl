@@ -158,6 +158,13 @@ gate must become an explicit render failure rather than a half-configured Pod.
         (eq $tts.voices.Central.voiceId $tts.voices.South.voiceId) -}}
     {{- fail "worker.tts requires three distinct owner-accepted regional voice IDs." -}}
   {{- end -}}
+  {{- /*
+  W-0363 / K-50. N1, the Tech Lead's transition rule of 24/09: production does not synthesize
+  speech at call time; it plays audio rendered ahead of time, by VieNeu offline (Q-29). The W-0122
+  candidate is checked in full above, so an incomplete one still names what it lacks, and a
+  complete one is refused here. values-prod-tts.draft.yaml is superseded by the same rule.
+  */ -}}
+  {{- fail "worker.tts.enabled is refused: N1, the Tech Lead's transition rule of 24/09, forbids speech synthesis at call time in production; production plays audio rendered ahead of time. values-prod-tts.draft.yaml is superseded." -}}
 {{- end -}}
 {{- end -}}
 

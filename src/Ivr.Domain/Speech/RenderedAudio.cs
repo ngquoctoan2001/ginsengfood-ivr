@@ -102,6 +102,19 @@ public sealed record RenderedAudio
 
     public bool IsPlaylist => Segments.Length > 1;
 
+    /// <summary>
+    /// The most pieces one call's audio may be assembled from. A script cannot need more: a
+    /// speech segment's ordinal stops at the same 64.
+    /// </summary>
+    public const int MaxPlaylistSegments = 64;
+
+    /// <summary>
+    /// The longest one call's assembled audio may play. <see cref="CreatePlaylist"/> refuses
+    /// more; W-0363 / K-48 has the speech service check the sum first, so an order that is too
+    /// long fails as that order's fault rather than the SIM's.
+    /// </summary>
+    public static readonly TimeSpan MaxPlaylistDuration = TimeSpan.FromMinutes(5);
+
     public static RenderedAudio Create(
         string format,
         int sampleRate,
@@ -136,7 +149,7 @@ public sealed record RenderedAudio
             throw new ArgumentException("Playable audio needs at least one segment.", nameof(segments));
         }
 
-        if (ordered.Length > 64)
+        if (ordered.Length > MaxPlaylistSegments)
         {
             throw new ArgumentOutOfRangeException(nameof(segments));
         }
@@ -147,7 +160,7 @@ public sealed record RenderedAudio
             total += segment.Duration;
         }
 
-        if (total <= TimeSpan.Zero || total > TimeSpan.FromMinutes(5))
+        if (total <= TimeSpan.Zero || total > MaxPlaylistDuration)
         {
             throw new ArgumentOutOfRangeException(nameof(segments));
         }

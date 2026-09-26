@@ -101,8 +101,10 @@ spec:
               value: {{ .Values.worker.tts.timeoutMilliseconds | quote }}
             - name: Ivr__Speech__Tts__ProductionWhitelistApprovalRecord
               value: {{ .Values.worker.tts.approvals.voiceAcceptanceRef | quote }}
-            - name: Ivr__Speech__Tts__External__Endpoint
-              value: {{ printf "http://127.0.0.1:%v/synthesize" .Values.worker.tts.port | quote }}
+            {{- /*
+            W-0363 / K-50. No synthesis endpoint is wired: under N1 (24/09) production never calls
+            the sidecar at call time, and ivr.assertTtsCandidate refuses this block before it renders.
+            */}}
             - name: Ivr__Speech__Tts__External__RequestBodyTemplate
               value: {{ .Values.worker.tts.requestBodyTemplate | quote }}
             - name: Ivr__Speech__Tts__External__MediaOutputDirectory

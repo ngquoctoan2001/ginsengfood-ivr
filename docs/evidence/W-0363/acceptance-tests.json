@@ -1,0 +1,18 @@
+{
+  "schema": "ivr-acceptance-tests/v1",
+  "workId": "W-0363",
+  "scope": "software",
+  "requiredTestIds": [
+    "UT-N1-PLAYLIST-01",
+    "UT-N1-NOSYNTH-01",
+    "UT-N1-NOSYNTH-02",
+    "UT-N1-NOSYNTH-03",
+    "UT-TTS-WHITELIST-07"
+  ],
+  "gates": [
+    "speech-transition-gate.mjs",
+    "tts-helm-selftest.mjs",
+    "generate-test-traceability.mjs",
+    "ci-config-selftest.mjs"
+  ]
+}

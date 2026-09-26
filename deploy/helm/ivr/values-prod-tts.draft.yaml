@@ -1,3 +1,8 @@
+# SUPERSEDED — ĐÃ THAY THẾ, 26/09 (W-0363 / K-50). N1, luật quá độ Tech Lead chốt 24/09: production
+# không tổng hợp giọng lúc gọi, chỉ phát audio dựng sẵn (VieNeu render offline, Q-29). Chart từ chối
+# worker.tts.enabled ở production kể cả khi ứng viên đủ mọi ô, nên file này không còn đường nào để
+# dùng. Giữ lại làm lịch sử của W-0122 và W-0317; speech-transition-gate.mjs kiểm dấu này.
+#
 # NHÁP — cấu hình production cho VieNeu-TTS. W-0317, Lô 4 bước 4 của
 # plan/ivr-orther/vuong-mac-va-quyet-dinh-2026-09-17.md.
 #

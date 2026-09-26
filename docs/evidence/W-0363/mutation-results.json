@@ -1,0 +1,72 @@
+{
+  "schema": "ivr-mutation-results/v1",
+  "workId": "W-0363",
+  "captured_at": "2026-09-26",
+  "method": "Each check breaks one thing the lot fixed, in an isolated copy of d5833812 plus this lot, rebuilds, runs the named test or gate, and writes the original bytes back (never git checkout). The named test or gate must fail, the named neighbour must stay green, and a control run after restoring must be green. The chart check removes the N1 refusal from ivr.assertTtsCandidate and runs speech-transition-gate.mjs and tts-helm-selftest.mjs against it.",
+  "results": [
+    {
+      "id": "K-48 the assembled-duration check is gone again",
+      "test": "UT-N1-PLAYLIST-01",
+      "summary": "Failed! - Failed: 1, Passed: 0, Skipped: 0, Total: 1, Duration: 221 ms - Ivr.UnitTests.dll (net10.0)",
+      "neighbour": "UT-N1-NOSYNTH-03",
+      "neighbourSummary": "Passed! - Failed: 0, Passed: 1, Skipped: 0, Total: 1, Duration: 278 ms - Ivr.UnitTests.dll (net10.0)",
+      "verdict": "RED_AS_EXPECTED"
+    },
+    {
+      "id": "K-49 production is given the VieNeu sidecar provider and its HTTP client again",
+      "test": "UT-N1-NOSYNTH-01",
+      "summary": "Failed! - Failed: 1, Passed: 0, Skipped: 0, Total: 1, Duration: 55 ms - Ivr.UnitTests.dll (net10.0)",
+      "neighbour": "UT-N1-NOSYNTH-02",
+      "neighbourSummary": "Passed! - Failed: 0, Passed: 1, Skipped: 0, Total: 1, Duration: 55 ms - Ivr.UnitTests.dll (net10.0)",
+      "verdict": "RED_AS_EXPECTED"
+    },
+    {
+      "id": "K-49 the validator lets production name the sidecar again",
+      "test": "UT-N1-NOSYNTH-02",
+      "summary": "Failed! - Failed: 1, Passed: 0, Skipped: 0, Total: 1, Duration: 62 ms - Ivr.UnitTests.dll (net10.0)",
+      "neighbour": "UT-N1-NOSYNTH-01",
+      "neighbourSummary": "Passed! - Failed: 0, Passed: 1, Skipped: 0, Total: 1, Duration: 68 ms - Ivr.UnitTests.dll (net10.0)",
+      "verdict": "RED_AS_EXPECTED"
+    },
+    {
+      "id": "K-49 the service trusts the caller's mode only (the B13 hole)",
+      "test": "UT-N1-NOSYNTH-03",
+      "summary": "Failed! - Failed: 1, Passed: 0, Skipped: 0, Total: 1, Duration: 319 ms - Ivr.UnitTests.dll (net10.0)",
+      "neighbour": "UT-N1-NOSYNTH-02",
+      "neighbourSummary": "Passed! - Failed: 0, Passed: 1, Skipped: 0, Total: 1, Duration: 142 ms - Ivr.UnitTests.dll (net10.0)",
+      "verdict": "RED_AS_EXPECTED"
+    },
+    {
+      "id": "K-49 the whole-script path synthesizes in production again",
+      "test": "UT-N1-NOSYNTH-03",
+      "summary": "Failed! - Failed: 1, Passed: 0, Skipped: 0, Total: 1, Duration: 276 ms - Ivr.UnitTests.dll (net10.0)",
+      "neighbour": "UT-N1-PLAYLIST-01",
+      "neighbourSummary": "Passed! - Failed: 0, Passed: 1, Skipped: 0, Total: 1, Duration: 273 ms - Ivr.UnitTests.dll (net10.0)",
+      "verdict": "RED_AS_EXPECTED"
+    },
+    {
+      "id": "K-49 the order's own values are synthesized in production again",
+      "test": "UT-N1-NOSYNTH-03",
+      "summary": "Failed! - Failed: 1, Passed: 0, Skipped: 0, Total: 1, Duration: 244 ms - Ivr.UnitTests.dll (net10.0)",
+      "neighbour": "UT-N1-PLAYLIST-01",
+      "neighbourSummary": "Passed! - Failed: 0, Passed: 1, Skipped: 0, Total: 1, Duration: 348 ms - Ivr.UnitTests.dll (net10.0)",
+      "verdict": "RED_AS_EXPECTED"
+    },
+    {
+      "id": "CONTROL all C# files restored (unit tests)",
+      "summary": "Passed! - Failed: 0, Passed: 4, Skipped: 0, Total: 4, Duration: 302 ms - Ivr.UnitTests.dll (net10.0)",
+      "verdict": "GREEN_AS_EXPECTED"
+    },
+    {
+      "id": "K-50 the chart's N1 refusal is gone",
+      "test": "speech-transition-gate.mjs, tts-helm-selftest.mjs",
+      "summary": "speech-transition-gate: exit 1, \"the TTS guard in _helpers.tpl does not carry the N1 refusal\" | tts-helm-selftest: exit 1, the complete W-0122 candidate rendered instead of being refused (\"expected fail-closed Helm guard: worker.tts.enabled is refused: N1, ...\")",
+      "verdict": "RED_AS_EXPECTED"
+    },
+    {
+      "id": "CONTROL chart restored (both gates)",
+      "summary": "SPEECH_TRANSITION_GATE_PASS checks=5 prod_tts=OFF loopback_endpoint=NONE n1_refusal=PRESENT draft=SUPERSEDED self_test=6/6 | TTS_HELM_SELFTEST_PASS defaults=4 fail_closed=YES acceptance_configmap=REQUIRED predial_budget=ENFORCED prod_candidate=REFUSED_N1",
+      "verdict": "GREEN_AS_EXPECTED"
+    }
+  ]
+}
