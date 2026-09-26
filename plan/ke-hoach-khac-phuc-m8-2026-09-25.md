@@ -727,8 +727,8 @@ này không thể chứa số (guardrails bắt mọi mục qua PiiGuard). Nhán
 
 | Việc sau khi quyết | Giờ | Trạng thái |
 | --- | ---: | --- |
-| `Q-28.1` Sửa gate + `IT-FLAG-PRODGATE-15/16`, `UT-TRUNK-GATE-01/02`; sửa `InternalAdminApiService.cs:994-1000` (retry kỹ thuật tay cũng đòi allowlist lab ở mọi chế độ) | 6 | 🟡 26/09 09:38 · phiên soak và L5 (Q-22, Q-24, Q-28) |
-| `Q-28.2` `IT-PHONE-CONTAIN-03`: số chỉ dùng ở mép nhà mạng | 1 | 🟡 26/09 09:38 · phiên soak và L5 (Q-22, Q-24, Q-28) |
+| `Q-28.1` Sửa gate + `IT-FLAG-PRODGATE-15/16`, `UT-TRUNK-GATE-01/02`; sửa `InternalAdminApiService.cs:994-1000` (retry kỹ thuật tay cũng đòi allowlist lab ở mọi chế độ) | 6 | ✅ c51976d · 919/919 (W-0366) · UT-TRUNK-GATE-01..04, UT-TRUNK-OPT-09, UT-TRUNK-DI-07, IT-FLAG-PRODGATE-15/16, IT-API-RETRY-06/07; danh sách pilot trong cấu hình + bản duyệt bốn mắt PRODUCTION_PILOT_LIST, mở bằng PRODUCTION_CALL_OPEN |
+| `Q-28.2` `IT-PHONE-CONTAIN-03`: số chỉ dùng ở mép nhà mạng | 1 | ✅ c51976d (W-0366) · IT-PHONE-CONTAIN-03, UT-AST-GATE-04; cổng chỉ thấy vân tay, số chỉ đọc ở bước quay |
 | `Q-28.3` Dựng lời thoại **trước** khi resolve số (hiện từ chối tất định xảy ra sau resolve, tiêu lượt resolve, ghi nhầm là lỗi mạng; thông báo còn ghi "lab" trên đường production) — làm cùng SIP-04 | 1 | ⬜ |
 
 #### `Q-29` — N1: phạm vi đoạn động ở production quá độ · Tech Lead; chief đối chiếu PACK-09; Sếp xác nhận nếu chọn (a) hoặc (c)
@@ -975,7 +975,7 @@ git commit -m "type(scope): W-XXXX mô tả" -- <paths>
 | `C13`, `C17` | Thu hồi task; re-check trước attempt 2 | `Q-20` ✔ PA1 25/09; ⛔ M3-14 | `Q-20`, `CB-03` |
 | `C14` | Kết nối M2 | ✅ + sót checklist | `K-13` |
 | `C15`, `C20` | Đơn đêm | Bước 1, 3, 4 ✅ + sót; `Q-10` ✔ PA2 26/09, chưa làm | `K-05`, `K-11`, `Q-10`, `Q-13`, `Q-22`, `CB-08` |
-| `C16` | Contact Gate / dial token | ⛔ Sếp + SIP-04; 🆕 có việc dev mới (`Q-28` ✔ PA2 25/09, chưa làm) | `Q-28`, `CB-10`, `CB-13` |
+| `C16` | Contact Gate / dial token | ⛔ Sếp + SIP-04; `Q-28` ✔ PA2 25/09: `Q-28.1–2` ✅ `c51976d` 26/09, `Q-28.3` cùng SIP-04 | `Q-28`, `CB-10`, `CB-13` |
 | `C18` | Server test ngoài cấp phát | `Q-24` ✔ PA3 25/09: công cụ `Q-24.1` ✅ `c98c479` 26/09; tài nguyên cũ chưa dọn | `Q-24`, `CB-15` |
 | `C19` | Phương án B trên contract | ➖ gộp A2 | `Q-32` |
 | `C21` | Phát lại callback không giới hạn tuổi | Tài liệu ✅; code: `Q-19` ✔ PA2 26/09, chưa làm | `K-13`, `Q-19` |
