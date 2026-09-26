@@ -1,3 +1,4 @@
+using System.Text.Json;
 using System.Text.RegularExpressions;
 
 namespace Ivr.Domain.Privacy;
@@ -209,6 +210,56 @@ public static class PiiGuard
         if (!IsSafeText(value))
         {
             throw new InvalidOperationException("A restricted PII value was rejected.");
+        }
+    }
+
+    /// <summary>
+    /// <see cref="EnsureSafeText"/> for a JSON document: on the text as written, and on every
+    /// string and property name in it as a JSON reader decodes them.
+    /// <para>
+    /// W-0365 / K-55. Checking the serialized text alone missed what the serializer escapes.
+    /// <c>JsonSerializer</c>'s default encoder writes <c>+</c> as <c>\u002B</c> and every accented
+    /// letter as a <c>\u</c> escape, so the guard read <c>\u002B84…</c> where the value was a +84
+    /// number and <c>s\u1ED1 nh\u00E0</c> where it was an address marker, and passed both. A jsonb
+    /// column stores the decoded characters, so what the guard never saw is what the table holds.
+    /// The written text is still checked, because a number sent as a JSON number appears only
+    /// there, so this refuses everything <see cref="EnsureSafeText"/> refused on the same text.
+    /// </para>
+    /// </summary>
+    public static void EnsureSafeJsonText(string? json)
+    {
+        EnsureSafeText(json);
+        if (string.IsNullOrEmpty(json))
+        {
+            return;
+        }
+
+        using JsonDocument document = JsonDocument.Parse(json);
+        EnsureSafeJsonElement(document.RootElement);
+    }
+
+    private static void EnsureSafeJsonElement(JsonElement element)
+    {
+        switch (element.ValueKind)
+        {
+            case JsonValueKind.Object:
+                foreach (JsonProperty property in element.EnumerateObject())
+                {
+                    EnsureSafeText(property.Name);
+                    EnsureSafeJsonElement(property.Value);
+                }
+
+                break;
+            case JsonValueKind.Array:
+                foreach (JsonElement item in element.EnumerateArray())
+                {
+                    EnsureSafeJsonElement(item);
+                }
+
+                break;
+            case JsonValueKind.String:
+                EnsureSafeText(element.GetString());
+                break;
         }
     }
 

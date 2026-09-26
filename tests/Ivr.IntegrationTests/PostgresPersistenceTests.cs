@@ -696,6 +696,62 @@ public sealed class PostgresPersistenceTests(PostgresPersistenceFixture fixture)
         Assert.Equal(clean.AuditId, persisted.AuditId);
     }
 
+    /// <summary>
+    /// W-0365 / K-55. What the serializer escapes is checked as the reader decodes it. A +84
+    /// number is written <c>\u002B84…</c> and an accented address marker as <c>\u</c> escapes, so
+    /// the text-only guard passed both, and the jsonb column then stored them in clear. Refused now
+    /// in each JSON column of a row a store adds itself, and through the Postgres audit logger.
+    /// Accented text that is not an address still goes in, and comes back decoded.
+    /// </summary>
+    [Fact]
+    [Trait("TestId", "IT-DB-AUDIT-PII-11")]
+    public async Task EscapedNumbersAndAddressesInAuditJsonAreRefusedAtSaveChanges()
+    {
+        await fixture.ResetAsync();
+        string escapedNumber = JsonSerializer.Serialize(
+            new Dictionary<string, object?> { ["note"] = "+84912345678" });
+        string escapedAddress = JsonSerializer.Serialize(
+            new { changes = new[] { new { note = "số nhà 12 ngõ 5" } } });
+        Assert.Contains("\\u002B84", escapedNumber, StringComparison.Ordinal);
+
+        AuditLogEntity dataRow = StoreStyleAudit(new Dictionary<string, object?>());
+        dataRow.DataJson = escapedNumber;
+        AuditLogEntity beforeRow = StoreStyleAudit(new Dictionary<string, object?>());
+        beforeRow.BeforeStateJson = escapedAddress;
+        AuditLogEntity afterRow = StoreStyleAudit(new Dictionary<string, object?>());
+        afterRow.AfterStateJson = escapedNumber;
+        foreach (AuditLogEntity row in new[] { dataRow, beforeRow, afterRow })
+        {
+            await using IvrDbContext refusing = await Factory().CreateDbContextAsync();
+            refusing.AuditLog.Add(row);
+            InvalidOperationException refusal = await Assert.ThrowsAsync<InvalidOperationException>(
+                () => refusing.SaveChangesAsync());
+            Assert.Contains("restricted PII", refusal.Message, StringComparison.Ordinal);
+        }
+
+        var logger = new PostgresAuditLogger(Factory(), TimeProvider.System);
+        await Assert.ThrowsAsync<InvalidOperationException>(() => logger.AppendAsync(new AuditEvent(
+            "worker-k55",
+            "DISPATCH_RESOLVE",
+            "confirmation-task:TASK-K55",
+            null,
+            "corr-k55",
+            new Dictionary<string, object?> { ["note"] = "+84912345678" })));
+
+        AuditLogEntity accented = StoreStyleAudit(
+            new Dictionary<string, object?> { ["product"] = "Hồng sâm Hàn Quốc 6 năm tuổi" });
+        await using (IvrDbContext accepting = await Factory().CreateDbContextAsync())
+        {
+            accepting.AuditLog.Add(accented);
+            await accepting.SaveChangesAsync();
+        }
+
+        await using IvrDbContext verification = await Factory().CreateDbContextAsync();
+        AuditLogEntity persisted = await verification.AuditLog.AsNoTracking().SingleAsync();
+        Assert.Equal(accented.AuditId, persisted.AuditId);
+        Assert.Contains("Hồng sâm", persisted.DataJson, StringComparison.Ordinal);
+    }
+
     /// <summary>The shape the scheduler and dispatch stores give the rows they add themselves.</summary>
     private static AuditLogEntity StoreStyleAudit(
         Dictionary<string, object?> data,

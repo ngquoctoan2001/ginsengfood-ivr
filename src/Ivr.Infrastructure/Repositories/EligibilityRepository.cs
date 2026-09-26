@@ -75,8 +75,15 @@ public sealed class PostgresEligibilityRepository(
 
         ConfirmationTaskEntity task = await context.ConfirmationTasks
             .SingleAsync(item => item.TaskId == taskId, cancellationToken);
+
+        // W-0365 / K-54. Read under a row lock, because the advisory lock above only keeps other
+        // evaluations out. The deadline sweep closes a job still waiting on eligibility once its
+        // window passes, and it takes row locks and nothing else. The lock decides the order: the
+        // sweep skips a job held here, and this waits for a sweep holding the job and then reads
+        // the close.
         CallJobEntity job = await context.CallJobs
-            .SingleAsync(item => item.TaskId == taskId, cancellationToken);
+            .FromSqlInterpolated($"SELECT * FROM ivr_call_jobs WHERE task_id = {taskId} FOR UPDATE")
+            .SingleAsync(cancellationToken);
         TaskIntakeOutboxEntity outbox = await context.TaskIntakeOutbox
             .SingleAsync(item => item.TaskId == taskId, cancellationToken);
         if (!string.Equals(
@@ -95,6 +102,15 @@ public sealed class PostgresEligibilityRepository(
 
             throw new InvalidOperationException(
                 "The task already has a different eligibility decision.");
+        }
+
+        // W-0365 / K-54. Still pending but already closed means the sweep got there first: the
+        // job has its final result and Module 3 its callback. Applying the decision now would
+        // hand a finished job back to the scheduler, or open a review or an incident for an order
+        // IVR has already answered for, so the evaluation is refused and nothing is written.
+        if (job.ClosedAt is not null)
+        {
+            throw new InvalidOperationException("The call job is already closed.");
         }
 
         EligibilityPersistenceArtifacts artifacts = EligibilityPersistence.Apply(

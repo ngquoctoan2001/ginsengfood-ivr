@@ -41,7 +41,10 @@ public sealed class InMemoryAuditLogger(TimeProvider timeProvider) : IAuditLogge
         }
 
         string dataJson = JsonSerializer.Serialize(auditEvent.Data);
-        PiiGuard.EnsureSafeText(dataJson);
+
+        // W-0365 / K-55. Decoded values as well, as the Postgres logger checks them: the default
+        // encoder escapes '+' and accented letters, which the text alone does not show.
+        PiiGuard.EnsureSafeJsonText(dataJson);
 
         AuditLogEntry entry = new(
             Guid.NewGuid(),

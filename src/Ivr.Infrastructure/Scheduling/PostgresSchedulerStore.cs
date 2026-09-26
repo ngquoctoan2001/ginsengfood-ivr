@@ -381,9 +381,23 @@ public sealed class PostgresSchedulerStore(
                    -- W-0362 / K-52. A job the eligibility check held for capacity is not eligible
                    -- and never becomes so. The branch above never saw it and nothing else would
                    -- ever close it, so Module 3 waited on an order IVR had already given up on.
-                   -- The fences below apply to both branches alike.
+                   -- The fences below apply to every branch alike.
                    OR (job.eligible IS FALSE
-                    AND job.status = 'CAPACITY_HELD'))
+                    AND job.status = 'CAPACITY_HELD')
+                   -- W-0365 / K-54. The same gap, twice more. A job eligibility held for a human
+                   -- is never released: resolving its review item leaves the job as it was. And a
+                   -- job whose window passes before eligibility answers is never evaluated at all,
+                   -- because the poller reads only open windows. Keyed on the decision, not on the
+                   -- status alone: HELD_ADMIN_REVIEW on an eligible job is a technical or
+                   -- lease-recovery hold and already the first branch's, and CREATED or DRY_RUN
+                   -- under any other decision is not a job waiting on eligibility.
+                   OR (job.eligible IS FALSE
+                    AND job.eligibility_decision = 'TASK_HELD_ADMIN_REVIEW'
+                    AND job.status = 'HELD_ADMIN_REVIEW')
+                   OR (job.eligible IS FALSE
+                    AND job.eligibility_decision = 'PENDING_ELIGIBILITY'
+                    AND ((job.status = 'CREATED' AND job.queue_status = 'HELD_ELIGIBILITY')
+                         OR (job.status = 'DRY_RUN' AND job.queue_status = 'HELD_MOCK'))))
               AND job.closed_at IS NULL
               AND job.expires_at <= {{detectedAt}}
               AND NOT EXISTS (
@@ -447,9 +461,10 @@ public sealed class PostgresSchedulerStore(
             // it: the job was queued for dispatch and no channel ever came, or the eligibility
             // check held it because none would (W-0362 / K-52). A job held for review was kept
             // back on purpose, a dry run never wanted a channel, and a leased job already had one.
-            // Reporting those as capacity shortage inflates the very counter that sizes the SIM
-            // order (M8-OD-A), so they close as what they are -- a confirmation window that ran
-            // out.
+            // A job still waiting on eligibility never asked for one either: nobody had yet
+            // decided it could be called (W-0365 / K-54). Reporting those as capacity shortage
+            // inflates the very counter that sizes the SIM order (M8-OD-A), so they close as what
+            // they are -- a confirmation window that ran out.
             bool capacityHeld = string.Equals(job.Status, "CAPACITY_HELD", StringComparison.Ordinal);
             bool capacityMiss = progress.TotalAttempts == 0
                 && (capacityHeld
@@ -510,6 +525,11 @@ public sealed class PostgresSchedulerStore(
                     ["is_counted_customer_attempt"] = false,
                     ["counted_attempts_before_deadline"] = progress.CountedAttempts,
                     ["customer_was_reached"] = customerWasReached,
+
+                    // W-0365 / K-54. The result and its reason read the same whether eligibility
+                    // cleared the job, held it for a human or never answered -- the contract with
+                    // Module 3 has no code for the difference -- so the audit row names which.
+                    ["eligibility_decision"] = job.EligibilityDecision,
                 });
             string auditRef = string.Concat("audit://ivr/", audit.AuditId.ToString("D"));
             string reasonCode = capacityMiss

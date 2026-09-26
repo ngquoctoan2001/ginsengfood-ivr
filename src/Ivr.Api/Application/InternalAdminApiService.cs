@@ -104,6 +104,17 @@ public sealed class InternalAdminApiService(
                     throw IvrErrors.PolicyMismatch(
                         "The task already has a different eligibility decision.");
                 }
+                catch (InvalidOperationException exception) when (string.Equals(
+                    exception.Message,
+                    "The call job is already closed.",
+                    StringComparison.Ordinal))
+                {
+                    // W-0365 / K-54. The deadline sweep closed the job while it was being
+                    // evaluated: a conflict with stored state like the one above, so the same 409
+                    // and not a 500. The worker counts it as one failed request and never sends
+                    // it again, since a closed job is no longer pending work.
+                    throw IvrErrors.PolicyMismatch("The call job is already closed.");
+                }
 
                 return new EligibilityApiResult(
                     taskId,

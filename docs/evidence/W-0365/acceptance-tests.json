@@ -1,0 +1,19 @@
+{
+  "schema": "ivr-acceptance-tests/v1",
+  "workId": "W-0365",
+  "scope": "software",
+  "requiredTestIds": [
+    "IT-SCH-ADMIN-HELD-01",
+    "IT-SCH-PENDING-ELIG-01",
+    "IT-ELIG-CLOSED-01",
+    "UT-PII-JSON-01",
+    "UT-PII-JSON-02",
+    "IT-DB-AUDIT-PII-11",
+    "UT-AST-EVENTS-13",
+    "UT-AST-EVENTS-14"
+  ],
+  "gates": [
+    "generate-test-traceability.mjs",
+    "gate-status.mjs"
+  ]
+}

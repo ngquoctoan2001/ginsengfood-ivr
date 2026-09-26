@@ -490,6 +490,230 @@ public sealed class AsteriskLabTelephonyTests
     }
 
     /// <summary>
+    /// W-0365 / K-56. An ARI event holding a value of the wrong kind is ignored, and the stream goes
+    /// on delivering. Each shape here used to throw out of the pump, past its JsonException catch:
+    /// the pump stopped, and since K-47 every call open on it ended as a lost stream.
+    /// <para>
+    /// The first five cover every value read before an event can act on a call: an event that is
+    /// not an object, a type that is not a string, a channel that is not an object, a channel id
+    /// that is not a string, and a digit that is not a string. None of them may reach a call. The
+    /// digit is the number 1, and the key the call captures in the end is the well-formed 0 sent
+    /// after everything else, so a 1 taken from the malformed event would show up as the wrong key
+    /// instead of passing for the right one.
+    /// </para>
+    /// <para>
+    /// A hangup is never dropped for a malformed cause. Asterisk ends two calls, one with a cause
+    /// text that is a number and one with a cause that is a string. Each call still ends, under
+    /// what could be read of its cause, and as Asterisk's doing: no DELETE follows either.
+    /// </para>
+    /// </summary>
+    [Fact]
+    [Trait("TestId", "UT-AST-EVENTS-13")]
+    public async Task MalformedAriEventsAreIgnoredWithoutStoppingTheStreamOrLosingAHangup()
+    {
+        using var asterisk = new FakeAsterisk();
+        AsteriskAriOptions configured = Options();
+        configured.BaseUrl = asterisk.BaseUrl;
+        configured.DialTimeoutSeconds = 600;
+        await using var gateway = new AsteriskAriSimGateway(
+            asterisk,
+            Microsoft.Extensions.Options.Options.Create(configured),
+            new FixedTimeProvider());
+
+        // Three answered calls: one waiting for a key, and two that Asterisk is about to end.
+        SimCallSession waiting = await gateway.DialAsync(
+            DialRequest("attempt-lab-malformed-waiting"),
+            CancellationToken.None);
+        SimCallSession cleared = await gateway.DialAsync(
+            DialRequest("attempt-lab-malformed-cause-text"),
+            CancellationToken.None);
+        SimCallSession unexplained = await gateway.DialAsync(
+            DialRequest("attempt-lab-malformed-cause"),
+            CancellationToken.None);
+        Task<SimDtmfCapture> keypress = gateway
+            .CaptureDtmfAsync(waiting, TimeSpan.FromMinutes(10), CancellationToken.None)
+            .AsTask();
+        Task<SimDtmfCapture> clearedCapture = gateway
+            .CaptureDtmfAsync(cleared, TimeSpan.FromMinutes(10), CancellationToken.None)
+            .AsTask();
+        Task<SimDtmfCapture> unexplainedCapture = gateway
+            .CaptureDtmfAsync(unexplained, TimeSpan.FromMinutes(10), CancellationToken.None)
+            .AsTask();
+        string id = waiting.ProviderCallReference;
+
+        // The five shapes, each aimed at the waiting call as far as it can be...
+        await asterisk.SendEventAsync(new object[] { "ChannelDestroyed", id });
+        await asterisk.SendEventAsync(new { type = 5, channel = new { id } });
+        await asterisk.SendEventAsync(new { type = "ChannelDestroyed", channel = id });
+        await asterisk.SendEventAsync(new { type = "ChannelDestroyed", channel = new { id = 7 } });
+        await asterisk.SendEventAsync(new { type = "ChannelDtmfReceived", channel = new { id }, digit = 1 });
+
+        // ...the two hangups...
+        await asterisk.SendEventAsync(new
+        {
+            type = "ChannelDestroyed",
+            channel = new { id = cleared.ProviderCallReference },
+            cause = 16,
+            cause_txt = 16,
+        });
+        await asterisk.SendEventAsync(new
+        {
+            type = "ChannelDestroyed",
+            channel = new { id = unexplained.ProviderCallReference },
+            cause = "17",
+            cause_txt = "User busy",
+        });
+
+        // ...and the key the customer pressed.
+        await asterisk.SendEventAsync(new { type = "ChannelDtmfReceived", channel = new { id }, digit = "0" });
+
+        // The key arrives, and it is the well-formed one.
+        SimDtmfCapture pressed = await keypress.WaitAsync(TimeSpan.FromSeconds(10));
+        Assert.Equal("0", pressed.Key);
+        Assert.Null(pressed.TechnicalErrorCode);
+
+        // A cause text that is a number leaves the cause itself: normal clearing, the channel
+        // healthy, no code.
+        SimDtmfCapture clearedEnd = await clearedCapture.WaitAsync(TimeSpan.FromSeconds(10));
+        Assert.Null(clearedEnd.Key);
+        Assert.Null(clearedEnd.TechnicalErrorCode);
+        SimDispositionReport clearedReport = await gateway.GetDispositionAsync(
+            cleared,
+            CancellationToken.None);
+        Assert.Equal(SimProviderDisposition.Answered, clearedReport.Disposition);
+        Assert.Null(clearedReport.TechnicalErrorCode);
+        Assert.True(clearedReport.ChannelHealthy);
+
+        // A cause that is a string leaves only the text: an Asterisk hangup of unknown cause.
+        SimDtmfCapture unexplainedEnd = await unexplainedCapture.WaitAsync(TimeSpan.FromSeconds(10));
+        Assert.Equal("ASTERISK_UNKNOWN_HANGUP", unexplainedEnd.TechnicalErrorCode);
+        SimDispositionReport unexplainedReport = await gateway.GetDispositionAsync(
+            unexplained,
+            CancellationToken.None);
+        Assert.Equal(SimProviderDisposition.NetworkError, unexplainedReport.Disposition);
+        Assert.Equal("ASTERISK_UNKNOWN_HANGUP", unexplainedReport.TechnicalErrorCode);
+
+        // Nothing ended as a lost stream: the call that took the key is still up.
+        SimDispositionReport waitingReport = await gateway.GetDispositionAsync(
+            waiting,
+            CancellationToken.None);
+        Assert.Equal(SimProviderDisposition.Answered, waitingReport.Disposition);
+        Assert.Null(waitingReport.TechnicalErrorCode);
+
+        await gateway.HangupAsync(waiting, CancellationToken.None);
+        await gateway.HangupAsync(cleared, CancellationToken.None);
+        await gateway.HangupAsync(unexplained, CancellationToken.None);
+        IReadOnlyList<string> requests = asterisk.Requests;
+        Assert.Single(requests, request => request == ChannelDelete(waiting));
+        Assert.DoesNotContain(ChannelDelete(cleared), requests);
+        Assert.DoesNotContain(ChannelDelete(unexplained), requests);
+    }
+
+    /// <summary>
+    /// W-0365 / K-56. A stream lost between the answer and the playback is reported as that loss, and
+    /// not as a customer hanging up.
+    /// <para>
+    /// Two calls are answered and neither has played yet. Asterisk ends one itself; then the stream
+    /// is lost under the other. The playback of the second used to be refused as Dropped,
+    /// ASTERISK_CHANNEL_ALREADY_ENDED, with the channel healthy: a hangup nobody made, and not a word
+    /// about the stream. It is now refused under the stream's own code, with the answer
+    /// GetDispositionAsync gives for the same call, and normalizes to an uncounted technical
+    /// exception that still names the loss. The call Asterisk ended keeps the old answer, which is
+    /// true of it.
+    /// </para>
+    /// <para>
+    /// Each capture is only a witness: it returns once the pump has handled what ended its call, so
+    /// the playback is asked after that instead of raced against it. Neither playback reaches
+    /// Asterisk, and the hangups follow who ended each call.
+    /// </para>
+    /// </summary>
+    [Fact]
+    [Trait("TestId", "UT-AST-EVENTS-14")]
+    public async Task AStreamLostBeforePlaybackIsReportedAsTheLossAndNotAsAHangup()
+    {
+        using var asterisk = new FakeAsterisk();
+        AsteriskAriOptions configured = Options();
+        configured.BaseUrl = asterisk.BaseUrl;
+        configured.DialTimeoutSeconds = 600;
+        await using var gateway = new AsteriskAriSimGateway(
+            asterisk,
+            Microsoft.Extensions.Options.Options.Create(configured),
+            new FixedTimeProvider());
+        RenderedSpeech speech = PlayableSpeech();
+
+        SimCallSession hungUp = await gateway.DialAsync(
+            DialRequest("attempt-lab-play-hung-up"),
+            CancellationToken.None);
+        SimCallSession lost = await gateway.DialAsync(
+            DialRequest("attempt-lab-play-lost"),
+            CancellationToken.None);
+        Assert.True(hungUp.IsConnected);
+        Assert.True(lost.IsConnected);
+
+        // Asterisk ends the first call...
+        Task<SimDtmfCapture> hangup = gateway
+            .CaptureDtmfAsync(hungUp, TimeSpan.FromMinutes(10), CancellationToken.None)
+            .AsTask();
+        await asterisk.SendEventAsync(new
+        {
+            type = "ChannelDestroyed",
+            channel = new { id = hungUp.ProviderCallReference },
+            cause = 16,
+            cause_txt = "Normal Clearing",
+        });
+        await hangup.WaitAsync(TimeSpan.FromSeconds(10));
+
+        // ...and the stream is lost under the second.
+        Task<SimDtmfCapture> loss = gateway
+            .CaptureDtmfAsync(lost, TimeSpan.FromMinutes(10), CancellationToken.None)
+            .AsTask();
+        await asterisk.DropEventStreamAsync();
+        SimDtmfCapture lostCapture = await loss.WaitAsync(TimeSpan.FromSeconds(10));
+        Assert.Equal("ASTERISK_EVENT_STREAM_LOST", lostCapture.TechnicalErrorCode);
+
+        AsteriskAriOperationException refused =
+            await Assert.ThrowsAsync<AsteriskAriOperationException>(
+                () => gateway.PlayAsync(lost, speech, CancellationToken.None).AsTask());
+        Assert.Equal(SimProviderDisposition.NetworkError, refused.Disposition);
+        Assert.Equal("ASTERISK_EVENT_STREAM_LOST", refused.TechnicalErrorCode);
+        Assert.Contains("event stream", refused.Message, StringComparison.Ordinal);
+        SimDispositionReport report = await gateway.GetDispositionAsync(
+            lost,
+            CancellationToken.None);
+        Assert.Equal(report.Disposition, refused.Disposition);
+        Assert.Equal(report.ChannelHealthy, refused.ChannelHealthy);
+        Assert.False(refused.ChannelHealthy);
+
+        // What the store is handed for it normalizes, like every lost stream, to a technical
+        // exception that is not counted and keeps the name of the loss.
+        NormalizedResult result = DispositionMapper.Normalize(
+            refused.Disposition,
+            null,
+            refused.TechnicalErrorCode,
+            LastAttempt());
+        Assert.Equal(IvrResultType.IvrTechnicalException, result.ResultType);
+        Assert.False(result.IsCounted);
+        Assert.Equal("ASTERISK_EVENT_STREAM_LOST", result.TechnicalErrorCode);
+
+        // The call Asterisk ended is refused as before: that channel really has gone.
+        AsteriskAriOperationException ended =
+            await Assert.ThrowsAsync<AsteriskAriOperationException>(
+                () => gateway.PlayAsync(hungUp, speech, CancellationToken.None).AsTask());
+        Assert.Equal(SimProviderDisposition.Dropped, ended.Disposition);
+        Assert.Equal("ASTERISK_CHANNEL_ALREADY_ENDED", ended.TechnicalErrorCode);
+        Assert.True(ended.ChannelHealthy);
+
+        // Neither playback reached Asterisk. The lost call may still hold the customer, so it is
+        // hung up there; the one Asterisk ended is not.
+        await gateway.HangupAsync(lost, CancellationToken.None);
+        await gateway.HangupAsync(hungUp, CancellationToken.None);
+        IReadOnlyList<string> requests = asterisk.Requests;
+        Assert.DoesNotContain(requests, request => request.EndsWith("/play", StringComparison.Ordinal));
+        Assert.Single(requests, request => request == ChannelDelete(lost));
+        Assert.DoesNotContain(ChannelDelete(hungUp), requests);
+    }
+
+    /// <summary>
     /// The lab speaks through the VieNeu sidecar and nothing else: the profile resolves the
     /// loopback client, and its settings pass the same validator production uses.
     /// </summary>
@@ -1123,7 +1347,8 @@ public sealed class AsteriskLabTelephonyTests
     /// A dial is answered with StasisStart on the event stream as soon as it is placed, unless
     /// <see cref="AnswerDials"/> is off: then it is left ringing and <see cref="Ringing"/>
     /// completes with its channel id. Every REST call succeeds and is kept, as method and path, in
-    /// <see cref="Requests"/>. Events go out one at a time, as the tests send them.
+    /// <see cref="Requests"/>. Events go out one at a time, as the tests send them. The adapter's
+    /// close frame is answered, as Asterisk answers it (W-0365 / K-56).
     /// </para>
     /// </summary>
     private sealed class FakeAsterisk : HttpMessageHandler, IHttpClientFactory
@@ -1279,6 +1504,61 @@ public sealed class AsteriskLabTelephonyTests
             events = WebSocket.CreateFromStream(
                 stream,
                 new WebSocketCreationOptions { IsServer = true, KeepAliveInterval = TimeSpan.Zero });
+            _ = AnswerCloseAsync(events, connection);
+        }
+
+        /// <summary>
+        /// W-0365 / K-56. Answers the adapter's close frame and then closes the connection, as a
+        /// server ends the close handshake (RFC 6455 section 7.1.1). A gateway disposed while its
+        /// stream is still up sends that frame and waits for the answer, which used to never come;
+        /// every test before K-56 lost its stream first and so never asked.
+        /// </summary>
+        private static async Task AnswerCloseAsync(WebSocket stream, TcpClient client)
+        {
+            var buffer = new byte[1024];
+            try
+            {
+                while (stream.State == WebSocketState.Open)
+                {
+                    WebSocketReceiveResult received = await stream.ReceiveAsync(
+                        buffer,
+                        CancellationToken.None);
+                    if (received.MessageType == WebSocketMessageType.Close)
+                    {
+                        await stream.CloseOutputAsync(
+                            WebSocketCloseStatus.NormalClosure,
+                            "shutdown",
+                            CancellationToken.None);
+                        client.Close();
+                    }
+                }
+            }
+            catch (Exception exception) when (exception
+                is WebSocketException or IOException or ObjectDisposedException
+                or OperationCanceledException)
+            {
+                // The stream was dropped, or the fake disposed: there is nothing left to answer.
+            }
         }
     }
+
+    // ------------------------------------------------------------------------------- W-0365
+
+    /// <summary>
+    /// Speech with one safe Asterisk sound reference, so a playback gets past its audio check and
+    /// on to the call it is for.
+    /// </summary>
+    private static RenderedSpeech PlayableSpeech() => new RenderedSpeech(
+            "SCRIPT-ORDER-CONFIRM:v1-test-approved",
+            "Xin chào Quý khách.",
+            "sha256-lab-playback-test",
+            "vi-VN",
+            TimeSpan.FromSeconds(2),
+            0,
+            "FAKE_TEXT_ONLY")
+        .WithAudio(RenderedAudio.Create(
+            "audio/L16",
+            8_000,
+            TimeSpan.FromSeconds(2),
+            "sound:ivr-fixed-greeting"));
 }

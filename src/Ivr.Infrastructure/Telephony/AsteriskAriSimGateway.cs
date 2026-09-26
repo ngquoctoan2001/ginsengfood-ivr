@@ -247,6 +247,22 @@ public sealed class AsteriskAriSimGateway(
         ArgumentNullException.ThrowIfNull(speech);
         string mediaList = BuildMediaList(speech.Audio);
         AriCallState state = GetCall(session.ProviderCallReference);
+        if (state.EndedWithoutAsterisk)
+        {
+            // W-0365 / K-56. This side ended the call, because the event stream failed between the
+            // answer and this playback. The branch below used to take it: Dropped, the channel
+            // healthy, ASTERISK_CHANNEL_ALREADY_ENDED - a customer hanging up, on a channel
+            // Asterisk never said had ended, with no word of the stream. It fails the way the same
+            // loss one step later is reported: the stream's own code, and the answer
+            // GetDispositionAsync gives for that call, channel health included.
+            SimDispositionReport lost = await GetDispositionAsync(session, cancellationToken);
+            throw Failure(
+                lost.Disposition,
+                lost.TechnicalErrorCode!,
+                lost.ChannelHealthy,
+                "The ARI event stream was lost before playback; this side ended the call.");
+        }
+
         if (state.EndedAt.HasValue)
         {
             throw Failure(
@@ -526,9 +542,23 @@ public sealed class AsteriskAriSimGateway(
 
     private void ProcessEvent(JsonElement root)
     {
-        if (!root.TryGetProperty("type", out JsonElement typeElement)
+        // W-0365 / K-56. Each value's kind is checked before it is read. GetString and
+        // TryGetProperty do not answer false on the wrong kind, they throw, and the throw went past
+        // the pump's JsonException catch: one event with "type": 5 or "channel": "x" stopped the
+        // pump, and every call open on it ended as a lost stream. An event whose type or channel
+        // cannot be read is ignored, as text that does not parse always was.
+        //
+        // That catch stays narrow on purpose. An exception nobody foresaw, swallowed there, could
+        // lose a StasisStart or a ChannelDestroyed, and that call would wait out its timeout and
+        // be recorded as the customer's doing. Let through, it ends every open call, but as an
+        // uncounted network error (K-47).
+        if (root.ValueKind != JsonValueKind.Object
+            || !root.TryGetProperty("type", out JsonElement typeElement)
+            || typeElement.ValueKind != JsonValueKind.String
             || !root.TryGetProperty("channel", out JsonElement channelElement)
-            || !channelElement.TryGetProperty("id", out JsonElement channelIdElement))
+            || channelElement.ValueKind != JsonValueKind.Object
+            || !channelElement.TryGetProperty("id", out JsonElement channelIdElement)
+            || channelIdElement.ValueKind != JsonValueKind.String)
         {
             return;
         }
@@ -547,8 +577,14 @@ public sealed class AsteriskAriSimGateway(
             return;
         }
 
+        // W-0365 / K-56. Only a string is a digit. ARI sends every keypress as one, so a number
+        // here is not a press this adapter can vouch for, and reading the number 1 as the key "1"
+        // would confirm an order on it: a key is the one outcome acted on without asking again.
+        // The event is ignored, and the call waits for a well-formed key or its own capture
+        // timeout, as if the event had never come.
         if (string.Equals(type, "ChannelDtmfReceived", StringComparison.Ordinal)
-            && root.TryGetProperty("digit", out JsonElement digitElement))
+            && root.TryGetProperty("digit", out JsonElement digitElement)
+            && digitElement.ValueKind == JsonValueKind.String)
         {
             string? digit = digitElement.GetString();
             if (!string.IsNullOrWhiteSpace(digit))
@@ -561,11 +597,17 @@ public sealed class AsteriskAriSimGateway(
 
         if (string.Equals(type, "ChannelDestroyed", StringComparison.Ordinal))
         {
+            // W-0365 / K-56. A cause that is not a number, or a text that is not a string, is read
+            // as absent. The channel is gone whatever those fields hold, and a hangup dropped for
+            // their sake would leave the call to time out as the customer not answering; MapHangup
+            // names what is left, down to ASTERISK_TERMINAL_STATE_UNKNOWN.
             int? cause = root.TryGetProperty("cause", out JsonElement causeElement)
+                && causeElement.ValueKind == JsonValueKind.Number
                 && causeElement.TryGetInt32(out int parsedCause)
                 ? parsedCause
                 : null;
             string? causeText = root.TryGetProperty("cause_txt", out JsonElement textElement)
+                && textElement.ValueKind == JsonValueKind.String
                 ? textElement.GetString()
                 : null;
             (state.TerminalDisposition, state.TechnicalErrorCode) = MapHangup(cause, causeText);

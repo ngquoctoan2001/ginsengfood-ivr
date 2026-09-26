@@ -119,6 +119,12 @@ internal static class PersistenceInvariantValidator
     /// guard. The target is re-joined into the entity ref the logger checks, so a type and id that
     /// only read as restricted together are refused too. Field names are read back from the stored
     /// JSON, top level only, which is where the logger checks its data keys.
+    /// <para>
+    /// W-0365 / K-55. The three JSON columns are checked as decoded values too
+    /// (<see cref="PiiGuard.EnsureSafeJsonText"/>). They are jsonb, so Postgres stores what the
+    /// escapes spell: a +84 number written as <c>\u002B84…</c> or an accented address marker
+    /// passed a text-only check and landed in the table in clear.
+    /// </para>
     /// </summary>
     private static void ValidateAudit(AuditLogEntity audit)
     {
@@ -128,9 +134,9 @@ internal static class PersistenceInvariantValidator
         PiiGuard.EnsureSafeText(string.Concat(audit.TargetType, ":", audit.TargetId));
         PiiGuard.EnsureSafeText(audit.Reason);
         PiiGuard.EnsureSafeText(audit.CorrelationId);
-        PiiGuard.EnsureSafeText(audit.BeforeStateJson);
-        PiiGuard.EnsureSafeText(audit.AfterStateJson);
-        PiiGuard.EnsureSafeText(audit.DataJson);
+        PiiGuard.EnsureSafeJsonText(audit.BeforeStateJson);
+        PiiGuard.EnsureSafeJsonText(audit.AfterStateJson);
+        PiiGuard.EnsureSafeJsonText(audit.DataJson);
         using JsonDocument data = JsonDocument.Parse(audit.DataJson);
         if (data.RootElement.ValueKind == JsonValueKind.Object)
         {

@@ -43,7 +43,7 @@ public sealed class PostgresAuditLogger(
         ArgumentNullException.ThrowIfNull(auditEvent);
         Validate(auditEvent);
         string dataJson = JsonSerializer.Serialize(auditEvent.Data);
-        PiiGuard.EnsureSafeText(dataJson);
+        PiiGuard.EnsureSafeJsonText(dataJson);
         (string targetType, string targetId) = SplitTarget(auditEvent.EntityRef);
         DateTimeOffset createdAt = timeProvider.GetUtcNow();
         var entity = new AuditLogEntity
@@ -97,6 +97,12 @@ public sealed class PostgresAuditLogger(
         {
             PiiGuard.EnsureSafeField(field);
         }
+
+        // W-0365 / K-55. The data as a reader decodes it, not only as serialized text: the default
+        // encoder escapes '+' and every accented letter, which hid +84 numbers and address markers
+        // from a check that read the text alone. Here, so a refused event fails before a context is
+        // opened, and again on the exact text the row stores.
+        PiiGuard.EnsureSafeJsonText(JsonSerializer.Serialize(auditEvent.Data));
     }
 
     internal static (string Type, string Id) SplitTarget(string entityRef)

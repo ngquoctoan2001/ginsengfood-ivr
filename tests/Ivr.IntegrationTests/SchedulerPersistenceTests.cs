@@ -6,6 +6,7 @@ using Ivr.Domain.Confirmation;
 using Ivr.Domain.Policies;
 using Ivr.Domain.Ports;
 using Ivr.Infrastructure.Configuration;
+using Ivr.Infrastructure.Eligibility;
 using Ivr.Infrastructure.Intake;
 using Ivr.Infrastructure.Observability;
 using Ivr.Infrastructure.Persistence;
@@ -1336,6 +1337,241 @@ public sealed class SchedulerPersistenceTests(PostgresPersistenceFixture fixture
         // No call was ever placed, so no customer attempt exists to have been counted.
         Assert.Equal(0, await verification.CallAttempts.CountAsync());
     }
+
+    /// <summary>
+    /// W-0365 / K-54. The gap IT-SCH-CAPACITY-HELD-01 closed, for a job the eligibility check held
+    /// for a person. It is not eligible, nothing releases it -- resolving its review item leaves
+    /// the job where it was -- and the sweep did not look at it, so its window passed with no result
+    /// and no callback.
+    /// <para>
+    /// The hold is written by the real eligibility path, for the reason given there. It closes as
+    /// what it is, a window that ran out while a person was meant to look, and not as a capacity
+    /// miss: nobody ever asked for a channel.
+    /// </para>
+    /// </summary>
+    [Fact]
+    [Trait("TestId", "IT-SCH-ADMIN-HELD-01")]
+    public async Task AJobEligibilityHeldForReviewClosesOnceAsAnExpiredWindowWhenItsWindowPasses()
+    {
+        await fixture.ResetAsync();
+        IDbContextFactory<IvrDbContext> factory = Factory();
+        const string taskId = "TASK-SCH-ADMIN-HELD-01";
+        DateTimeOffset windowCloses = Now.AddMinutes(4);
+
+        // Sales saying its own eligibility source could not answer, which eligibility holds for a
+        // person rather than dials.
+        await SeedAwaitingEligibilityAsync(
+            factory,
+            taskId,
+            "JOB-SCH-ADMIN-HELD-01",
+            windowCloses,
+            mock: false,
+            sourceAvailable: false);
+
+        EligibilityEvaluation evaluation = await new EligibilityService(
+                new PostgresEligibilityRepository(factory),
+                new SchedulerEligibilityCapacityProvider(new PostgresSchedulerCapacityService(
+                    factory,
+                    new SchedulerExecutionContext(IvrOptions.LabRealSimExecutionMode),
+                    Options.Create(new SchedulerOptions()))),
+                new FixedTimeProvider(Now))
+            .EvaluateAsync(taskId, "corr-sch-admin-held-01");
+        Assert.Equal(EligibilityDecisions.HeldAdminReview, evaluation.Decision);
+        await using (IvrDbContext held = await factory.CreateDbContextAsync())
+        {
+            CallJobEntity job = await held.CallJobs.AsNoTracking().SingleAsync();
+            Assert.Equal("HELD_ADMIN_REVIEW", job.Status);
+            Assert.False(job.Eligible);
+            Assert.Null(job.ClosedAt);
+            Assert.Equal("OPEN", (await held.ReviewItems.AsNoTracking().SingleAsync()).Status);
+        }
+
+        await AssertClosesOnceAsAnExpiredWindowAsync(
+            factory,
+            windowCloses,
+            EligibilityDecisions.HeldAdminReview);
+    }
+
+    /// <summary>
+    /// W-0365 / K-54. A job whose window passes before eligibility answers. The poller reads only
+    /// open windows, so from that moment nothing will ever evaluate the job, and nothing closed it
+    /// either: the sweep looked only at jobs eligibility had already cleared or held for capacity.
+    /// Both shapes intake writes, the lab job and the dry run.
+    /// </summary>
+    [Theory]
+    [Trait("TestId", "IT-SCH-PENDING-ELIG-01")]
+    [InlineData(false)]
+    [InlineData(true)]
+    public async Task AJobStillAwaitingEligibilityClosesOnceAsAnExpiredWindowWhenItsWindowPasses(
+        bool mock)
+    {
+        await fixture.ResetAsync();
+        IDbContextFactory<IvrDbContext> factory = Factory();
+        DateTimeOffset windowCloses = Now.AddMinutes(4);
+        await SeedAwaitingEligibilityAsync(
+            factory,
+            "TASK-SCH-PENDING-ELIG-01",
+            "JOB-SCH-PENDING-ELIG-01",
+            windowCloses,
+            mock);
+
+        // The poller's own view of the job: work waiting while the window is open, and nothing
+        // once it has closed. From then on the sweep is the only thing that can close it.
+        Assert.Single(await ReadPendingEligibilityAsync(factory, mock, windowCloses.AddSeconds(-1)));
+        Assert.Empty(await ReadPendingEligibilityAsync(factory, mock, windowCloses));
+
+        await AssertClosesOnceAsAnExpiredWindowAsync(
+            factory,
+            windowCloses,
+            EligibilityDecisions.Pending);
+    }
+
+    /// <summary>
+    /// W-0365 / K-54. What a job eligibility never cleared comes to when its window passes: one
+    /// final result and one callback, saying the window ran out and a person should look, with no
+    /// customer attempt spent and nothing added to the figures that size the SIM order.
+    /// </summary>
+    private static async Task AssertClosesOnceAsAnExpiredWindowAsync(
+        IDbContextFactory<IvrDbContext> factory,
+        DateTimeOffset windowCloses,
+        string eligibilityDecision)
+    {
+        var store = new PostgresSchedulerStore(factory, new FixedTimeProvider(Now));
+        List<(string Instrument, string Taxonomy)> observed = [];
+        using (MeterListener listener = ListenForCapacityMetrics(observed))
+        {
+            // Not before its window has passed, then once, then never again.
+            Assert.Equal(0, await store.CloseMissedDeadlinesAsync(windowCloses.AddSeconds(-1), 16));
+            Assert.Equal(1, await store.CloseMissedDeadlinesAsync(windowCloses.AddSeconds(1), 16));
+            Assert.Equal(0, await store.CloseMissedDeadlinesAsync(windowCloses.AddSeconds(2), 16));
+            listener.RecordObservableInstruments();
+        }
+
+        // Counted once, as the expired window it is: the deadline alert and the confirm-rate
+        // denominator both see the order, and neither reads it as a capacity exception.
+        Assert.Equal(2, observed.Count);
+        Assert.Contains(
+            observed,
+            measurement => measurement.Instrument == "ivr_missed_deadline_total"
+                && measurement.Taxonomy == "GOLDEN_HOUR");
+        Assert.Contains(
+            observed,
+            measurement => measurement.Instrument == "ivr_call_results_total"
+                && measurement.Taxonomy == "IVR_CONFIRMATION_WINDOW_EXPIRED");
+
+        await using IvrDbContext verification = await factory.CreateDbContextAsync();
+        CallResultEntity result = await verification.CallResults.AsNoTracking().SingleAsync();
+        Assert.Equal("IVR_CONFIRMATION_WINDOW_EXPIRED", result.ResultType);
+        Assert.Equal("WINDOW_EXPIRED_BEFORE_FINAL_RESULT", result.ResultReason);
+        Assert.True(result.IsFinalForIvr);
+        Assert.False(result.IsCountedCustomerAttempt);
+
+        // Nobody called this customer, so the order must not expire on its own.
+        Assert.Equal("REVALIDATE_AND_HOLD_ADMIN_REVIEW", result.RecommendedCoreAction);
+        Assert.True(result.HumanReviewRequired);
+
+        ResultCallbackEntity callback = await verification.ResultCallbacks.AsNoTracking().SingleAsync();
+        Assert.Equal(result.IvrCallResultId, callback.IvrCallResultId);
+        Assert.Equal("READY", callback.DeliveryStatus);
+        using (JsonDocument payload = JsonDocument.Parse(callback.PayloadJson))
+        {
+            Assert.Equal(
+                "IVR_CONFIRMATION_WINDOW_EXPIRED",
+                payload.RootElement.GetProperty("result_type").GetString());
+            Assert.False(payload.RootElement.GetProperty("is_counted_customer_attempt").GetBoolean());
+            Assert.Equal(
+                "CORE_REVALIDATE_AND_HOLD_ADMIN_REVIEW",
+                payload.RootElement.GetProperty("recommended_core_action").GetString());
+        }
+
+        CallJobEntity closed = await verification.CallJobs.AsNoTracking().SingleAsync();
+        Assert.Equal("WINDOW_EXPIRED", closed.Status);
+        Assert.Equal("CLOSED_WINDOW_EXPIRED", closed.QueueStatus);
+        Assert.Equal(windowCloses.AddSeconds(1), closed.ClosedAt);
+        Assert.Equal("IVR_CONFIRMATION_WINDOW_EXPIRED", closed.ClosedReason);
+        Assert.Null(closed.CapacityIncidentId);
+
+        // Closed, not decided: the sweep leaves what eligibility said, or never got to say.
+        Assert.False(closed.Eligible);
+        Assert.Equal(eligibilityDecision, closed.EligibilityDecision);
+
+        // No channel was ever asked for, so there is no shortage to record and no attempt to count.
+        Assert.Equal(0, await verification.CapacityIncidents.CountAsync());
+        Assert.Equal(0, await verification.CallAttempts.CountAsync());
+        Assert.Equal(
+            0,
+            await verification.AuditLog.CountAsync(row => row.Action == "SCHEDULER_DEADLINE_MISSED"));
+        AuditLogEntity audit = await verification.AuditLog
+            .AsNoTracking()
+            .SingleAsync(row => row.Action == "SCHEDULER_WINDOW_EXPIRED");
+        using JsonDocument data = JsonDocument.Parse(audit.DataJson);
+        Assert.False(data.RootElement.GetProperty("customer_was_reached").GetBoolean());
+        Assert.Equal(
+            eligibilityDecision,
+            data.RootElement.GetProperty("eligibility_decision").GetString());
+    }
+
+    /// <summary>
+    /// W-0365 / K-54. A job as intake leaves it, before eligibility has said anything: the lab
+    /// shape or the dry run. Built from <see cref="SeedReadyJobAsync"/> by taking back what
+    /// eligibility would have written, as IT-SCH-CAPACITY-HELD-01 does.
+    /// </summary>
+    private static async Task SeedAwaitingEligibilityAsync(
+        IDbContextFactory<IvrDbContext> factory,
+        string taskId,
+        string jobId,
+        DateTimeOffset windowCloses,
+        bool mock,
+        bool sourceAvailable = true)
+    {
+        await SeedReadyJobAsync(factory, taskId, jobId, Now.AddMinutes(-1), expiresAt: windowCloses);
+        await using IvrDbContext intake = await factory.CreateDbContextAsync();
+        ConfirmationTaskEntity task = await intake.ConfirmationTasks
+            .SingleAsync(candidate => candidate.TaskId == taskId);
+        task.EligibilityDecision = null;
+        task.EvidenceRefsJson = "[\"evidence://integration/sch-k54/task\"]";
+        task.EligibilitySnapshotJson = JsonSerializer.Serialize(new
+        {
+            decision = "ELIGIBLE",
+            source_version = "sales-eligibility-v1",
+            captured_at = Now.AddSeconds(-30),
+            source_available = sourceAvailable,
+            blockers = Array.Empty<string>(),
+        });
+        CallJobEntity job = await intake.CallJobs
+            .SingleAsync(candidate => candidate.IvrCallJobId == jobId);
+        job.Status = mock ? "DRY_RUN" : "CREATED";
+        job.QueueStatus = mock ? "HELD_MOCK" : "HELD_ELIGIBILITY";
+        job.Eligible = false;
+        job.EligibilityDecision = EligibilityDecisions.Pending;
+        intake.TaskIntakeOutbox.Add(new TaskIntakeOutboxEntity
+        {
+            OutboxId = Guid.NewGuid(),
+            TaskId = taskId,
+            IvrCallJobId = jobId,
+            EventType = mock ? "IVR_TASK_DRY_RUN_RECORDED" : "IVR_TASK_READY_FOR_ELIGIBILITY",
+            Status = mock ? "HELD_MOCK" : "READY_FOR_ELIGIBILITY",
+            CorrelationId = task.CorrelationId,
+            PayloadSha256 = new string('A', 64),
+            CreatedAt = Now.AddMinutes(-1),
+        });
+        await intake.SaveChangesAsync();
+    }
+
+    private static Task<IReadOnlyList<PendingEligibilityTask>> ReadPendingEligibilityAsync(
+        IDbContextFactory<IvrDbContext> factory,
+        bool mock,
+        DateTimeOffset at) =>
+        new PostgresEligibilityPendingStore(
+                factory,
+                Options.Create(new IvrOptions
+                {
+                    ExecutionMode = mock
+                        ? IvrOptions.MockExecutionMode
+                        : IvrOptions.LabRealSimExecutionMode,
+                }),
+                new FixedTimeProvider(at))
+            .ReadAsync(16, CancellationToken.None);
 
     [Fact]
     [Trait("TestId", "IT-SCH-HOLD-10")]

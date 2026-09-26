@@ -1,3 +1,5 @@
+using System.Net;
+using System.Net.Http.Json;
 using System.Text.Json;
 using Ivr.Api.Application;
 using Ivr.Contracts.Generated.IvrServer.V1;
@@ -944,6 +946,239 @@ public sealed class EligibilityPersistenceTests(PostgresPersistenceFixture fixtu
 
         SchedulerDispatchLease lease = Assert.IsType<SchedulerDispatchLease>(await ClaimFor(factory));
         Assert.Equal("JOB-TASK-NODISPATCH-CONTROL", lease.JobId);
+    }
+
+    /// <summary>
+    /// W-0365 / K-54. The deadline sweep now closes a job still waiting on eligibility once its
+    /// window passes. An evaluation that read the task before that close must not land on the job
+    /// after it: the job already has its final result and Module 3 its callback, and whatever the
+    /// decision would have written -- a queued job, an incident, a review, a block -- contradicts
+    /// both. Each decision is tried in turn, and each must leave every row as the sweep left it.
+    /// </summary>
+    [Theory]
+    [Trait("TestId", "IT-ELIG-CLOSED-01")]
+    [InlineData("eligible")]
+    [InlineData("capacity")]
+    [InlineData("review")]
+    [InlineData("blocked")]
+    public async Task AnEvaluationOfAJobTheSweepHasClosedIsRefusedAndWritesNothing(string decision)
+    {
+        await fixture.ResetAsync();
+        IDbContextFactory<IvrDbContext> factory = fixture.Services
+            .GetRequiredService<IDbContextFactory<IvrDbContext>>();
+        await SeedPendingTaskAsync(
+            factory,
+            "TASK-ELIG-CLOSED-01",
+            "JOB-ELIG-CLOSED-01",
+            "CREATED",
+            "READY_FOR_ELIGIBILITY",
+            eligibilitySnapshotJson: decision == "blocked" ? SnapshotFor("blocked") : null);
+        DateTimeOffset windowCloses = Now.AddMinutes(4);
+        Assert.Equal(1, await new PostgresSchedulerStore(factory, new FixedTimeProvider(windowCloses))
+            .CloseMissedDeadlinesAsync(windowCloses.AddSeconds(1), 16));
+        string closedRows = await ReadEveryRowAsync(factory);
+
+        // Its clock is still inside the window: it read the task before the sweep got there.
+        InvalidOperationException refused = await Assert.ThrowsAsync<InvalidOperationException>(
+            () => ClosedJobEvaluator(factory, decision)
+                .EvaluateAsync("TASK-ELIG-CLOSED-01", "corr-elig-closed-01"));
+
+        Assert.Equal("The call job is already closed.", refused.Message);
+        Assert.Equal(closedRows, await ReadEveryRowAsync(factory));
+        await AssertTheSweepsCloseStandsAsync(factory);
+    }
+
+    /// <summary>
+    /// W-0365 / K-54, the same race caught halfway. The evaluation reaches the job while the sweep
+    /// holds it and has not yet committed the close. Reading the job without a lock, it would see
+    /// it still open, pass every check, and overwrite the close the moment the sweep committed.
+    /// A lock the test holds on the results table stops the sweep at its result insert, so the
+    /// order is held rather than left to timing, as IT-NORM-CONCURRENCY-06 does.
+    /// </summary>
+    [Fact]
+    [Trait("TestId", "IT-ELIG-CLOSED-01")]
+    public async Task AnEvaluationThatMeetsTheSweepHalfwayWaitsForTheCloseAndIsRefused()
+    {
+        await fixture.ResetAsync();
+        IDbContextFactory<IvrDbContext> factory = fixture.Services
+            .GetRequiredService<IDbContextFactory<IvrDbContext>>();
+        await SeedPendingTaskAsync(
+            factory,
+            "TASK-ELIG-CLOSED-01",
+            "JOB-ELIG-CLOSED-01",
+            "CREATED",
+            "READY_FOR_ELIGIBILITY");
+        DateTimeOffset windowCloses = Now.AddMinutes(4);
+
+        await using IvrDbContext gate = await factory.CreateDbContextAsync();
+        await using var holding = await gate.Database.BeginTransactionAsync();
+        await gate.Database.ExecuteSqlRawAsync("LOCK TABLE ivr_call_results IN SHARE MODE");
+        int gateProcess = await gate.Database
+            .SqlQueryRaw<int>("SELECT pg_backend_pid() AS \"Value\"")
+            .SingleAsync();
+
+        // The sweep takes the job, then stops at its result insert with the job still held.
+        Task<int> sweep = new PostgresSchedulerStore(factory, new FixedTimeProvider(windowCloses))
+            .CloseMissedDeadlinesAsync(windowCloses.AddSeconds(1), 16);
+        int sweepProcess = await WaitUntilQueuedBehindAsync(factory, gateProcess, sweep);
+
+        // An eligible decision is the one that would do most harm: it would queue a closed job.
+        Task<EligibilityEvaluation> evaluation = ClosedJobEvaluator(factory, "eligible")
+            .EvaluateAsync("TASK-ELIG-CLOSED-01", "corr-elig-closed-01");
+        await WaitUntilQueuedBehindAsync(factory, sweepProcess, evaluation);
+
+        await holding.CommitAsync();
+
+        Assert.Equal(1, await sweep);
+        InvalidOperationException refused =
+            await Assert.ThrowsAsync<InvalidOperationException>(() => evaluation);
+        Assert.Equal("The call job is already closed.", refused.Message);
+        await AssertTheSweepsCloseStandsAsync(factory);
+    }
+
+    /// <summary>
+    /// W-0365 / K-54. What the worker is told when that refusal reaches the endpoint it calls: a 409
+    /// carrying IVR_POLICY_MISMATCH, the answer it already gets for a task decided differently, and
+    /// not a 500. It counts that as one failed request, and no later poll selects the closed job.
+    /// </summary>
+    [Fact]
+    [Trait("TestId", "IT-ELIG-CLOSED-01")]
+    public async Task TheEndpointAnswersTheRefusalWithAConflictRatherThanAServerError()
+    {
+        await fixture.ResetAsync();
+        IDbContextFactory<IvrDbContext> factory = fixture.Services
+            .GetRequiredService<IDbContextFactory<IvrDbContext>>();
+        await SeedPendingTaskAsync(
+            factory,
+            "TASK-ELIG-CLOSED-01",
+            "JOB-ELIG-CLOSED-01",
+            "CREATED",
+            "READY_FOR_ELIGIBILITY");
+        DateTimeOffset windowCloses = Now.AddMinutes(4);
+        Assert.Equal(1, await new PostgresSchedulerStore(factory, new FixedTimeProvider(windowCloses))
+            .CloseMissedDeadlinesAsync(windowCloses.AddSeconds(1), 16));
+        string closedRows = await ReadEveryRowAsync(factory);
+
+        await using InternalAdminApiTestApplication app =
+            await InternalAdminApiTestApplication.StartAsync(fixture.ConnectionString);
+        using var request = new HttpRequestMessage(
+            HttpMethod.Post,
+            "/v1/ivr/order-confirmation/eligibility-checks")
+        {
+            Content = JsonContent.Create(
+                new Ivr.Api.Internal.EligibilityLifecycleRequest("TASK-ELIG-CLOSED-01")),
+        };
+        request.Headers.Add("Authorization", $"Bearer {InternalAdminApiTestApplication.InternalToken}");
+        request.Headers.Add("X-Source-System", "ivr-worker");
+        request.Headers.Add("X-Service-Scope", "ivr.internal.write");
+        request.Headers.Add("X-Correlation-Id", "corr-elig-closed-01");
+        request.Headers.Add("Idempotency-Key", "elig-closed-01");
+        using HttpResponseMessage response = await app.Client.SendAsync(request);
+
+        Assert.Equal(HttpStatusCode.Conflict, response.StatusCode);
+        Assert.Contains(
+            "IVR_POLICY_MISMATCH",
+            await response.Content.ReadAsStringAsync(),
+            StringComparison.Ordinal);
+        Assert.Equal(closedRows, await ReadEveryRowAsync(factory));
+        await AssertTheSweepsCloseStandsAsync(factory);
+    }
+
+    private static EligibilityService ClosedJobEvaluator(
+        IDbContextFactory<IvrDbContext> factory,
+        string decision) => new(
+            new PostgresEligibilityRepository(factory),
+            decision switch
+            {
+                "capacity" => new CapacityShortageProvider(),
+                "review" => new UnavailableCapacityProvider(),
+                _ => (IEligibilityCapacityProvider)new CapacityAvailableProvider(),
+            },
+            new FixedTimeProvider(Now));
+
+    /// <summary>Every row an evaluation could write or change, as one string to compare.</summary>
+    private static async Task<string> ReadEveryRowAsync(IDbContextFactory<IvrDbContext> factory)
+    {
+        await using IvrDbContext context = await factory.CreateDbContextAsync();
+        return JsonSerializer.Serialize(new object[]
+        {
+            await context.ConfirmationTasks.AsNoTracking().ToListAsync(),
+            await context.CallJobs.AsNoTracking().ToListAsync(),
+            await context.TaskIntakeOutbox.AsNoTracking().ToListAsync(),
+            await context.CallResults.AsNoTracking().ToListAsync(),
+            await context.ResultCallbacks.AsNoTracking().ToListAsync(),
+            await context.AuditLog.AsNoTracking().OrderBy(row => row.AuditId).ToListAsync(),
+            await context.ReviewItems.AsNoTracking().ToListAsync(),
+            await context.CapacityIncidents.AsNoTracking().ToListAsync(),
+            await context.EvidenceLinks.AsNoTracking().ToListAsync(),
+        });
+    }
+
+    /// <summary>What the sweep wrote, still standing: one close, one result, one callback.</summary>
+    private static async Task AssertTheSweepsCloseStandsAsync(IDbContextFactory<IvrDbContext> factory)
+    {
+        await using IvrDbContext verification = await factory.CreateDbContextAsync();
+        CallJobEntity job = await verification.CallJobs.AsNoTracking().SingleAsync();
+        Assert.Equal("WINDOW_EXPIRED", job.Status);
+        Assert.Equal("CLOSED_WINDOW_EXPIRED", job.QueueStatus);
+        Assert.False(job.Eligible);
+        Assert.Equal(EligibilityDecisions.Pending, job.EligibilityDecision);
+        Assert.Null((await verification.ConfirmationTasks.AsNoTracking().SingleAsync())
+            .EligibilityDecision);
+        Assert.Equal(
+            "READY_FOR_ELIGIBILITY",
+            (await verification.TaskIntakeOutbox.AsNoTracking().SingleAsync()).Status);
+        Assert.Equal(
+            "IVR_CONFIRMATION_WINDOW_EXPIRED",
+            (await verification.CallResults.AsNoTracking().SingleAsync()).ResultType);
+        Assert.Equal(1, await verification.ResultCallbacks.CountAsync());
+
+        // The sweep's audit row and nothing from the refused evaluation beside it.
+        Assert.Equal(
+            "SCHEDULER_WINDOW_EXPIRED",
+            (await verification.AuditLog.AsNoTracking().SingleAsync()).Action);
+        Assert.Equal(0, await verification.ReviewItems.CountAsync());
+        Assert.Equal(0, await verification.CapacityIncidents.CountAsync());
+        Assert.Equal(0, await verification.EvidenceLinks.CountAsync());
+    }
+
+    /// <summary>
+    /// Waits until <paramref name="waiter"/> is queued behind <paramref name="blockingProcess"/> and
+    /// returns the process it runs in. Fails rather than hangs if it finishes first or never queues.
+    /// </summary>
+    private static async Task<int> WaitUntilQueuedBehindAsync(
+        IDbContextFactory<IvrDbContext> factory,
+        int blockingProcess,
+        Task waiter)
+    {
+        DateTimeOffset giveUpAt = DateTimeOffset.UtcNow.AddSeconds(30);
+        while (true)
+        {
+            if (waiter.IsCompleted)
+            {
+                await waiter;
+                Assert.Fail("It finished without ever queueing behind the lock it was meant to meet.");
+            }
+
+            await using (IvrDbContext observer = await factory.CreateDbContextAsync())
+            {
+                int[] queued = await observer.Database.SqlQuery<int>($"""
+                    SELECT pid AS "Value"
+                    FROM pg_stat_activity
+                    WHERE backend_type = 'client backend'
+                      AND {blockingProcess} = ANY (pg_blocking_pids(pid))
+                    """).ToArrayAsync();
+                if (queued.Length > 0)
+                {
+                    return queued[0];
+                }
+            }
+
+            Assert.True(
+                DateTimeOffset.UtcNow < giveUpAt,
+                "Nothing queued behind the lock within 30 seconds.");
+            await Task.Delay(TimeSpan.FromMilliseconds(50));
+        }
     }
 
     private static EligibilityService EvaluatorFor(IDbContextFactory<IvrDbContext> factory) => new(
