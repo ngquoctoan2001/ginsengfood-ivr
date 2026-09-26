@@ -29,7 +29,7 @@ them shows up as a refusal at boot:
 
 | What | Where | What it means |
 | --- | --- | --- |
-| `DispatchGate` refuses every production destination | `DispatchGate.EvaluateAsync`: `PiiGuard.EnsureSafeText(destination)` runs first, and the lab allowlist is checked before the production branch | A production destination is `sip:<number>@<carrier host>` (`ProductionDialTokenVault`). The guard reads the number in it and throws, and no lab allowlist holds it. With every lock above open, production still dials nothing. This needs a decision on how the gate treats a production destination, not a configuration change. |
+| `DispatchGate` refuses every production destination | `DispatchGate.EvaluateAsync`: `PiiGuard.EnsureSafeText(destination)` runs first, and the lab allowlist is checked before the production branch | A production destination is `sip:<number>@<carrier host>` (`ProductionDialTokenVault`). The guard reads the number in it and throws, and no lab allowlist holds it. With every lock above open, production still dials nothing. This needs a decision on how the gate treats a production destination, not a configuration change. **Fixed 2026-09-26 (W-0365, `Q-28` PA2):** the gate is shown the pilot fingerprint of the number, never the number, and production asks its release approval, then whether the environment has been opened, then an approved pilot list — see [the pilot list](#the-pilot-list-and-opening-production) (`UT-TRUNK-GATE-02`, `IT-FLAG-PRODGATE-15`). |
 | The gate is checked once, before the speech is prepared | `AsteriskSchedulerDispatchGateway.DispatchAsync`: gate, then render and synthesis, then `DialAsync` | A kill switch thrown while speech is being synthesized does not stop the dial that follows. The gate has to be asked again immediately before `DialAsync`. **Fixed 2026-09-26 (W-0362, K-44):** the gate is asked again right before `DialAsync` (`UT-AST-GATE-03`). |
 | The number travels in the ARI request URL | `AsteriskAriSimGateway`: `POST /ari/channels` with `endpoint` as a query parameter | Asterisk's HTTP log and any proxy in front of ARI record the full number. Configure both before the first call, or the number lands in logs IVR does not control. |
 | How production speech is produced is not settled | Tech Lead's transitional rule of 2026-09-24: no speech synthesis at call time | The dial path renders and synthesizes speech for every attempt just before dialling. Until prerecorded audio replaces that, the production path cannot follow the rule. |
@@ -62,6 +62,8 @@ Every value here arrives from the carrier. None of it is guessable, and none of 
 | `ContractedChannels` | Concurrent channels the contract grants | **Carrier** | Above the real figure → carrier-side rejections that read like network faults |
 | `MaxCallStartsPerSecond` | New calls per second the carrier accepts | **Carrier** | Above the real figure → rejections under burst only, so it passes every quiet test |
 | `DtmfMode` | `rfc2833` / `info` / `inband` | **Carrier** | **Keypresses vanish.** The call connects, the customer presses 1, nothing arrives |
+| `PilotFingerprintKey` | Key of the pilot fingerprints: base64, at least 32 bytes. A secret, like the protector's key | Platform | Missing or short → startup refused. Changed → every fingerprint changes, and the list must be rebuilt and approved again |
+| `PilotDestinations` | The pilot list: fingerprints of the only numbers production may ring before it is opened. Never numbers | You, with `tools/ops/production-pilot-list.mjs` | A number or any other shape → startup refused. A list no approval binds → every production dial refused as `PRODUCTION_PILOT_LIST_NOT_APPROVED` |
 
 Bounds the validator enforces at startup (`SipTrunkOptions.cs:170`): `ContractedChannels` 1–200,
 `MaxCallStartsPerSecond` 1–100 and never above `ContractedChannels`, `TrunkEndpoint` ASCII
@@ -73,6 +75,63 @@ address.
 `pjsip.conf` decides the real behaviour. The copy exists so the stated value can be diffed against
 what the dial plan was actually given — which is the only cheap way to catch the mismatch before a
 customer does.
+
+### The pilot list, and opening production
+
+*Added 2026-09-26 (W-0365, `Q-28` PA2).* The dispatch gate's production branch asks three things,
+in this order, and the first "no" ends the dial:
+
+1. **Is this environment's release approved?** A live `PRODUCTION_CALL` approval naming the
+   environment (SIP-04). Otherwise `PRODUCTION_RELEASE_NOT_APPROVED`.
+2. **Has it been opened past the pilot?** A live `PRODUCTION_CALL_OPEN` approval naming the
+   environment: the signed decision to ring customers beyond the pilot. Then any destination the dial
+   token resolved may be rung (`PRODUCTION_OPEN_APPROVED`).
+3. **Otherwise, is the destination on the approved pilot list?** The gate is shown the pilot
+   fingerprint the vault derived from the number, never the number. It counts only while a live
+   `PRODUCTION_PILOT_LIST` approval binds exactly the configured list (its `change_fingerprint` is
+   the list hash) and was proposed and approved by two different people; the database refuses a row
+   of that kind without a proposer, with the proposer as approver, or without the hash.
+
+Whether real customers may be called at all is decided before these: for `PRODUCTION_REAL` the
+flag guardrails require `RealCustomerCallAllowed`, and a snapshot without it is refused as
+`INVALID_RUNTIME_CONFIG`. The lab allowlist plays no part in production, and the manual technical
+retry no longer asks it outside the lab either (`Q-28.1`, `IT-API-RETRY-07`).
+
+**Building the list.** Put the key in a file readable only by you, and the pilot numbers on standard
+input, one per line, in any spelling:
+
+```sh
+node tools/ops/production-pilot-list.mjs --key-file /secure/pilot-key < pilot-numbers.txt
+```
+
+It prints one `PilotDestinations__N=…` value per number, in input order, and the
+`change_fingerprint` for the approval. The numbers are not printed back; do not keep the input file.
+
+**Approving it.** The second person recomputes the hash from what is actually deployed, never from
+the first person's output, and inserts the row only if it matches:
+
+```sh
+node tools/ops/production-pilot-list.mjs --hash pilot:… pilot:…
+```
+
+```sql
+INSERT INTO ivr_runtime_gate_approvals (
+    approval_reference, approval_kind, environment, proposer_actor_id, approver_actor_id,
+    change_fingerprint, reason, signed_decision_ref, granted_at, expires_at, revoked_at,
+    revoked_reason, correlation_id)
+VALUES (
+    '<unique reference>', 'PRODUCTION_PILOT_LIST', 'prod', '<who built the list>', '<who approves>',
+    '<the list hash>', '<why these numbers>', '<the pilot decision>', now(), NULL, NULL, NULL,
+    '<correlation id>');
+```
+
+Changing one entry changes the hash, so a deployment that edits the list has closed the pilot until
+the new list is approved. Revoke the old row (`revoked_at`, `revoked_reason`); the table is
+append-only and will not delete it.
+
+**Opening production.** One `PRODUCTION_CALL_OPEN` row naming the environment, carrying the signed
+decision in `signed_decision_ref`. Revoking it returns the environment to its pilot list at the next
+dial decision. No migration seeds either kind.
 
 ### `Ivr:Telephony:Asterisk`, production profile
 

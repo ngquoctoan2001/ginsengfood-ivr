@@ -109,11 +109,24 @@ public sealed class ProductionDialTokenVault(
 
         string dialed = VietnameseDestinationNumber.Format(nationalDigits, configured.NumberFormat);
 
+        // Q-28 (PA2). The dispatch gate decides whether this destination may be rung, and it is
+        // shown the pilot fingerprint of the number, never the number. Derived here because this
+        // is the one place the number exists; the validator refuses an enabled trunk without a
+        // key, so reaching the throw means the options changed underneath a running process.
+        if (!ProductionPilotFingerprint.TryReadKey(configured.PilotFingerprintKey, out byte[] key))
+        {
+            throw new InvalidOperationException(
+                "The production pilot fingerprint key is not configured.");
+        }
+
+        string gateReference = ProductionPilotFingerprint.Of(key, nationalDigits);
+
         // The gateway owns the trunk: PD-01.5 builds "PJSIP/{TrunkEndpoint}/{this value}". Keeping
         // the endpoint out of here leaves the vault answering only "which destination", which is
         // the question the token actually authorises.
         return DialAuthorization.CreateTrusted(
-            string.Concat("sip:", dialed, "@", configured.CarrierSipHost));
+            string.Concat("sip:", dialed, "@", configured.CarrierSipHost),
+            gateReference);
     }
 }
 

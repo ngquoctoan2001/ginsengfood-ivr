@@ -31,6 +31,26 @@ public sealed class PendingProductionCallGate : IProductionCallGate
         Task.FromResult(false);
 }
 
+/// <summary>
+/// Q-28 (PA2). What a host without the production trunk answers: never open, and no pilot list.
+/// The production dial path replaces it with the gate that reads the list and its approvals.
+/// </summary>
+public sealed class PendingProductionPilotGate : IProductionPilotGate
+{
+    public const string NotConfigured = "PRODUCTION_PILOT_NOT_CONFIGURED";
+
+    public Task<bool> IsOpenAsync(
+        string environment,
+        CancellationToken cancellationToken = default) =>
+        Task.FromResult(false);
+
+    public Task<ProductionPilotDecision> EvaluateAsync(
+        string environment,
+        string destinationReference,
+        CancellationToken cancellationToken = default) =>
+        Task.FromResult(new ProductionPilotDecision(false, NotConfigured));
+}
+
 public sealed class HealthyInMemoryRuntimeSafety : IRuntimeSafetyHealth
 {
     public Task<bool> IsAuditProviderHealthyAsync(

@@ -1,0 +1,25 @@
+{
+  "schema": "ivr-acceptance-tests/v1",
+  "workId": "W-0366",
+  "scope": "software",
+  "requiredTestIds": [
+    "UT-TRUNK-GATE-01",
+    "UT-TRUNK-GATE-02",
+    "UT-TRUNK-GATE-03",
+    "UT-TRUNK-GATE-04",
+    "UT-TRUNK-OPT-09",
+    "UT-TRUNK-DI-07",
+    "UT-AST-GATE-04",
+    "IT-FLAG-PRODGATE-15",
+    "IT-FLAG-PRODGATE-16",
+    "IT-PHONE-CONTAIN-03",
+    "IT-API-RETRY-06",
+    "IT-API-RETRY-07"
+  ],
+  "gates": [
+    "production-pilot-selftest.mjs",
+    "dial-token-production-bundle-validator.mjs",
+    "generate-test-traceability.mjs",
+    "docs-selftest.mjs"
+  ]
+}

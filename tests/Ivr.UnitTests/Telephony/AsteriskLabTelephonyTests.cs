@@ -225,6 +225,33 @@ public sealed class AsteriskLabTelephonyTests
     }
 
     /// <summary>
+    /// Q-28 (PA2, W-0365). Both questions the gateway puts to the dispatch gate - before speech is
+    /// prepared and again right before the dial - carry the authorisation's gate reference, never
+    /// the destination. In production the destination holds the customer's number and the gate
+    /// reference is its pilot fingerprint, so this is what keeps the number out of the gate, its
+    /// reasons and its logs.
+    /// </summary>
+    [Fact]
+    [Trait("TestId", "UT-AST-GATE-04")]
+    public async Task TheGateIsAskedWithTheGateReferenceNeverTheDestination()
+    {
+        var store = new RecordingDispatchStore(DispatchContext());
+        var sim = new ScriptedAriSimGateway(hangupFailure: null);
+        var gate = new RecordingAllowOnceDispatchGate();
+
+        await Assert.ThrowsAsync<AsteriskAriOperationException>(() => OpenGateway(
+                store,
+                new FixedSpeechRenderer(),
+                sim,
+                gate: gate,
+                resolver: new TwoPartResolver())
+            .DispatchAsync(Lease(), CancellationToken.None));
+
+        Assert.Equal(new[] { TwoPartResolver.GateReference, TwoPartResolver.GateReference }, gate.References);
+        Assert.Equal(0, sim.DialCalls);
+    }
+
+    /// <summary>
     /// W-0362 / K-42. The lab dials only what the lab approved. The seeded script is approved for
     /// MOCK and not for the lab; dispatched by the lab gateway through the real renderer and the
     /// real registry, it is refused before anything is dialled, because the gateway hands the
@@ -972,6 +999,38 @@ public sealed class AsteriskLabTelephonyTests
             ValueTask.FromResult(DialAuthorization.CreateTrusted("LAB-A"));
     }
 
+    /// <summary>Q-28. A destination that holds a number, and the fingerprint the gate may see instead.</summary>
+    private sealed class TwoPartResolver : IDialTokenResolver
+    {
+        internal const string GateReference =
+            "pilot:aaaabbbbccccddddeeeeffffgggghhhhiiiijjjjkkkkllllmmmmnnnnoooopppp";
+
+        public ValueTask<DialAuthorization> ResolveAsync(
+            DialTokenResolutionRequest request,
+            DateTimeOffset now,
+            CancellationToken cancellationToken) =>
+            ValueTask.FromResult(DialAuthorization.CreateTrusted(
+                "sip:+84900000001@sip.carrier.example.vn",
+                GateReference));
+    }
+
+    /// <summary>Q-28. Allows the first question, refuses the second, and keeps what it was shown.</summary>
+    private sealed class RecordingAllowOnceDispatchGate : IDispatchGate
+    {
+        public List<string> References { get; } = [];
+
+        public Task<DispatchGateDecision> EvaluateAsync(
+            string environment,
+            string destinationReference,
+            CancellationToken cancellationToken = default)
+        {
+            References.Add(destinationReference);
+            return Task.FromResult(References.Count == 1
+                ? new DispatchGateDecision(true, "PRODUCTION_PILOT_DESTINATION_APPROVED")
+                : new DispatchGateDecision(false, "GLOBAL_KILL_SWITCH_ON"));
+        }
+    }
+
     private sealed class DeniedDispatchGate : IDispatchGate
     {
         public int Calls { get; private set; }
@@ -1135,9 +1194,10 @@ public sealed class AsteriskLabTelephonyTests
         ISpeechRenderer renderer,
         ISimGateway sim,
         WarningCapturingLogger<AsteriskSchedulerDispatchGateway>? logger = null,
-        IDispatchGate? gate = null) => new(
+        IDispatchGate? gate = null,
+        IDialTokenResolver? resolver = null) => new(
             store,
-            new FixedResolver(),
+            resolver ?? new FixedResolver(),
             renderer,
             new PassThroughSpeechSynthesisService(),
             sim,

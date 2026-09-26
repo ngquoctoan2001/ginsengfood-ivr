@@ -786,21 +786,20 @@ public sealed class InternalAdminApiTests(PostgresPersistenceFixture fixture)
         Assert.Equal(1, (await context.TechnicalExceptions.SingleAsync()).TechnicalRetryCount);
     }
 
-    [Theory]
-    [InlineData(true, true)]
-    [InlineData(false, false)]
+    // Q-28.1 (2026-09-26). Until then a second row here refused a MOCK retry whose phone_ref was
+    // not on the lab allowlist. That was the defect: the allowlist names lab destinations and has
+    // nothing to say about MOCK or production. The kill switch still refuses in every mode.
+    [Fact]
     [Trait("TestId", "IT-API-RETRY-06")]
-    public async Task TechnicalRetryFailsClosedForKillSwitchOrDestinationOutsideAllowlist(
-        bool killSwitch,
-        bool destinationAllowed)
+    public async Task TechnicalRetryFailsClosedForTheKillSwitch()
     {
         await fixture.ResetAsync();
         await SeedGraphAsync(includeTerminalResult: false);
         await using InternalAdminApiTestApplication app =
             await InternalAdminApiTestApplication.StartAsync(
                 fixture.ConnectionString,
-                killSwitch,
-                destinationAllowed);
+                retryKillSwitch: true,
+                retryDestinationAllowed: true);
         using HttpResponseMessage response = await SendAdminAsync(
             app,
             HttpMethod.Post,
@@ -817,6 +816,42 @@ public sealed class InternalAdminApiTests(PostgresPersistenceFixture fixture)
         await using IvrDbContext context = await Factory().CreateDbContextAsync();
         Assert.Equal(0, (await context.TechnicalExceptions.SingleAsync()).TechnicalRetryCount);
         Assert.Equal(0, (await context.CallAttempts.SingleAsync()).TechnicalRetryCount);
+    }
+
+    /// <summary>
+    /// Q-28.1 (2026-09-26). A MOCK retry is not refused because the task's phone_ref is missing
+    /// from the lab allowlist: the list names lab destinations, and the retry path now asks it in
+    /// LAB_REAL_SIM only. The retry is still bounded and never counted as a customer attempt.
+    /// </summary>
+    [Fact]
+    [Trait("TestId", "IT-API-RETRY-07")]
+    public async Task AMockTechnicalRetryIsNotGatedByTheLabAllowlist()
+    {
+        await fixture.ResetAsync();
+        await SeedGraphAsync(includeTerminalResult: false);
+        await using InternalAdminApiTestApplication app =
+            await InternalAdminApiTestApplication.StartAsync(
+                fixture.ConnectionString,
+                retryKillSwitch: false,
+                retryDestinationAllowed: false);
+        using HttpResponseMessage response = await SendAdminAsync(
+            app,
+            HttpMethod.Post,
+            "/v1/ivr/order-confirmation/technical-retries",
+            new TechnicalRetryRequest(
+                "TECH-P2-8",
+                "ATTEMPT-P2-8",
+                "retry outside the lab allowlist"),
+            IvrPermissions.ManualRetry);
+
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        TechnicalRetryApiResult result = (await response.Content
+            .ReadFromJsonAsync<TechnicalRetryApiResult>())!;
+        Assert.False(result.CustomerAttemptCounted);
+        Assert.Equal(1, result.TechnicalRetryCount);
+        await using IvrDbContext context = await Factory().CreateDbContextAsync();
+        Assert.Equal(1, (await context.TechnicalExceptions.SingleAsync()).TechnicalRetryCount);
+        Assert.False((await context.CallAttempts.SingleAsync()).IsCountedCustomerAttempt);
     }
 
     [Fact]

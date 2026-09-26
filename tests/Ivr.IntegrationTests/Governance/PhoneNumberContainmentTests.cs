@@ -7,7 +7,9 @@ using Ivr.Domain.Confirmation;
 using Ivr.Domain.Ports;
 using Ivr.Domain.Privacy;
 using Ivr.Infrastructure.Analytics;
+using Ivr.Infrastructure.Audit;
 using Ivr.Infrastructure.Configuration;
+using Ivr.Infrastructure.FeatureFlags;
 using Ivr.Infrastructure.Intake;
 using Ivr.Infrastructure.Persistence;
 using Ivr.Infrastructure.Persistence.Entities;
@@ -45,7 +47,7 @@ namespace Ivr.IntegrationTests.Governance;
 /// plain search misses; the warehouse, the SIM, script, integration and feature-flag reads and the
 /// worker's own call-job read are searched too; and the log recorder keeps whole exceptions.
 /// The HTTP intake surface is IT-PHONE-CONTAIN-02 in <c>TaskIntakeApiTests</c>. The production dial
-/// path is <c>Q-28.2</c>.
+/// path is IT-PHONE-CONTAIN-03 (<c>Q-28.2</c>).
 /// </para>
 /// </summary>
 [Collection(PostgresPersistenceTestGroup.Name)]
@@ -185,6 +187,96 @@ public sealed class PhoneNumberContainmentTests(PostgresPersistenceFixture fixtu
         Assert.DoesNotContain(
             app.Logs.Entries,
             entry => entry.Contains(Nsn, StringComparison.Ordinal));
+    }
+
+    /// <summary>
+    /// Q-28.2 (W-0365, 2026-09-26). On the production dial path the number is used at the carrier
+    /// edge and nowhere before it. The vault resolves a number Module 3 sent (option B) and writes
+    /// its resolve audit; the dispatch gate's production gates are asked with what the gateway
+    /// shows them - the pilot fingerprint - and answer from their approval rows. The SIP
+    /// destination handed to the dial carries the number; the gate reference, every text cell of
+    /// every table and everything the guard reads as a telephone number do not.
+    /// <para>
+    /// Stops short of a dial: the Asterisk gateway stays closed to PRODUCTION_REAL until SIP-04
+    /// (UT-TRUNK-DI-05), so the gateway's own step - passing <c>GateReference</c>, never the
+    /// destination, to the gate - is pinned by the unit tests of the production branch.
+    /// </para>
+    /// </summary>
+    [Fact]
+    [Trait("TestId", "IT-PHONE-CONTAIN-03")]
+    public async Task TheProductionDialPathShowsTheNumberOnlyToTheCarrierEdge()
+    {
+        await fixture.ResetAsync();
+        IDbContextFactory<IvrDbContext> factory = fixture.Services
+            .GetRequiredService<IDbContextFactory<IvrDbContext>>();
+        DateTimeOffset now = DateTimeOffset.UtcNow;
+        byte[] key = [.. Enumerable.Range(1, 32).Select(value => (byte)value)];
+        string fingerprint = ProductionPilotFingerprint.Of(key, Nsn);
+        var trunk = new SipTrunkOptions
+        {
+            Enabled = true,
+            ExecutionMode = ExecutionModes.ProductionReal,
+            ProviderName = "CARRIER",
+            Environment = FeatureFlagEnvironments.Production,
+            TrunkEndpoint = "carrier-trunk",
+            CarrierSipHost = "sip.carrier.example.vn",
+            OutboundCallerId = "02873001234",
+            NumberFormat = SipTrunkNumberFormat.E164Plus,
+            ContractedChannels = 8,
+            MaxCallStartsPerSecond = 2,
+            PilotFingerprintKey = Convert.ToBase64String(key),
+            PilotDestinations = [fingerprint],
+        };
+        Assert.True(new SipTrunkOptionsValidator().Validate(null, trunk).Succeeded);
+
+        // The release and the pilot list approved, as the runbook has an operator insert them.
+        await using (IvrDbContext approvals = await factory.CreateDbContextAsync())
+        {
+            await approvals.Database.ExecuteSqlInterpolatedAsync(
+                $"""
+                INSERT INTO ivr_runtime_gate_approvals (
+                    approval_reference, approval_kind, environment, proposer_actor_id,
+                    approver_actor_id, change_fingerprint, reason, signed_decision_ref,
+                    granted_at, expires_at, revoked_at, revoked_reason, correlation_id)
+                VALUES
+                    ('contain-release', {RuntimeGateApprovalKinds.ProductionCall}, 'prod', 'operator-1',
+                     'operator-2', NULL, 'containment release', 'OD-V1-12@2026-09-15', now(),
+                     NULL, NULL, NULL, 'corr-phone-contain'),
+                    ('contain-pilot', {RuntimeGateApprovalKinds.ProductionPilotList}, 'prod', 'operator-1',
+                     'operator-2', {ProductionPilotFingerprint.ListHash([fingerprint])},
+                     'containment pilot list', 'Q-28@2026-09-26', now(), NULL, NULL, NULL,
+                     'corr-phone-contain')
+                """);
+        }
+
+        // 1. The vault, with the durable ledger and the real audit logger.
+        var vault = new ProductionDialTokenVault(
+            Options.Create(trunk),
+            new UnavailableOpaqueValueProtector(),
+            new PostgresDialTokenResolveLedger(factory),
+            fixture.Services.GetRequiredService<IAuditLogger>());
+        DialAuthorization authorization = await vault.ResolveAsync(
+            new DialTokenResolutionRequest(
+                DialTokenReference.Create("dial-token-contain-prod", now.AddMinutes(30)),
+                AttemptId.Create("ATTEMPT-CONTAIN-PROD"),
+                TaskId.Create(TaskIdValue),
+                3,
+                SentNumber),
+            now,
+            CancellationToken.None);
+
+        // 2. The production gates, shown what the gateway shows them.
+        Assert.Equal(fingerprint, authorization.GateReference);
+        Assert.DoesNotContain(Nsn, authorization.GateReference, StringComparison.Ordinal);
+        Assert.True(await new PostgresProductionCallGate(factory, TimeProvider.System)
+            .IsApprovedAsync(FeatureFlagEnvironments.Production));
+        Assert.True((await new PostgresProductionPilotGate(factory, TimeProvider.System, Options.Create(trunk))
+            .EvaluateAsync(FeatureFlagEnvironments.Production, authorization.GateReference)).Allowed);
+
+        // 3. The carrier edge holds the number, and nothing else does.
+        Assert.Equal("sip:+84900000001@sip.carrier.example.vn", authorization.RevealToTrustedGateway());
+        Assert.Empty(await ColumnsHoldingAsync(Nsn));
+        Assert.Empty(await CellsTheGuardRefusesAsync());
     }
 
     /// <summary>

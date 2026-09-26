@@ -103,10 +103,12 @@ public sealed partial class AsteriskSchedulerDispatchGateway(
                     dispatch.DirectPhoneE164),
                 timeProvider.GetUtcNow(),
                 cancellationToken);
-            string destination = authorization.RevealToTrustedGateway();
+            // Q-28 (PA2). The gate is shown the authorisation's gate reference: the lab alias, or in
+            // production the pilot fingerprint of the number. The number itself is read at the dial
+            // below and nowhere before it, so it never passes through the gate, its reasons or logs.
             DispatchGateDecision gate = await dispatchGate.EvaluateAsync(
                 configured.Environment,
-                destination,
+                authorization.GateReference,
                 cancellationToken);
             if (!gate.Allowed)
             {
@@ -163,7 +165,7 @@ public sealed partial class AsteriskSchedulerDispatchGateway(
             // next call, and this one went out anyway.
             DispatchGateDecision beforeDial = await dispatchGate.EvaluateAsync(
                 configured.Environment,
-                destination,
+                authorization.GateReference,
                 cancellationToken);
             if (!beforeDial.Allowed)
             {

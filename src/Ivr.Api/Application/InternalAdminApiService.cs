@@ -1002,9 +1002,20 @@ public sealed class InternalAdminApiService(
             environment,
             true,
             cancellationToken);
+
+        // Q-28.1 (2026-09-26). The lab allowlist names the lab's own destinations, so only a lab
+        // retry has anything to ask it. Asked in every mode it refused every MOCK retry whose
+        // phone_ref was not listed, and every production retry, since the list cannot hold a
+        // number. The dispatch gate still decides again, for the destination the retried attempt
+        // resolves, before it dials.
+        bool labDestinationRefused = string.Equals(
+                ivrOptions.Value.ExecutionMode,
+                IvrOptions.LabRealSimExecutionMode,
+                StringComparison.OrdinalIgnoreCase)
+            && !flags.Snapshot.LabDestinationAllowlist.Contains(task.PhoneRef);
         if (!flags.ProviderReadable
             || flags.Snapshot.GlobalDialKillSwitch
-            || !flags.Snapshot.LabDestinationAllowlist.Contains(task.PhoneRef))
+            || labDestinationRefused)
         {
             throw IvrErrors.OperationalBlocked(
                 "Runtime configuration or destination allowlist blocks the technical retry.");

@@ -4,6 +4,7 @@ using Ivr.Domain.Ports;
 using Ivr.Domain.Scheduling;
 using Ivr.Infrastructure.Audit;
 using Ivr.Infrastructure.Configuration;
+using Ivr.Infrastructure.FeatureFlags;
 using Ivr.Infrastructure.Persistence;
 using Ivr.Infrastructure.Persistence.Entities;
 using Ivr.Infrastructure.Persistence.Security;
@@ -857,6 +858,11 @@ public static class SchedulerServiceCollectionExtensions
             // The lab substitutes its own fingerprinting vault; production takes whatever Platform
             // registered. Where that is still UnavailableOpaqueValueProtector the first resolve
             // fails closed instead of dialling a number the deployment could not protect.
+            // Q-28 (PA2). The pilot list and its approvals, for the dispatch gate's production
+            // branch. Replace rather than TryAdd: the feature-flag registration puts a gate that is
+            // never open in place for every other host, whichever of the two runs first.
+            services.Replace(ServiceDescriptor.Singleton<IProductionPilotGate,
+                PostgresProductionPilotGate>());
             services.TryAddSingleton<IDialTokenResolver>(provider =>
                 new ProductionDialTokenVault(
                     provider.GetRequiredService<IOptions<SipTrunkOptions>>(),

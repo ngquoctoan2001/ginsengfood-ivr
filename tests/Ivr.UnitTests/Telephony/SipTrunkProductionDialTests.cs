@@ -29,6 +29,14 @@ public sealed class SipTrunkProductionDialTests
 
     private const string CarrierHost = "sip.carrier.example.vn";
 
+    // Q-28 (PA2). The bytes 1..32 in base64, and the fingerprint they give 912345678. The operator
+    // tool's self-test (tools/ops/production-pilot-list.mjs) asserts the same pair, so the two
+    // implementations of the fingerprint are held to one answer.
+    private const string PilotKey = "AQIDBAUGBwgJCgsMDQ4PEBESExQVFhcYGRobHB0eHyA=";
+
+    private const string PilotFingerprintOf912345678 =
+        "pilot:jhapbmbcfcefgephpkljngbfbbhnobppnjlcdnnppcckmhnjclllmjdmhlmafnie";
+
     private static SipTrunkOptions ValidOptions(
         SipTrunkNumberFormat format = SipTrunkNumberFormat.E164Plus) => new()
         {
@@ -43,6 +51,7 @@ public sealed class SipTrunkProductionDialTests
             ContractedChannels = 8,
             MaxCallStartsPerSecond = 2,
             DtmfMode = SipTrunkDtmfModes.Rfc2833,
+            PilotFingerprintKey = PilotKey,
         };
 
     private static DialTokenResolutionRequest Request(
@@ -347,6 +356,71 @@ public sealed class SipTrunkProductionDialTests
         Assert.DoesNotContain(CarrierHost, printed, StringComparison.Ordinal);
     }
 
+    /// <summary>
+    /// Q-28 (PA2). An enabled trunk needs a usable pilot key, because the vault fingerprints every
+    /// destination it resolves, and the pilot list holds fingerprints only: a number written into
+    /// it is refused at startup rather than compared against a fingerprint that can never match.
+    /// </summary>
+    [Fact]
+    [Trait("TestId", "UT-TRUNK-OPT-09")]
+    public void AnEnabledTrunkNeedsAPilotKeyAndAListOfFingerprintsOnly()
+    {
+        foreach (string key in new[] { "", "not base64!", Convert.ToBase64String(new byte[31]) })
+        {
+            SipTrunkOptions options = ValidOptions();
+            options.PilotFingerprintKey = key;
+            Assert.True(Validator().Validate(null, options).Failed, $"key '{key}' was accepted");
+        }
+
+        foreach (string entry in new[] { "0912345678", "pilot:0123", PilotFingerprintOf912345678.ToUpperInvariant() })
+        {
+            SipTrunkOptions options = ValidOptions();
+            options.PilotDestinations.Add(entry);
+            Assert.True(Validator().Validate(null, options).Failed, $"entry '{entry}' was accepted");
+        }
+
+        SipTrunkOptions valid = ValidOptions();
+        valid.PilotDestinations.Add(PilotFingerprintOf912345678);
+        Assert.True(Validator().Validate(null, valid).Succeeded);
+        Assert.True(Validator().Validate(null, ValidOptions()).Succeeded);
+    }
+
+    /// <summary>
+    /// Q-28 (PA2). The dispatch gate is shown the pilot fingerprint of the number, never the number:
+    /// every spelling of one number gives one fingerprint, another number or another key gives a
+    /// different one, and the fingerprint has no digits for the privacy guard to read as a phone
+    /// number. The dial itself still carries the number.
+    /// </summary>
+    [Fact]
+    [Trait("TestId", "UT-TRUNK-GATE-01")]
+    public async Task TheGateIsShownAPilotFingerprintAndNeverTheNumber()
+    {
+        List<string> references = [];
+        foreach (string spelling in new[] { "0912345678", "+84912345678", "84912345678", "091 234 5678" })
+        {
+            DialAuthorization authorization = await Vault(new RecordingProtector(spelling))
+                .ResolveAsync(Request(), Now, CancellationToken.None);
+            Assert.Equal($"sip:+84912345678@{CarrierHost}", authorization.RevealToTrustedGateway());
+            references.Add(authorization.GateReference);
+        }
+
+        string reference = Assert.Single(references.Distinct());
+        Assert.Equal(PilotFingerprintOf912345678, reference);
+        Assert.True(ProductionPilotFingerprint.IsWellFormed(reference));
+        Assert.DoesNotContain(reference, character => char.IsDigit(character));
+        Ivr.Domain.Privacy.PiiGuard.EnsureSafeText(reference);
+
+        DialAuthorization another = await Vault(new RecordingProtector("0987654321"))
+            .ResolveAsync(Request(), Now, CancellationToken.None);
+        Assert.NotEqual(reference, another.GateReference);
+
+        SipTrunkOptions rekeyed = ValidOptions();
+        rekeyed.PilotFingerprintKey = Convert.ToBase64String(Enumerable.Repeat((byte)7, 32).ToArray());
+        DialAuthorization underAnotherKey = await Vault(new RecordingProtector("0912345678"), rekeyed)
+            .ResolveAsync(Request(), Now, CancellationToken.None);
+        Assert.NotEqual(reference, underAnotherKey.GateReference);
+    }
+
 
     // ------------------------------------- W-0310 option B: the number, sent outright
 
@@ -600,6 +674,30 @@ public sealed class SipTrunkProductionDialTests
         Assert.DoesNotContain(
             production,
             descriptor => descriptor.ServiceType == typeof(LabDialTokenVault));
+    }
+
+    /// <summary>
+    /// Q-28 (PA2). The production branch registers the pilot gate that reads the trunk's list and
+    /// its approvals; the lab branch registers none, so the feature-flag default - never open, no
+    /// list - is what a lab or MOCK host would get.
+    /// </summary>
+    [Fact]
+    [Trait("TestId", "UT-TRUNK-DI-07")]
+    public void OnlyTheProductionBranchRegistersThePilotGate()
+    {
+        ServiceCollection production = Compose(
+            IvrOptions.ProductionRealExecutionMode,
+            asteriskEnabled: true,
+            trunkEnabled: true);
+        ServiceCollection lab = Compose(
+            IvrOptions.LabRealSimExecutionMode,
+            asteriskEnabled: true,
+            trunkEnabled: true);
+
+        Assert.Equal(
+            typeof(PostgresProductionPilotGate),
+            ImplementationFor<IProductionPilotGate>(production));
+        Assert.Null(ImplementationFor<IProductionPilotGate>(lab));
     }
 
     /// <summary>

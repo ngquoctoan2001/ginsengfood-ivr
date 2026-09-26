@@ -71,6 +71,22 @@ public static class RuntimeGateApprovalKinds
     /// hears a telephone ring.
     /// </summary>
     public const string ProductionCall = "PRODUCTION_CALL";
+
+    /// <summary>
+    /// Q-28 (PA2, 2026-09-26). Binds one exact production pilot list, for one environment, with
+    /// four eyes: <c>change_fingerprint</c> is the list's <c>ProductionPilotFingerprint.ListHash</c>
+    /// and the proposer is not the approver. Editing the configured list therefore closes the
+    /// pilot until a second person approves the new one. The database refuses a row of this kind
+    /// without a proposer, a fingerprint or an environment.
+    /// </summary>
+    public const string ProductionPilotList = "PRODUCTION_PILOT_LIST";
+
+    /// <summary>
+    /// Q-28 (PA2, 2026-09-26). The signed decision that moves one environment from pilot to open,
+    /// after which production may ring any destination its dial tokens resolve. Scoped to the
+    /// environment it names, like <see cref="ProductionCall"/>; no migration seeds one.
+    /// </summary>
+    public const string ProductionCallOpen = "PRODUCTION_CALL_OPEN";
 }
 
 /// <summary>
@@ -229,6 +245,60 @@ internal static class RuntimeGateApprovalReader
             // here exists to prevent. W-0360 / K-31: counted, because both callers are release
             // gates (production dialling, runtime-gate administration) and an unreadable store
             // used to look exactly like an approval nobody had granted.
+            IvrTelemetry.RecordFailClosed((TelemetryTags.ReasonCode, ApprovalStoreUnreadable));
+            return false;
+        }
+    }
+
+    /// <summary>
+    /// Q-28 (PA2). True when a live approval of <paramref name="kind"/> names exactly
+    /// <paramref name="environment"/> and binds exactly <paramref name="changeFingerprint"/>. Any
+    /// failure to answer is answered as <c>false</c> and counted, as in
+    /// <see cref="AnyLiveForEnvironmentAsync"/>.
+    /// </summary>
+    public static async Task<bool> AnyLiveForEnvironmentAndChangeAsync(
+        IDbContextFactory<IvrDbContext> dbContextFactory,
+        TimeProvider timeProvider,
+        string kind,
+        string environment,
+        string changeFingerprint,
+        CancellationToken cancellationToken)
+    {
+        if (string.IsNullOrWhiteSpace(environment) || string.IsNullOrWhiteSpace(changeFingerprint))
+        {
+            return false;
+        }
+
+        try
+        {
+            await using IvrDbContext dbContext = await dbContextFactory
+                .CreateDbContextAsync(cancellationToken);
+            DateTimeOffset now = timeProvider.GetUtcNow();
+            return await dbContext.Database
+                .SqlQueryRaw<bool>(
+                    """
+                    SELECT EXISTS (
+                        SELECT 1
+                        FROM ivr_runtime_gate_approvals
+                        WHERE approval_kind = {0}
+                          AND environment = {2}
+                          AND change_fingerprint = {3}
+                          AND revoked_at IS NULL
+                          AND (expires_at IS NULL OR expires_at > {1})
+                    ) AS "Value"
+                    """,
+                    kind,
+                    now,
+                    environment,
+                    changeFingerprint)
+                .SingleAsync(cancellationToken);
+        }
+        catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+        {
+            throw;
+        }
+        catch (Exception)
+        {
             IvrTelemetry.RecordFailClosed((TelemetryTags.ReasonCode, ApprovalStoreUnreadable));
             return false;
         }

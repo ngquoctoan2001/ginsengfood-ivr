@@ -77,6 +77,9 @@ public static class FeatureFlagServiceCollectionExtensions
         services.TryAddSingleton<IFourEyesApprovalVerifier,
             PostgresFourEyesApprovalVerifier>();
         services.TryAddSingleton<IProductionCallGate, PostgresProductionCallGate>();
+        // Q-28 (PA2). Never open and no pilot list, until the production dial path registers the
+        // gate that reads the trunk's list and its approvals (SchedulerCapacity, PD-01.4).
+        services.TryAddSingleton<IProductionPilotGate, PendingProductionPilotGate>();
         return services;
     }
 }

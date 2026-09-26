@@ -97,6 +97,23 @@ public sealed class SipTrunkOptions
     /// </summary>
     public string DtmfMode { get; set; } = SipTrunkDtmfModes.Rfc2833;
 
+    /// <summary>
+    /// Q-28 (PA2). The key of the pilot list's fingerprints (<see cref="ProductionPilotFingerprint"/>),
+    /// base64, at least 32 bytes. A deployment secret like the protector's key: whoever holds it
+    /// can test whether a given number is on the list, so it belongs with the other secrets and
+    /// never in values files, configuration maps or evidence.
+    /// </summary>
+    public string PilotFingerprintKey { get; set; } = string.Empty;
+
+    /// <summary>
+    /// Q-28 (PA2). The pilot list: fingerprints of the only numbers production may ring until a
+    /// <c>PRODUCTION_CALL_OPEN</c> approval moves this environment from pilot to open. Configuration
+    /// alone opens nothing - the dispatch gate honours the list only while a four-eyes
+    /// <c>PRODUCTION_PILOT_LIST</c> approval binds exactly this set (its
+    /// <see cref="ProductionPilotFingerprint.ListHash"/>), so widening it takes a second person.
+    /// </summary>
+    public List<string> PilotDestinations { get; set; } = [];
+
     public override string ToString() => "[REDACTED_SIP_TRUNK_OPTIONS]";
 }
 
@@ -187,6 +204,20 @@ public sealed class SipTrunkOptionsValidator : IValidateOptions<SipTrunkOptions>
         {
             failures.Add(
                 $"SipTrunk DtmfMode must be one of: {string.Join(", ", SipTrunkDtmfModes.All)}.");
+        }
+
+        // Q-28 (PA2). The vault fingerprints every destination it resolves, so an enabled trunk
+        // without a usable key could not dial anything; that is said at startup, not at the first
+        // call. An empty pilot list is valid: production then rings nobody until it is opened.
+        if (!ProductionPilotFingerprint.TryReadKey(options.PilotFingerprintKey, out _))
+        {
+            failures.Add("SipTrunk PilotFingerprintKey must be base64 of at least 32 bytes.");
+        }
+
+        if (options.PilotDestinations.Any(entry => !ProductionPilotFingerprint.IsWellFormed(entry)))
+        {
+            failures.Add(
+                "Every SipTrunk PilotDestinations entry must be a pilot fingerprint, never a number.");
         }
 
         return failures.Count == 0

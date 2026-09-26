@@ -1,7 +1,9 @@
 using Ivr.Infrastructure.FeatureFlags;
 using Ivr.Infrastructure.Persistence;
+using Ivr.Infrastructure.Telephony;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
 using Npgsql;
 
 namespace Ivr.IntegrationTests;
@@ -430,6 +432,132 @@ public sealed class RuntimeGateApprovalTests(PostgresPersistenceFixture fixture)
             await ScalarAsync(
                 "SELECT count(*)::text FROM ivr_runtime_gate_approvals "
                 + "WHERE approval_kind = 'PRODUCTION_CALL'"));
+    }
+
+    // Q-28 (PA2). Two pilot fingerprints under the unit tests' key (bytes 1..32): 912345678 and
+    // 987654321, and the hash that binds the list of both.
+    private const string PilotA =
+        "pilot:jhapbmbcfcefgephpkljngbfbbhnobppnjlcdnnppcckmhnjclllmjdmhlmafnie";
+
+    private const string PilotB =
+        "pilot:mheofibkpehpjifmjfcgelphcgaonpboldpfoonoogfhodgnjpgiaiaenchinecb";
+
+    private const string PilotListOfBoth =
+        "BD23EB06EB346EE8EFA74A5B9507EC0A7F2CA4FE30C2D4E03E8CAB3DBD6B1905";
+
+    private PostgresProductionPilotGate PilotGate(params string[] pilot) =>
+        new(
+            fixture.Services.GetRequiredService<IDbContextFactory<IvrDbContext>>(),
+            TimeProvider.System,
+            Options.Create(new SipTrunkOptions { PilotDestinations = [.. pilot] }));
+
+    /// <summary>
+    /// Q-28 (PA2, 2026-09-26). The pilot list counts only while two different people have approved
+    /// exactly that list for exactly that environment. The configured list alone opens nothing;
+    /// changing one entry closes the pilot until the new list is approved; the database refuses a
+    /// list approval without a proposer, with the proposer as approver, or without the list hash.
+    /// </summary>
+    [Fact]
+    [Trait("TestId", "IT-FLAG-PRODGATE-15")]
+    public async Task APilotListCountsOnlyWhileTwoPeopleApprovedExactlyThatList()
+    {
+        await fixture.ResetAsync();
+        PostgresProductionPilotGate gate = PilotGate(PilotB, PilotA);
+        Assert.Equal(PilotListOfBoth, ProductionPilotFingerprint.ListHash([PilotB, PilotA]));
+        Assert.Equal(
+            PostgresProductionPilotGate.ListNotApproved,
+            (await gate.EvaluateAsync(FeatureFlagEnvironments.Production, PilotA)).Reason);
+
+        await InsertPilotRowAsync(
+            "pilot-list-1", RuntimeGateApprovalKinds.ProductionPilotList,
+            FeatureFlagEnvironments.Production, "operator-1", "operator-2", PilotListOfBoth);
+
+        Assert.Equal(
+            new ProductionPilotDecision(true, PostgresProductionPilotGate.PilotDestinationApproved),
+            await gate.EvaluateAsync(FeatureFlagEnvironments.Production, PilotA));
+        Assert.Equal(
+            PostgresProductionPilotGate.NotInPilot,
+            (await gate.EvaluateAsync(FeatureFlagEnvironments.Production, "pilot:unlisted")).Reason);
+        Assert.Equal(
+            PostgresProductionPilotGate.ListNotApproved,
+            (await gate.EvaluateAsync(FeatureFlagEnvironments.Pilot, PilotA)).Reason);
+        Assert.Equal(
+            PostgresProductionPilotGate.ListNotApproved,
+            (await PilotGate(PilotA).EvaluateAsync(FeatureFlagEnvironments.Production, PilotA)).Reason);
+        Assert.Equal(
+            PostgresProductionPilotGate.ListEmpty,
+            (await PilotGate().EvaluateAsync(FeatureFlagEnvironments.Production, PilotA)).Reason);
+
+        foreach ((string reference, string? proposer, string? fingerprint) in new[]
+                 {
+                     ("pilot-no-proposer", (string?)null, (string?)PilotListOfBoth),
+                     ("pilot-self-approved", "operator-2", PilotListOfBoth),
+                     ("pilot-no-list", "operator-1", null),
+                 })
+        {
+            Exception? refused = await Record.ExceptionAsync(() => InsertPilotRowAsync(
+                reference, RuntimeGateApprovalKinds.ProductionPilotList,
+                FeatureFlagEnvironments.Production, proposer, "operator-2", fingerprint));
+            Assert.NotNull(refused);
+        }
+
+        await ExecuteAsync(
+            "UPDATE ivr_runtime_gate_approvals SET revoked_at = now(), "
+            + "revoked_reason = 'IT-FLAG-PRODGATE-15' WHERE approval_reference = 'pilot-list-1'");
+        Assert.Equal(
+            PostgresProductionPilotGate.ListNotApproved,
+            (await gate.EvaluateAsync(FeatureFlagEnvironments.Production, PilotA)).Reason);
+    }
+
+    /// <summary>
+    /// Q-28 (PA2, 2026-09-26). Moving an environment past the pilot takes its own signed approval,
+    /// scoped to the environment it names; a row naming none is refused by the database, and
+    /// revoking the approval returns the environment to its pilot list.
+    /// </summary>
+    [Fact]
+    [Trait("TestId", "IT-FLAG-PRODGATE-16")]
+    public async Task OpeningAnEnvironmentTakesItsOwnSignedApproval()
+    {
+        await fixture.ResetAsync();
+        PostgresProductionPilotGate gate = PilotGate(PilotA);
+        Assert.False(await gate.IsOpenAsync(FeatureFlagEnvironments.Production));
+
+        await InsertPilotRowAsync(
+            "open-pilot-env", RuntimeGateApprovalKinds.ProductionCallOpen,
+            FeatureFlagEnvironments.Pilot, null, "director-1", null);
+        Assert.True(await gate.IsOpenAsync(FeatureFlagEnvironments.Pilot));
+        Assert.False(await gate.IsOpenAsync(FeatureFlagEnvironments.Production));
+
+        Exception? unscoped = await Record.ExceptionAsync(() => InsertPilotRowAsync(
+            "open-unscoped", RuntimeGateApprovalKinds.ProductionCallOpen, null, null, "director-1", null));
+        Assert.NotNull(unscoped);
+
+        await ExecuteAsync(
+            "UPDATE ivr_runtime_gate_approvals SET revoked_at = now(), "
+            + "revoked_reason = 'IT-FLAG-PRODGATE-16' WHERE approval_reference = 'open-pilot-env'");
+        Assert.False(await gate.IsOpenAsync(FeatureFlagEnvironments.Pilot));
+    }
+
+    private Task InsertPilotRowAsync(
+        string reference,
+        string kind,
+        string? environment,
+        string? proposer,
+        string approver,
+        string? fingerprint)
+    {
+        static string Sql(string? value) => value is null ? "NULL" : $"'{value}'";
+        return ExecuteAsync(
+            $"""
+            INSERT INTO ivr_runtime_gate_approvals (
+                approval_reference, approval_kind, environment, proposer_actor_id,
+                approver_actor_id, change_fingerprint, reason, signed_decision_ref,
+                granted_at, expires_at, revoked_at, revoked_reason, correlation_id)
+            VALUES (
+                '{reference}', '{kind}', {Sql(environment)}, {Sql(proposer)},
+                '{approver}', {Sql(fingerprint)}, 'test production pilot approval',
+                'Q-28@2026-09-26', now(), NULL, NULL, NULL, 'corr-test')
+            """);
     }
 
     private Task InsertAdminApprovalAsync(string reference, string? environment)

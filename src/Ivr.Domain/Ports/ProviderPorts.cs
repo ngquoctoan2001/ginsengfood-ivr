@@ -15,17 +15,34 @@ public interface IAttemptPolicyRegistry
 
 public sealed record DialAuthorization
 {
-    private DialAuthorization(string providerDestinationReference)
+    private DialAuthorization(string providerDestinationReference, string gateReference)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(providerDestinationReference);
+        ArgumentException.ThrowIfNullOrWhiteSpace(gateReference);
         OpaqueReferenceGuard.EnsureNotRawPhone(providerDestinationReference);
+        OpaqueReferenceGuard.EnsureNotRawPhone(gateReference);
         ProviderDestinationReference = providerDestinationReference;
+        GateReference = gateReference;
     }
 
     internal string ProviderDestinationReference { get; }
 
+    /// <summary>
+    /// Q-28 (PA2). What the dispatch gate is shown about this destination. The lab alias is safe
+    /// to show as it is, so there it is the destination itself. Production dials a customer
+    /// number, so there it is the pilot fingerprint the vault derived from that number, and the
+    /// number itself stays at the carrier edge: the dial reads it through
+    /// <see cref="RevealToTrustedGateway"/>, and nothing before the dial does.
+    /// </summary>
+    public string GateReference { get; }
+
     public static DialAuthorization CreateTrusted(string providerDestinationReference) =>
-        new(providerDestinationReference);
+        new(providerDestinationReference, providerDestinationReference);
+
+    public static DialAuthorization CreateTrusted(
+        string providerDestinationReference,
+        string gateReference) =>
+        new(providerDestinationReference, gateReference);
 
     public string RevealToTrustedGateway() => ProviderDestinationReference;
 

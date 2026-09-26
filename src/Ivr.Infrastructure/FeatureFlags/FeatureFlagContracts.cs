@@ -66,6 +66,37 @@ public interface IProductionCallGate
 }
 
 /// <summary>
+/// Q-28 (PA2, 2026-09-26). Which production destinations may be rung once
+/// <see cref="IProductionCallGate"/> has said production may ring at all.
+/// </summary>
+/// <remarks>
+/// <para>
+/// Two states per environment. <b>Pilot</b>, the default: only a destination on the configured
+/// pilot list, and only while a four-eyes <c>PRODUCTION_PILOT_LIST</c> approval binds exactly that
+/// list. <b>Open</b>: a live <c>PRODUCTION_CALL_OPEN</c> approval for the environment, the signed
+/// decision that moves it past the pilot; then any destination the dial token resolved.
+/// </para>
+/// <para>
+/// The destination reference is the pilot fingerprint the production vault derived, never the
+/// number, so nothing this gate reads, answers or logs can carry one.
+/// </para>
+/// </remarks>
+public interface IProductionPilotGate
+{
+    public Task<bool> IsOpenAsync(
+        string environment,
+        CancellationToken cancellationToken = default);
+
+    public Task<ProductionPilotDecision> EvaluateAsync(
+        string environment,
+        string destinationReference,
+        CancellationToken cancellationToken = default);
+}
+
+/// <summary>The pilot list's answer for one destination, with the reason the gate reports.</summary>
+public sealed record ProductionPilotDecision(bool Allowed, string Reason);
+
+/// <summary>
 /// Whether runtime-gate administration is approved <b>for one environment</b>.
 /// </summary>
 /// <remarks>

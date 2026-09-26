@@ -1,0 +1,131 @@
+{
+  "schema": "ivr-mutation-results/v1",
+  "workId": "W-0366",
+  "captured_at": "2026-09-26",
+  "method": "Each check breaks one thing the lot added, in an isolated copy of 4918948d plus W-0364 and this lot, rebuilds the project the named tests live in, runs them, and writes the original bytes back (never git checkout). Every named test must fail and the named neighbour must stay green; the operator-tool check changes one letter offset in tools/ops/production-pilot-list.mjs and requires production-pilot-selftest.mjs to fail. Controls run after restoring: the unit tests of the production gate, the trunk and the Asterisk gateway, the five integration TestIds, and the tool's self-test. The checks ran before the lot was carried onto W-0365; the carried-over files are re-verified in the README.",
+  "results": [
+    {
+      "id": "Q-28.1 production is allowed once the release is approved, pilot list or not",
+      "tests": {
+        "UT-TRUNK-GATE-02": "Failed!  - Failed:     1, Passed:     0, Skipped:     0, Total:     1, Duration: 66 ms"
+      },
+      "neighbour": "UT-TRUNK-GATE-04",
+      "neighbourSummary": "Passed!  - Failed:     0, Passed:     1, Skipped:     0, Total:     1, Duration: 47 ms",
+      "verdict": "RED_AS_EXPECTED"
+    },
+    {
+      "id": "Q-28.1 the lab allowlist is asked before the mode again (the old order)",
+      "tests": {
+        "UT-TRUNK-GATE-02": "Failed!  - Failed:     1, Passed:     0, Skipped:     0, Total:     1, Duration: 57 ms",
+        "UT-TRUNK-GATE-03": "Failed!  - Failed:     1, Passed:     0, Skipped:     0, Total:     1, Duration: 55 ms"
+      },
+      "neighbour": "UT-TRUNK-GATE-04",
+      "neighbourSummary": "Passed!  - Failed:     0, Passed:     1, Skipped:     0, Total:     1, Duration: 62 ms",
+      "verdict": "RED_AS_EXPECTED"
+    },
+    {
+      "id": "Q-28.1 opening an environment is never asked",
+      "tests": {
+        "UT-TRUNK-GATE-02": "Failed!  - Failed:     1, Passed:     0, Skipped:     0, Total:     1, Duration: 68 ms"
+      },
+      "neighbour": "UT-TRUNK-GATE-03",
+      "neighbourSummary": "Passed!  - Failed:     0, Passed:     1, Skipped:     0, Total:     1, Duration: 55 ms",
+      "verdict": "RED_AS_EXPECTED"
+    },
+    {
+      "id": "Q-28.2 the gateway shows the gate the destination, number and all",
+      "tests": {
+        "UT-AST-GATE-04": "Failed!  - Failed:     1, Passed:     0, Skipped:     0, Total:     1, Duration: 100 ms"
+      },
+      "neighbour": "UT-AST-GATE-03",
+      "neighbourSummary": "Passed!  - Failed:     0, Passed:     1, Skipped:     0, Total:     1, Duration: 78 ms",
+      "verdict": "RED_AS_EXPECTED"
+    },
+    {
+      "id": "Q-28.2 the vault gives the gate the SIP destination as its reference",
+      "tests": {
+        "UT-TRUNK-GATE-01": "Failed!  - Failed:     1, Passed:     0, Skipped:     0, Total:     1, Duration: 86 ms"
+      },
+      "neighbour": "UT-TRUNK-DIAL-02",
+      "neighbourSummary": "Passed!  - Failed:     0, Passed:     1, Skipped:     0, Total:     1, Duration: 87 ms",
+      "verdict": "RED_AS_EXPECTED"
+    },
+    {
+      "id": "Q-28 the fingerprint is written in hex, digits and all",
+      "tests": {
+        "UT-TRUNK-GATE-01": "Failed!  - Failed:     1, Passed:     0, Skipped:     0, Total:     1, Duration: 100 ms"
+      },
+      "neighbour": "UT-TRUNK-OPT-09",
+      "neighbourSummary": "Passed!  - Failed:     0, Passed:     1, Skipped:     0, Total:     1, Duration: 19 ms",
+      "verdict": "RED_AS_EXPECTED"
+    },
+    {
+      "id": "Q-28 an enabled trunk starts without a pilot key",
+      "tests": {
+        "UT-TRUNK-OPT-09": "Failed!  - Failed:     1, Passed:     0, Skipped:     0, Total:     1, Duration: 26 ms"
+      },
+      "neighbour": "UT-TRUNK-OPT-02",
+      "neighbourSummary": "Passed!  - Failed:     0, Passed:     1, Skipped:     0, Total:     1, Duration: 22 ms",
+      "verdict": "RED_AS_EXPECTED"
+    },
+    {
+      "id": "Q-28 the production branch does not register the pilot gate",
+      "tests": {
+        "UT-TRUNK-DI-07": "Failed!  - Failed:     1, Passed:     0, Skipped:     0, Total:     1, Duration: 65 ms"
+      },
+      "neighbour": "UT-TRUNK-DI-01",
+      "neighbourSummary": "Passed!  - Failed:     0, Passed:     1, Skipped:     0, Total:     1, Duration: 36 ms",
+      "verdict": "RED_AS_EXPECTED"
+    },
+    {
+      "id": "Q-28 the pilot approval is not bound to the configured list",
+      "tests": {
+        "IT-FLAG-PRODGATE-15": "Failed!  - Failed:     1, Passed:     0, Skipped:     0, Total:     1, Duration: 5 s"
+      },
+      "neighbour": "IT-FLAG-PRODGATE-16",
+      "neighbourSummary": "Passed!  - Failed:     0, Passed:     1, Skipped:     0, Total:     1, Duration: 5 s",
+      "verdict": "RED_AS_EXPECTED"
+    },
+    {
+      "id": "Q-28 the database takes a pilot list approval without a proposer",
+      "tests": {
+        "IT-FLAG-PRODGATE-15": "Failed!  - Failed:     1, Passed:     0, Skipped:     0, Total:     1, Duration: 5 s"
+      },
+      "neighbour": "IT-FLAG-PRODGATE-16",
+      "neighbourSummary": "Passed!  - Failed:     0, Passed:     1, Skipped:     0, Total:     1, Duration: 5 s",
+      "verdict": "RED_AS_EXPECTED"
+    },
+    {
+      "id": "Q-28.1 the manual retry asks the lab allowlist in every mode again",
+      "tests": {
+        "IT-API-RETRY-07": "Failed!  - Failed:     1, Passed:     0, Skipped:     0, Total:     1, Duration: 7 s"
+      },
+      "neighbour": "IT-API-RETRY-06",
+      "neighbourSummary": "Passed!  - Failed:     0, Passed:     2, Skipped:     0, Total:     2, Duration: 9 s",
+      "verdict": "RED_AS_EXPECTED"
+    },
+    {
+      "id": "Q-28 the operator tool drifts from the C# fingerprint",
+      "tests": {
+        "production-pilot-selftest.mjs": "PRODUCTION_PILOT_SELFTEST_FAIL: spelling 1 did not fingerprint as the C# code does"
+      },
+      "verdict": "RED_AS_EXPECTED",
+      "note": "Re-run after the self-test stopped naming numbers in its failure messages; the first run's message quoted a test spelling, which the evidence PII scan refuses."
+    },
+    {
+      "id": "CONTROL unit, restored (production gate, trunk, Asterisk gateway tests)",
+      "summary": "Passed!  - Failed:     0, Passed:    81, Skipped:     0, Total:    81, Duration: 454 ms",
+      "verdict": "GREEN_AS_EXPECTED"
+    },
+    {
+      "id": "CONTROL integration, restored (the five integration TestIds)",
+      "summary": "Passed!  - Failed:     0, Passed:     6, Skipped:     0, Total:     6, Duration: 15 s",
+      "verdict": "GREEN_AS_EXPECTED"
+    },
+    {
+      "id": "CONTROL operator tool, restored",
+      "summary": "PRODUCTION_PILOT_SELFTEST_PASS vectors=2 spellings=4 refusals=8 list_hash=ORDER_FREE",
+      "verdict": "GREEN_AS_EXPECTED"
+    }
+  ]
+}
