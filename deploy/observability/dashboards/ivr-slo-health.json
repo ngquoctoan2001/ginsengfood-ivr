@@ -378,8 +378,8 @@
     {
       "id": 10,
       "type": "timeseries",
-      "title": "Confirmation windows that closed uncalled (ARCH-06 §1)",
-      "description": "A COUNT per hour, deliberately not a rate. The alert threshold is zero, so the question this panel answers is \"how many orders\", and a rate renders one lost order as 0.0003/s -- a number nobody reads as an order. The capacity model (W-0054) says the shipped pool covers the modelled peak, so anything above the floor here means a model assumption is wrong, not that the pool needs topping up. Runbook: docs/slo.md#capacity-deadline-missed",
+      "title": "Confirmation windows that closed with no final result, by reason (ARCH-06 §1)",
+      "description": "A COUNT per hour, deliberately not a rate: the question is \"how many orders\", and a rate renders one lost order as 0.0003/s -- a number nobody reads as an order. One line per reason and programme, because the sweep closes a window under four reasons that mean different things, and only two of them open a ticket. NO_DISPATCH_BEFORE_DEADLINE is a job queued with no channel ever coming, or held by eligibility because none would; the capacity model (W-0054) says the shipped pool covers the modelled peak, so anything above zero on this line falsifies a model assumption, and IvrConfirmationDeadlineMissed opens a ticket to recalibrate it (runbook docs/slo.md#capacity-deadline-missed). ELIGIBILITY_NOT_EVALUATED_BEFORE_DEADLINE is an order eligibility never answered, so nobody decided it could be called: the eligibility loop is off, failing, or missing some orders, and anything above zero opens IvrConfirmationWindowsExpiringUnevaluated (runbook docs/slo.md#confirmation-windows-expiring-unevaluated). WINDOW_EXPIRED_BEFORE_FINAL_RESULT is a customer dialled and not reached in time, a dry run eligibility cleared, or an order held for review: routine, with no alert and no threshold -- each hold was counted as fail-closed when it was made, and IvrDownstreamFailClosedSpike pages on their proportion while the windows are still open. CALLING_HOURS_CLOSED_BEFORE_DISPATCH is the calling hours running out before a call could be placed: the calling day ending, not a fault. NO_DISPATCH_BEFORE_DEADLINE is the only line the capacity model speaks to; never recalibrate it, or add channels, over the other three.",
       "datasource": {
         "type": "prometheus",
         "uid": "${DS_PROMETHEUS}"
@@ -392,8 +392,8 @@
       },
       "targets": [
         {
-          "expr": "sum by (ivr_program) (increase(ivr_missed_deadline_total[1h]))",
-          "legendFormat": "{{ivr_program}}",
+          "expr": "sum by (ivr_reason_code, ivr_program) (increase(ivr_missed_deadline_total[1h]))",
+          "legendFormat": "{{ivr_reason_code}} {{ivr_program}}",
           "refId": "A"
         }
       ],

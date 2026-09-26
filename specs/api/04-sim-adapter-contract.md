@@ -57,6 +57,32 @@ Trạng thái: `SRS_DRAFT` · Sinh bởi: `p05` · Nguồn: `phase-8/06` (SIM ad
   `ASTERISK_EVENT_STREAM_UNAVAILABLE`, và `ASTERISK_CHANNEL_HEALTH_NOT_READY` vì phép kiểm sức khoẻ trước khi quay chỉ ping
   Asterisk); trong lúc Asterisk sập, thứ ngừng việc quay là backoff của dispatch pump (lùi dần tới 30 giây sau mỗi dispatch
   lỗi, hết khi có dispatch thành công), không phải việc cách ly SIM.
+  *Thêm `26/09` (`K-63`, `W-0372`):* mỗi lệnh REST gửi ARI, và cả việc mở luồng sự kiện, chỉ được chờ tối đa 10 giây. Các
+  lệnh này đi tới Asterisk cục bộ và được trả lời ngay; chờ đổ chuông là việc của luồng sự kiện, không nằm trong lệnh. Trước
+  đó lệnh REST chờ theo mặc định 100 giây của `HttpClient`, còn luồng sự kiện không có hạn, nên một Asterisk im lặng (bị
+  blackhole, hoặc bị treo) giữ mỗi dispatch tới 100 giây rồi lỗi bị ghi vào SIM (`ASTERISK_DISPATCH_TECHNICAL_FAILURE`, kênh
+  hỏng). Quá hạn không nói gì về SIM, cùng lý do `K-62`: `ASTERISK_HTTP_TIMEOUT`, hoặc `ASTERISK_EVENT_STREAM_UNAVAILABLE`
+  với luồng sự kiện. Lệnh quay số quá hạn còn kéo theo một `DELETE /ari/channels/{id}` (cùng hạn 10 giây, lỗi thì bỏ qua):
+  IVR tự đặt id kênh, và một Asterisk chậm mà còn sống có thể đã tạo kênh và đang đổ chuông máy khách. Mã HTTP không thành
+  công được đọc theo từng thao tác. `true`: SIM chạy được, xoá chuỗi lỗi nếu kênh đã mang cuộc gọi; `false`: lỗi của SIM,
+  trunk hoặc driver kênh, vào `fail_count`; `null`: không nói gì về SIM. Disposition là `NetworkError` trừ ô ghi khác.
+
+  | Kết quả | Quay số `POST /ari/channels` | Phát `POST /ari/channels/{id}/play` | Gác máy `DELETE /ari/channels/{id}` | Ping `GET /ari/asterisk/ping` |
+  | --- | --- | --- | --- | --- |
+  | 401, 403 | `null`, `ASTERISK_HTTP_UNAUTHORIZED` | `null`, `ASTERISK_HTTP_UNAUTHORIZED` | `null`, `ASTERISK_HTTP_UNAUTHORIZED` | `Unavailable` |
+  | 404 | `null`, `ASTERISK_DIAL_FAILED` | `true`, `Dropped`, `ASTERISK_CHANNEL_ALREADY_ENDED` | không phải lỗi: kênh đã không còn | `Unavailable` |
+  | 409, 412 | `null`, `ASTERISK_DIAL_FAILED` | `true`, `Dropped`, `ASTERISK_CHANNEL_ALREADY_ENDED` | `null`, `ASTERISK_HANGUP_FAILED` | `Unavailable` |
+  | 500 | **`false`**, `ASTERISK_DIAL_FAILED` | `null`, `ASTERISK_PLAYBACK_FAILED` | `null`, `ASTERISK_HANGUP_FAILED` | `Unavailable` |
+  | Mã không thành công khác (400, 422, 502, 503, 504, …) | `null`, `ASTERISK_DIAL_FAILED` | `null`, `ASTERISK_PLAYBACK_FAILED` | `null`, `ASTERISK_HANGUP_FAILED` | `Unavailable` |
+  | Không trả lời trong 10 giây | `null`, `ASTERISK_HTTP_TIMEOUT`, rồi `DELETE` kênh | `null`, `ASTERISK_HTTP_TIMEOUT` | `null`, `ASTERISK_HTTP_TIMEOUT` | `Unavailable` |
+  | Không kết nối được (`K-62`) | `null`, `ASTERISK_HTTP_UNAVAILABLE` | `null`, `ASTERISK_HTTP_UNAVAILABLE` | `null`, `ASTERISK_HTTP_UNAVAILABLE` | `Unavailable` |
+
+  Ping báo `Unavailable` thì dispatch ghi `ASTERISK_CHANNEL_HEALTH_NOT_READY`, `null` (`K-62`). Quay số 500 là “Allocation
+  failed” của ARI: driver kênh không tạo được kênh gọi ra (endpoint, trunk hoặc thiết bị không sẵn sàng). Phát 404/409/412
+  là kênh đã hoặc đang kết thúc sau khi khách bắt máy (khách hoặc mạng cắt cuộc gọi), ghi y như khi `ChannelDestroyed` tới
+  trước. 401/403 là thông tin đăng nhập hoặc quyền của user ARI (user chỉ đọc nhận 403 cho mọi lệnh ghi), 503 là Asterisk
+  chưa khởi động xong. Trước `K-63`, mọi mã trừ 503 đều báo kênh lành (sau một cuộc gọi đã kết nối, điều đó xoá chuỗi lỗi
+  của SIM), còn 503 báo kênh hỏng.
 - Recording **OFF** mặc định (DT-05); nếu bật, chỉ lưu `recording_ref` + retention (DF-07 PENDING).
 
 ## 3. Disposition mapping (DT-02 — LOCKED; re-verify khi có SIM)

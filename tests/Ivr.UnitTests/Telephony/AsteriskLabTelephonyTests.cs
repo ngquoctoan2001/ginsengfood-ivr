@@ -995,6 +995,304 @@ public sealed class AsteriskLabTelephonyTests
     }
 
     /// <summary>
+    /// W-0372 / K-63. Nothing the adapter asks of a silent Asterisk waits more than ten seconds, and
+    /// a silence is reported the way K-62 reports a refusal: a network error that says nothing
+    /// about the SIM.
+    /// <para>
+    /// Silent, not down: each fake takes the call in and never replies, as an Asterisk does behind
+    /// a link that drops packets, or once it has hung. Three dials, each against a silent Asterisk
+    /// of its own, run at the same time, so the test waits out one bound rather than three. The
+    /// first finds the event stream's upgrade never answered. Nothing bounded that handshake, so the
+    /// dial waited for good, and every dial after it waited behind it. The other two open the stream
+    /// and find the originate never answered. HttpClient's hundred seconds bounded that, and what
+    /// ended it was not an exception the adapter caught, so the dispatch gateway's catch-all counted
+    /// it against the SIM. Each now ends between the ten seconds of AriRequestTimeout and a margin
+    /// for a loaded machine. The ten seconds are spelled out rather than read from the gateway:
+    /// every dispatch that meets a silent Asterisk spends them, so changing them has to fail here
+    /// first.
+    /// </para>
+    /// <para>
+    /// An originate Asterisk never replied to may still have been carried out, by an Asterisk that
+    /// is slow rather than gone, and be ringing the customer while the dial is recorded as failed
+    /// and they are called again later. IVR names each channel itself, so the adapter hangs that
+    /// name up before it reports the failure: a DELETE for the channel id the originate carried. It
+    /// is only an attempt. The third Asterisk refuses the DELETE, and the dial still fails as the
+    /// originate's timeout, not as the refusal.
+    /// </para>
+    /// </summary>
+    [Fact]
+    [Trait("TestId", "UT-AST-HTTP-01")]
+    public async Task ASilentAsteriskFailsEachCallWithinTheBoundWithoutBlamingTheSim()
+    {
+        using var noUpgrade = new FakeAsterisk { AnswerUpgrade = false };
+        using var noOriginate = new FakeAsterisk { NoReply = line => line == "POST /ari/channels" };
+        using var nothingAfter = new FakeAsterisk { NoReply = line => line == "POST /ari/channels" };
+        await using AsteriskAriSimGateway streamGateway = GatewayFor(noUpgrade);
+        await using AsteriskAriSimGateway originateGateway = GatewayFor(noOriginate);
+        await using AsteriskAriSimGateway refusedGateway = GatewayFor(nothingAfter);
+
+        Task<(AsteriskAriOperationException Failure, TimeSpan Elapsed)> stream =
+            DialWithoutReplyAsync(streamGateway, "attempt-lab-silent-stream");
+        Task<(AsteriskAriOperationException Failure, TimeSpan Elapsed)> originate =
+            DialWithoutReplyAsync(originateGateway, "attempt-lab-silent-originate");
+        Task<(AsteriskAriOperationException Failure, TimeSpan Elapsed)> refused =
+            DialWithoutReplyAsync(refusedGateway, "attempt-lab-silent-refused");
+
+        // The third Asterisk stops taking calls at all once its originate is in, so the DELETE that
+        // follows is refused.
+        await nothingAfter.Held.WaitAsync(TimeSpan.FromSeconds(10));
+        nothingAfter.RefuseRest = true;
+
+        // The upgrade never answered: nothing was dialled.
+        (AsteriskAriOperationException streamFailure, TimeSpan streamElapsed) = await stream;
+        Assert.Equal("ASTERISK_EVENT_STREAM_UNAVAILABLE", streamFailure.TechnicalErrorCode);
+        Assert.Equal(SimProviderDisposition.NetworkError, streamFailure.Disposition);
+        Assert.Null(streamFailure.ChannelHealthy);
+        Assert.InRange(streamElapsed, TimeSpan.FromSeconds(9.5), TimeSpan.FromSeconds(30));
+        Assert.Empty(noUpgrade.Requests);
+
+        // The originate never answered, whether the DELETE after it is taken or refused.
+        foreach ((FakeAsterisk asterisk, Task<(AsteriskAriOperationException Failure, TimeSpan Elapsed)> dial)
+                 in new[] { (noOriginate, originate), (nothingAfter, refused) })
+        {
+            (AsteriskAriOperationException failure, TimeSpan elapsed) = await dial;
+            Assert.Equal("ASTERISK_HTTP_TIMEOUT", failure.TechnicalErrorCode);
+            Assert.Equal(SimProviderDisposition.NetworkError, failure.Disposition);
+            Assert.Null(failure.ChannelHealthy);
+            Assert.InRange(elapsed, TimeSpan.FromSeconds(9.5), TimeSpan.FromSeconds(30));
+            string channelId = Assert.Single(asterisk.Originated);
+            Assert.Equal(
+                ["POST /ari/channels", string.Concat("DELETE /ari/channels/", channelId)],
+                asterisk.Requests);
+        }
+    }
+
+    /// <summary>
+    /// W-0372 / K-63. The bound is the adapter's own, and a caller giving up is still a caller
+    /// giving up.
+    /// <para>
+    /// A worker shutting down cancels a dial Asterisk has not replied to, once while the event
+    /// stream's handshake waits and once while the originate does. Each cancellation takes effect
+    /// at once, not when the ten seconds are up, and comes out as the OperationCanceledException it
+    /// always was, not as ASTERISK_EVENT_STREAM_UNAVAILABLE or ASTERISK_HTTP_TIMEOUT. Above the
+    /// adapter, the dispatch gateway lets it through unrecorded and the dispatch pump takes it for
+    /// the shutdown it is: nothing recorded against the attempt, and no backoff, since a deploy is
+    /// not a failing trunk.
+    /// </para>
+    /// </summary>
+    [Fact]
+    [Trait("TestId", "UT-AST-HTTP-02")]
+    public async Task CancellingACallAsteriskHasNotRepliedToIsStillACancellation()
+    {
+        // The adapter on its own, at the handshake and at the originate...
+        using var noUpgrade = new FakeAsterisk { AnswerUpgrade = false };
+        using var noOriginate = new FakeAsterisk { NoReply = line => line == "POST /ari/channels" };
+        foreach (FakeAsterisk asterisk in new[] { noUpgrade, noOriginate })
+        {
+            await using AsteriskAriSimGateway gateway = GatewayFor(asterisk);
+            using var shutdown = new CancellationTokenSource();
+            Task<SimCallSession> dial = gateway
+                .DialAsync(DialRequest("attempt-lab-http-shutdown"), shutdown.Token)
+                .AsTask();
+            await asterisk.Held.WaitAsync(TimeSpan.FromSeconds(10));
+            await shutdown.CancelAsync();
+            await Assert.ThrowsAnyAsync<OperationCanceledException>(
+                () => dial.WaitAsync(TimeSpan.FromSeconds(5)));
+        }
+
+        // ...and the dispatch loop above it.
+        using var dispatched = new FakeAsterisk { NoReply = line => line == "POST /ari/channels" };
+        await using AsteriskAriSimGateway ari = GatewayFor(dispatched);
+        var store = new RecordingDispatchStore(DispatchContext());
+        var pump = new SchedulerDispatchPump(
+            Microsoft.Extensions.Options.Options.Create(new SchedulerOptions()),
+            new FixedTimeProvider());
+        using var stopping = new CancellationTokenSource();
+        Assert.True(pump.TryReserve());
+        pump.Start(
+            Lease(),
+            OpenGateway(store, new FixedSpeechRenderer(), ari).DispatchAsync,
+            stopping.Token);
+        await dispatched.Held.WaitAsync(TimeSpan.FromSeconds(10));
+        await stopping.CancelAsync();
+
+        Assert.True(await pump.DrainAsync(TimeSpan.FromSeconds(5)));
+        Assert.Empty(pump.TakeFailures());
+        Assert.Empty(store.Failures);
+        Assert.Null(pump.SheddingUntil);
+    }
+
+    /// <summary>
+    /// W-0372 / K-63. A silent Asterisk, met where a dispatch meets it, through the real ARI adapter,
+    /// the real dispatch gateway and the real dispatch pump: UT-AST-UNAVAILABLE-02 with an Asterisk
+    /// that takes each call in and never replies, instead of refusing it.
+    /// <para>
+    /// Two dispatches, run at once so the test waits out one bound. One finds the health check's
+    /// ping never answered, the first ARI call every dispatch makes; the other gets past it and
+    /// finds the originate never answered. Either used to end in a TaskCanceledException a hundred
+    /// seconds in, which no arm of the dispatch gateway named: its catch-all recorded it as
+    /// ASTERISK_DISPATCH_TECHNICAL_FAILURE with the channel unhealthy, a strike on the SIM for
+    /// Asterisk's silence. Both now reach FailAsync as failures that say nothing about the SIM -
+    /// the ping's as ASTERISK_CHANNEL_HEALTH_NOT_READY, as K-62 records a refused one, and the
+    /// originate's as ASTERISK_HTTP_TIMEOUT, after the DELETE of the channel it named - and each
+    /// still fails its dispatch, which is what makes the pump hold the next call back.
+    /// </para>
+    /// </summary>
+    [Fact]
+    [Trait("TestId", "UT-AST-HTTP-03")]
+    public async Task ASilentAsteriskReachesTheStoreAsAFailureThatSaysNothingAboutTheSim()
+    {
+        using var noPing = new FakeAsterisk { NoReply = line => line == "GET /ari/asterisk/ping" };
+        using var noOriginate = new FakeAsterisk { NoReply = line => line == "POST /ari/channels" };
+        await using AsteriskAriSimGateway pingAri = GatewayFor(noPing);
+        await using AsteriskAriSimGateway originateAri = GatewayFor(noOriginate);
+        var pingStore = new RecordingDispatchStore(DispatchContext());
+        var originateStore = new RecordingDispatchStore(DispatchContext());
+        var pingPump = new SchedulerDispatchPump(
+            Microsoft.Extensions.Options.Options.Create(new SchedulerOptions()),
+            new FixedTimeProvider());
+        var originatePump = new SchedulerDispatchPump(
+            Microsoft.Extensions.Options.Options.Create(new SchedulerOptions()),
+            new FixedTimeProvider());
+
+        Assert.True(pingPump.TryReserve());
+        Assert.True(originatePump.TryReserve());
+        pingPump.Start(Lease(), OpenGateway(pingStore, new FixedSpeechRenderer(), pingAri).DispatchAsync);
+        originatePump.Start(
+            Lease(),
+            OpenGateway(originateStore, new FixedSpeechRenderer(), originateAri).DispatchAsync);
+        Assert.True(await pingPump.DrainAsync(TimeSpan.FromMinutes(1)));
+        Assert.True(await originatePump.DrainAsync(TimeSpan.FromMinutes(1)));
+
+        // The ping: recorded as K-62 records one Asterisk refused, before anything was dialled...
+        SchedulerDispatchFailure pingFailed = Assert.Single(pingPump.TakeFailures());
+        Assert.Equal(
+            "ASTERISK_CHANNEL_HEALTH_NOT_READY",
+            Assert.IsType<AsteriskAriOperationException>(pingFailed.Exception).TechnicalErrorCode);
+        RecordedDispatchFailure ping = Assert.Single(pingStore.Failures);
+        Assert.Equal("ASTERISK_CHANNEL_HEALTH_NOT_READY", ping.TechnicalErrorCode);
+        Assert.Null(ping.ChannelHealthy);
+        Assert.Null(ping.Session);
+        Assert.Equal(["GET /ari/asterisk/ping"], noPing.Requests);
+        Assert.NotNull(pingPump.SheddingUntil);
+
+        // ...and the originate under its own code, once the channel it named has been hung up.
+        SchedulerDispatchFailure originateFailed = Assert.Single(originatePump.TakeFailures());
+        Assert.Equal(
+            "ASTERISK_HTTP_TIMEOUT",
+            Assert.IsType<AsteriskAriOperationException>(originateFailed.Exception).TechnicalErrorCode);
+        RecordedDispatchFailure originate = Assert.Single(originateStore.Failures);
+        Assert.Equal(SimProviderDisposition.NetworkError, originate.Disposition);
+        Assert.Equal("ASTERISK_HTTP_TIMEOUT", originate.TechnicalErrorCode);
+        Assert.Null(originate.ChannelHealthy);
+        Assert.Null(originate.Session);
+        Assert.Equal(0, originateStore.ActivatedCalls);
+        string channelId = Assert.Single(noOriginate.Originated);
+        Assert.Equal(
+            [
+                "GET /ari/asterisk/ping",
+                "POST /ari/channels",
+                string.Concat("DELETE /ari/channels/", channelId),
+            ],
+            noOriginate.Requests);
+        Assert.NotNull(originatePump.SheddingUntil);
+    }
+
+    /// <summary>
+    /// W-0372 / K-63. Each unsuccessful ARI answer says what it means, and above all what it means
+    /// for the SIM, operation by operation: the table in specs/api/04-sim-adapter-contract.md, row
+    /// by row.
+    /// <para>
+    /// The adapter used to read the SIM's health off one status. Every answer but a 503 called the
+    /// channel healthy - a 401 for IVR's own credentials, a 403 for an ARI user that may only read,
+    /// a 400 for IVR's own request - and a refused playback on an answered call cleared the SIM's
+    /// failure streak on the strength of it. A 503, Asterisk still booting, put a strike on the SIM
+    /// instead. Only two answers now say anything about the SIM. A 500 to an originate, ARI's
+    /// "Allocation failed", is the channel driver unable to create the outgoing channel, and counts
+    /// against it. A 404, 409 or 412 to a playback is a call that was answered and has since ended,
+    /// reported as the same Dropped and ASTERISK_CHANNEL_ALREADY_ENDED the adapter gives when
+    /// ChannelDestroyed arrives first. A 401 or 403 is ASTERISK_HTTP_UNAUTHORIZED, whatever it
+    /// refused. A hangup Asterisk answers with 404 finds the channel already gone, which is what a
+    /// hangup is for, and is no failure at all.
+    /// </para>
+    /// </summary>
+    [Theory]
+    // The originate. Only a 500 is the SIM's: the channel driver could not create the channel.
+    [InlineData("dial", HttpStatusCode.Unauthorized, SimProviderDisposition.NetworkError, "ASTERISK_HTTP_UNAUTHORIZED", null)]
+    [InlineData("dial", HttpStatusCode.Forbidden, SimProviderDisposition.NetworkError, "ASTERISK_HTTP_UNAUTHORIZED", null)]
+    [InlineData("dial", HttpStatusCode.BadRequest, SimProviderDisposition.NetworkError, "ASTERISK_DIAL_FAILED", null)]
+    [InlineData("dial", HttpStatusCode.NotFound, SimProviderDisposition.NetworkError, "ASTERISK_DIAL_FAILED", null)]
+    [InlineData("dial", HttpStatusCode.Conflict, SimProviderDisposition.NetworkError, "ASTERISK_DIAL_FAILED", null)]
+    [InlineData("dial", HttpStatusCode.UnprocessableEntity, SimProviderDisposition.NetworkError, "ASTERISK_DIAL_FAILED", null)]
+    [InlineData("dial", HttpStatusCode.InternalServerError, SimProviderDisposition.NetworkError, "ASTERISK_DIAL_FAILED", false)]
+    [InlineData("dial", HttpStatusCode.BadGateway, SimProviderDisposition.NetworkError, "ASTERISK_DIAL_FAILED", null)]
+    [InlineData("dial", HttpStatusCode.ServiceUnavailable, SimProviderDisposition.NetworkError, "ASTERISK_DIAL_FAILED", null)]
+    [InlineData("dial", HttpStatusCode.GatewayTimeout, SimProviderDisposition.NetworkError, "ASTERISK_DIAL_FAILED", null)]
+    // The playback. A channel gone (404), out of Stasis (409) or going down (412) after it was
+    // answered is the call ending, as when ChannelDestroyed arrives first.
+    [InlineData("play", HttpStatusCode.Unauthorized, SimProviderDisposition.NetworkError, "ASTERISK_HTTP_UNAUTHORIZED", null)]
+    [InlineData("play", HttpStatusCode.Forbidden, SimProviderDisposition.NetworkError, "ASTERISK_HTTP_UNAUTHORIZED", null)]
+    [InlineData("play", HttpStatusCode.BadRequest, SimProviderDisposition.NetworkError, "ASTERISK_PLAYBACK_FAILED", null)]
+    [InlineData("play", HttpStatusCode.NotFound, SimProviderDisposition.Dropped, "ASTERISK_CHANNEL_ALREADY_ENDED", true)]
+    [InlineData("play", HttpStatusCode.Conflict, SimProviderDisposition.Dropped, "ASTERISK_CHANNEL_ALREADY_ENDED", true)]
+    [InlineData("play", HttpStatusCode.PreconditionFailed, SimProviderDisposition.Dropped, "ASTERISK_CHANNEL_ALREADY_ENDED", true)]
+    [InlineData("play", HttpStatusCode.InternalServerError, SimProviderDisposition.NetworkError, "ASTERISK_PLAYBACK_FAILED", null)]
+    [InlineData("play", HttpStatusCode.ServiceUnavailable, SimProviderDisposition.NetworkError, "ASTERISK_PLAYBACK_FAILED", null)]
+    // The hangup. Nothing it hears is about the SIM, and a channel already gone is what it wanted.
+    [InlineData("hangup", HttpStatusCode.Unauthorized, SimProviderDisposition.NetworkError, "ASTERISK_HTTP_UNAUTHORIZED", null)]
+    [InlineData("hangup", HttpStatusCode.Forbidden, SimProviderDisposition.NetworkError, "ASTERISK_HTTP_UNAUTHORIZED", null)]
+    [InlineData("hangup", HttpStatusCode.BadRequest, SimProviderDisposition.NetworkError, "ASTERISK_HANGUP_FAILED", null)]
+    [InlineData("hangup", HttpStatusCode.NotFound, null, null, null)]
+    [InlineData("hangup", HttpStatusCode.Conflict, SimProviderDisposition.NetworkError, "ASTERISK_HANGUP_FAILED", null)]
+    [InlineData("hangup", HttpStatusCode.InternalServerError, SimProviderDisposition.NetworkError, "ASTERISK_HANGUP_FAILED", null)]
+    [InlineData("hangup", HttpStatusCode.ServiceUnavailable, SimProviderDisposition.NetworkError, "ASTERISK_HANGUP_FAILED", null)]
+    // Last, next to the method: the traceability generator looks a few lines ahead of the TestId for
+    // the method it names, and the table above is longer than that.
+    [Trait("TestId", "UT-AST-HTTP-04")]
+    public async Task EachUnsuccessfulAriAnswerSaysWhatItMeansForTheSim(
+        string operation,
+        HttpStatusCode status,
+        SimProviderDisposition? disposition,
+        string? technicalCode,
+        bool? channelHealthy)
+    {
+        AsteriskAriOperationException? failure = await AnswerAriWithAsync(operation, status);
+
+        Assert.Equal(technicalCode, failure?.TechnicalErrorCode);
+        Assert.Equal(disposition, failure?.Disposition);
+        Assert.Equal(channelHealthy, failure?.ChannelHealthy);
+    }
+
+    /// <summary>
+    /// W-0372 / K-63. The table's last column. The health check's ping asks after Asterisk,
+    /// whichever channel it is for, so no answer to it says anything about a SIM: every
+    /// unsuccessful one reports Asterisk unavailable, which the dispatch gateway records as
+    /// ASTERISK_CHANNEL_HEALTH_NOT_READY without a word about the SIM (K-62). A 401 is among them:
+    /// wrong credentials are met here first, since the ping is the first ARI call of a dispatch.
+    /// </summary>
+    [Theory]
+    [Trait("TestId", "UT-AST-HTTP-05")]
+    [InlineData(HttpStatusCode.Unauthorized)]
+    [InlineData(HttpStatusCode.NotFound)]
+    [InlineData(HttpStatusCode.InternalServerError)]
+    [InlineData(HttpStatusCode.ServiceUnavailable)]
+    public async Task AnUnsuccessfulPingReportsAsteriskUnavailableWhateverItsStatus(HttpStatusCode status)
+    {
+        using var asterisk = new FakeAsterisk
+        {
+            Status = line => line == "GET /ari/asterisk/ping" ? status : null,
+        };
+        await using AsteriskAriSimGateway gateway = GatewayFor(asterisk);
+
+        SimGatewayHealth health = await gateway.CheckHealthAsync(
+            "SIM-ASTERISK-001",
+            CancellationToken.None);
+
+        Assert.Equal(SimChannelHealthState.Unavailable, health.State);
+        Assert.Equal(["GET /ari/asterisk/ping"], asterisk.Requests);
+    }
+
+    /// <summary>
     /// The lab speaks through the VieNeu sidecar and nothing else: the profile resolves the
     /// loopback client, and its settings pass the same validator production uses.
     /// </summary>
@@ -1747,6 +2045,12 @@ public sealed class AsteriskLabTelephonyTests
     /// (<see cref="AnswerClose"/> off, K-58), and ARI's HTTP side refusing every call while the event
     /// stream stays up (<see cref="RefuseRest"/>, K-62).
     /// </para>
+    /// <para>
+    /// W-0372 / K-63. And three more, aimed one request at a time: a REST call taken in and never
+    /// replied to (<see cref="NoReply"/>), a REST call answered with a status of the test's choosing
+    /// (<see cref="Status"/>), and the event stream's upgrade read and never answered
+    /// (<see cref="AnswerUpgrade"/> off).
+    /// </para>
     /// </summary>
     private sealed class FakeAsterisk : HttpMessageHandler, IHttpClientFactory
     {
@@ -1760,7 +2064,10 @@ public sealed class AsteriskLabTelephonyTests
             new(TaskCreationOptions.RunContinuationsAsynchronously);
         private readonly TaskCompletionSource closeRequested =
             new(TaskCreationOptions.RunContinuationsAsynchronously);
+        private readonly TaskCompletionSource<string> held =
+            new(TaskCreationOptions.RunContinuationsAsynchronously);
         private readonly List<string> requests = [];
+        private readonly List<string> originated = [];
         private readonly Task accepted;
         private TcpClient? connection;
         private WebSocket? events;
@@ -1785,11 +2092,39 @@ public sealed class AsteriskLabTelephonyTests
         /// </summary>
         public bool RefuseRest { get; set; }
 
+        /// <summary>
+        /// W-0372 / K-63. Off, the event stream's upgrade request is read and never answered, and the
+        /// connection is left open: an Asterisk that takes connections in and has stopped serving
+        /// them, as a dial meets it. <see cref="Held"/> completes once the upgrade has been read.
+        /// </summary>
+        public bool AnswerUpgrade { get; init; } = true;
+
+        /// <summary>
+        /// W-0372 / K-63. The REST calls, by request line as <see cref="Requests"/> records it, that
+        /// are taken in and never replied to: an Asterisk behind a link that drops packets, or one
+        /// that has hung. Each waits, recorded, until the caller gives up on it.
+        /// </summary>
+        public Func<string, bool>? NoReply { get; set; }
+
+        /// <summary>
+        /// W-0372 / K-63. The status a REST call is answered with, by request line, in place of
+        /// success; null answers it as before. A dial answered this way is not placed: nothing is
+        /// sent on the event stream for it, and it does not ring.
+        /// </summary>
+        public Func<string, HttpStatusCode?>? Status { get; set; }
+
         /// <summary>The channel id of the dial left ringing, once there is one.</summary>
         public Task<string> Ringing => ringing.Task;
 
         /// <summary>Completes once the adapter's close frame has arrived, answered or not (K-58).</summary>
         public Task CloseRequested => closeRequested.Task;
+
+        /// <summary>
+        /// The first request left without a reply, once there is one (K-63): a REST call
+        /// <see cref="NoReply"/> keeps waiting, as its request line, or the event stream's upgrade,
+        /// as "GET /ari/events", when <see cref="AnswerUpgrade"/> is off.
+        /// </summary>
+        public Task<string> Held => held.Task;
 
         public IReadOnlyList<string> Requests
         {
@@ -1798,6 +2133,21 @@ public sealed class AsteriskLabTelephonyTests
                 lock (requests)
                 {
                     return [.. requests];
+                }
+            }
+        }
+
+        /// <summary>
+        /// The channel id every originate named, in the order they came, whatever became of them
+        /// (K-63): the name a later DELETE has to match.
+        /// </summary>
+        public IReadOnlyList<string> Originated
+        {
+            get
+            {
+                lock (requests)
+                {
+                    return [.. originated];
                 }
             }
         }
@@ -1848,9 +2198,15 @@ public sealed class AsteriskLabTelephonyTests
             CancellationToken cancellationToken)
         {
             Uri uri = request.RequestUri!;
+            string line = string.Concat(request.Method.Method, " ", uri.AbsolutePath);
+            bool originate = request.Method == HttpMethod.Post && uri.AbsolutePath == "/ari/channels";
             lock (requests)
             {
-                requests.Add(string.Concat(request.Method.Method, " ", uri.AbsolutePath));
+                requests.Add(line);
+                if (originate)
+                {
+                    originated.Add(QueryValue(uri, "channelId"));
+                }
             }
 
             if (RefuseRest)
@@ -1861,7 +2217,18 @@ public sealed class AsteriskLabTelephonyTests
                     new SocketException((int)SocketError.ConnectionRefused));
             }
 
-            if (request.Method == HttpMethod.Post && uri.AbsolutePath == "/ari/channels")
+            if (NoReply?.Invoke(line) == true)
+            {
+                held.TrySetResult(line);
+                await Task.Delay(Timeout.InfiniteTimeSpan, cancellationToken);
+            }
+
+            if (Status?.Invoke(line) is HttpStatusCode status)
+            {
+                return new HttpResponseMessage(status);
+            }
+
+            if (originate)
             {
                 string channelId = QueryValue(uri, "channelId");
                 if (AnswerDials)
@@ -1901,7 +2268,17 @@ public sealed class AsteriskLabTelephonyTests
         /// </summary>
         private async Task AcceptEventStreamAsync()
         {
-            connection = await listener.AcceptTcpClientAsync();
+            try
+            {
+                connection = await listener.AcceptTcpClientAsync();
+            }
+            catch (Exception exception) when (exception is ObjectDisposedException or SocketException)
+            {
+                // W-0372 / K-63. Disposed before anything connected: a scenario that never opens the
+                // event stream, such as one that ends at the health check's ping.
+                return;
+            }
+
             NetworkStream stream = connection.GetStream();
 
             // The upgrade request, up to the blank line that ends it. The client sends nothing
@@ -1917,6 +2294,13 @@ public sealed class AsteriskLabTelephonyTests
                 }
 
                 request.Append(Encoding.ASCII.GetString(chunk, 0, read));
+            }
+
+            // W-0372 / K-63. Read, and left there: the connection stays open with no answer on it.
+            if (!AnswerUpgrade)
+            {
+                held.TrySetResult("GET /ari/events");
+                return;
             }
 
             string key = request.ToString()
@@ -2032,5 +2416,73 @@ public sealed class AsteriskLabTelephonyTests
     private sealed class SocketHttpClientFactory : IHttpClientFactory
     {
         public HttpClient CreateClient(string name) => new();
+    }
+
+    // ------------------------------------------------------------------------------- W-0372
+
+    /// <summary>
+    /// K-63. The lab adapter pointed at <paramref name="asterisk"/>, with a dial timeout far past
+    /// anything a test waits for, so no call here ends by ringing out.
+    /// </summary>
+    private static AsteriskAriSimGateway GatewayFor(FakeAsterisk asterisk)
+    {
+        AsteriskAriOptions configured = Options();
+        configured.BaseUrl = asterisk.BaseUrl;
+        configured.DialTimeoutSeconds = 600;
+        return new AsteriskAriSimGateway(
+            asterisk,
+            Microsoft.Extensions.Options.Options.Create(configured),
+            new FixedTimeProvider());
+    }
+
+    /// <summary>
+    /// K-63. Dials through <paramref name="gateway"/>, expecting the failure an Asterisk that never
+    /// replies ends in, and times it. A dial the bound does not end is given up on after a minute:
+    /// long enough for any machine, and short of the hundred seconds HttpClient would wait.
+    /// </summary>
+    private static async Task<(AsteriskAriOperationException Failure, TimeSpan Elapsed)> DialWithoutReplyAsync(
+        AsteriskAriSimGateway gateway,
+        string attemptId)
+    {
+        var elapsed = Stopwatch.StartNew();
+        AsteriskAriOperationException failure =
+            await Assert.ThrowsAsync<AsteriskAriOperationException>(() => gateway
+                .DialAsync(DialRequest(attemptId), CancellationToken.None)
+                .AsTask()
+                .WaitAsync(TimeSpan.FromMinutes(1)));
+        return (failure, elapsed.Elapsed);
+    }
+
+    /// <summary>
+    /// K-63. Makes <paramref name="operation"/> - "dial", "play" or "hangup" - against a fake
+    /// Asterisk that answers that request, and only that one, with <paramref name="status"/>.
+    /// Returns the failure the adapter raised, or null when it raised none. A playback and a hangup
+    /// are made on a call that was dialled and answered first.
+    /// </summary>
+    private static async Task<AsteriskAriOperationException?> AnswerAriWithAsync(
+        string operation,
+        HttpStatusCode status)
+    {
+        Func<string, bool> answered = operation switch
+        {
+            "dial" => line => line == "POST /ari/channels",
+            "play" => line => line.EndsWith("/play", StringComparison.Ordinal),
+            "hangup" => line => line.StartsWith("DELETE /ari/channels/", StringComparison.Ordinal),
+            _ => throw new ArgumentOutOfRangeException(nameof(operation)),
+        };
+        using var asterisk = new FakeAsterisk();
+        await using AsteriskAriSimGateway gateway = GatewayFor(asterisk);
+        SimCallSession? call = operation == "dial"
+            ? null
+            : await gateway.DialAsync(DialRequest("attempt-lab-http-answered"), CancellationToken.None);
+        asterisk.Status = line => answered(line) ? status : null;
+
+        Exception? thrown = await Record.ExceptionAsync(() => operation switch
+        {
+            "dial" => gateway.DialAsync(DialRequest("attempt-lab-http-status"), CancellationToken.None).AsTask(),
+            "play" => gateway.PlayAsync(call!, PlayableSpeech(), CancellationToken.None).AsTask(),
+            _ => gateway.HangupAsync(call!, CancellationToken.None).AsTask(),
+        });
+        return thrown is null ? null : Assert.IsType<AsteriskAriOperationException>(thrown);
     }
 }

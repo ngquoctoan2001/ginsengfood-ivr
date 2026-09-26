@@ -8,8 +8,9 @@
 //   CAP-SENS-02   the answer is a range with a named dominant input, not a point.
 //   CAP-CALIB-03  the model is checked against the only throughput measurement that exists, and
 //                 reports the gap where none exists.
-//   CAP-ALERT-04  the pool the chart ships matches what the model says it can serve, and the
-//                 capacity alert reads only the missed-deadline reason the model speaks to.
+//   CAP-ALERT-04  the pool the chart ships matches what the model says it can serve, the
+//                 capacity alert reads only the missed-deadline reason the model speaks to, and
+//                 every other reason the sweep records has a decided reader or none.
 import assert from "node:assert/strict";
 import fs from "node:fs/promises";
 import path from "node:path";
@@ -43,14 +44,20 @@ const COST_INPUT_COUNT = 6;
 
 // W-0369 / K-61. Every reason the missed-deadline sweep records, and the one alert rule allowed to
 // read it. Only the capacity reason is evidence of a channel shortage, which is the only thing the
-// zero threshold and the recalibration runbook are about. The window reason pages nobody on its
-// own and is read only for windows closing while nothing is dialled. null is a reason no rule
-// reads, deliberately: the calling hours ending (Q-22.2) is the calling day finishing, not a fault.
+// zero threshold and the recalibration runbook are about. null is a reason no rule reads,
+// deliberately: the calling hours ending (Q-22.2) is the calling day finishing, not a fault.
+//
+// W-0372 / K-64. An order eligibility never answered has a reason of its own, read directly by a
+// zero-threshold rule. That leaves the window reason with nothing for a person to do -- customers
+// dialled and not reached, dry runs eligibility cleared, and orders held for review, whose holds
+// IvrDownstreamFailClosedSpike already pages on while the windows are open -- so no rule reads it,
+// and K-61's rule that read it by the shape of an outage is gone.
 const CAPACITY_ALERT = "IvrConfirmationDeadlineMissed";
-const UNDIALLED_ALERT = "IvrConfirmationWindowsExpiringUndialled";
+const UNEVALUATED_ALERT = "IvrConfirmationWindowsExpiringUnevaluated";
 const MISSED_DEADLINE_REASONS = Object.freeze({
   NO_DISPATCH_BEFORE_DEADLINE: CAPACITY_ALERT,
-  WINDOW_EXPIRED_BEFORE_FINAL_RESULT: UNDIALLED_ALERT,
+  ELIGIBILITY_NOT_EVALUATED_BEFORE_DEADLINE: UNEVALUATED_ALERT,
+  WINDOW_EXPIRED_BEFORE_FINAL_RESULT: null,
   CALLING_HOURS_CLOSED_BEFORE_DISPATCH: null,
 });
 
@@ -255,7 +262,7 @@ function assertEveryReasonHasOneReader(alerts, reasons) {
     unclassified.length === 0,
     `CloseMissedDeadlinesAsync records ${unclassified.join(", ")} on ivr_missed_deadline_total and no `
     + "rule has been told what it means. Decide whether it is evidence of a channel shortage "
-    + `(${CAPACITY_ALERT}), a window that ran out with nothing dialled (${UNDIALLED_ALERT}) or `
+    + `(${CAPACITY_ALERT}), an order eligibility never answered (${UNEVALUATED_ALERT}) or `
     + "neither, and add it to MISSED_DEADLINE_REASONS. Summing reasons blind is what K-61 removed.");
   const stale = classified.filter((reason) => !reasons.emitted.has(reason));
   assert(
@@ -285,7 +292,7 @@ function assertEveryReasonHasOneReader(alerts, reasons) {
       `${name} reads ${[...new Set(reads)].join(", ")} but is given ${given.join(", ") || "no reason"} `
       + "in MISSED_DEADLINE_REASONS.");
   }
-  for (const name of [CAPACITY_ALERT, UNDIALLED_ALERT]) {
+  for (const name of [CAPACITY_ALERT, UNEVALUATED_ALERT]) {
     assert(
       readers.some((rule) => rule.alert === name),
       `no rule named ${name} reads ivr_missed_deadline_total. The counter has a call site `
@@ -302,44 +309,46 @@ function durationSeconds(text) {
   return Number(match[1]) * DURATION_UNIT_SECONDS[match[2]];
 }
 
-// W-0369 / K-61. The window reason on its own pages nobody: most such windows were dialled, or held
-// on purpose. The rule reads it only while nothing at all is dialled, and two inequalities are what
-// make that true rather than approximately true.
-function assertUndialledRuleSeesOnlyUndialledWindows(alerts) {
-  const rule = alerts.find((candidate) => candidate.alert === UNDIALLED_ALERT);
-  assert(rule !== undefined && typeof rule.expr === "string", `no alert rule named ${UNDIALLED_ALERT}.`);
+// W-0372 / K-64. An order eligibility never answered is counted under its own reason, so the rule
+// reads it directly, and three things keep it direct. Zero, through increase(): while the loop runs
+// no order should reach its deadline unanswered, and a counter compared straight with zero never
+// stops firing. Nothing combined with the read: K-61's rule could only find these orders by shape,
+// "unless" anything was dialled in half an hour, and that silencer is exactly what hid a loop
+// answering some orders and not others -- the orders it answered kept the dialler busy. And one
+// order is enough: the hold must be shorter than the lookback, or a single unanswered order leaves
+// the window before the rule has held long enough to say so.
+function assertUnevaluatedRuleOpensForOneOrder(alerts) {
+  const rule = alerts.find((candidate) => candidate.alert === UNEVALUATED_ALERT);
+  assert(rule !== undefined && typeof rule.expr === "string", `no alert rule named ${UNEVALUATED_ALERT}.`);
   const expr = rule.expr.trim();
-  const expiries = /ivr_missed_deadline_total\{[^}]*\}\[(\d+[smh])\]/u.exec(expr);
-  const silencer = /\bunless\s+sum\(increase\(ivr_call_attempts_total\[(\d+[smh])\]\)\)\s*>\s*0$/u.exec(expr);
-  assert(expiries, `${UNDIALLED_ALERT} does not read the counter over a range (${expr}).`);
+  const expiries = /\bincrease\(ivr_missed_deadline_total\{[^}]*\}\[(\d+[smh])\]\)/u.exec(expr);
   assert(
-    silencer,
-    `${UNDIALLED_ALERT} is not silenced by a dial: it must end in `
-    + "\"unless sum(increase(ivr_call_attempts_total[...])) > 0\". Without that it fires on every "
-    + `customer dialled and not reached in time (${expr}).`);
+    expiries,
+    `${UNEVALUATED_ALERT} does not read the counter through increase() over a range (${expr}). A `
+    + "counter compared straight with zero fires once and then forever.");
+  assert(
+    /\)\s*>\s*0$/u.test(expr),
+    `${UNEVALUATED_ALERT} compares against something other than zero (${expr}). While the eligibility `
+    + "loop runs it answers every order within seconds and a window lasts minutes, so the only "
+    + "number an order left unanswered licenses is zero.");
 
-  // A dialled job's attempt falls inside its window, so at most one window before it expires. The
-  // attempt lookback has to outlast the expiry lookback by that much, or a job that WAS dialled can
-  // raise the rule once its own attempt ages out while its expiry is still counted.
+  // Label matchers and grouping clauses stripped, what is left names every series the rule reads.
+  const series = new Set(expr.replace(/\{[^}]*\}/gu, "").replace(/\b(?:by|without)\s*\([^)]*\)/gu, "")
+    .match(/\bivr_[a-z0-9_]+\b/gu) ?? []);
+  assert(
+    series.size === 1 && series.has("ivr_missed_deadline_total") && !/\b(?:unless|and|or)\b/u.test(expr),
+    `${UNEVALUATED_ALERT} combines the count with something else (${expr}). K-61's rule was silenced `
+    + "by any dial, and a loop answering some orders and not others keeps the dialler busy -- "
+    + "that is the outage the rule exists to catch.");
+
   const expirySeconds = durationSeconds(expiries[1]);
-  const attemptSeconds = durationSeconds(silencer[1]);
-  const longestWindow = Math.max(
-    ...Object.values(CANDIDATE_POLICIES).map((policy) => policy.windowSeconds));
-  assert(
-    attemptSeconds >= expirySeconds + longestWindow,
-    `${UNDIALLED_ALERT} looks ${attemptSeconds}s back for attempts and ${expirySeconds}s for expiries, `
-    + `but the longest confirmation window is ${longestWindow}s: a dialled job's attempt can leave `
-    + "the lookback while its expiry is still counted.");
-
-  // One expiry stays in the lookback for less than the lookback. Holding longer means windows have
-  // to keep closing, so a single order held for review in a quiet half hour cannot open a ticket.
   const holdSeconds = durationSeconds(rule.for);
   assert(
-    holdSeconds > expirySeconds,
-    `${UNDIALLED_ALERT} holds for ${holdSeconds}s, not longer than its ${expirySeconds}s lookback, so a `
-    + "single expired order in a quiet period opens a ticket.");
+    holdSeconds < expirySeconds,
+    `${UNEVALUATED_ALERT} holds for ${holdSeconds}s, not less than its ${expirySeconds}s lookback, so a `
+    + "single order eligibility never answered leaves the window before the rule opens a ticket.");
 
-  return { expirySeconds, attemptSeconds, holdSeconds, longestWindow };
+  return { expirySeconds, holdSeconds };
 }
 
 async function theShippedPoolMatchesTheModel({ peak }) {
@@ -415,11 +424,11 @@ async function theShippedPoolMatchesTheModel({ peak }) {
   // and counting it here is how an eligibility outage came to page the model.
   const reasons = await missedDeadlineReasonsTheSweepRecords();
   assertEveryReasonHasOneReader(alerts, reasons);
-  const undialled = assertUndialledRuleSeesOnlyUndialledWindows(alerts);
+  const unevaluated = assertUnevaluatedRuleOpensForOneOrder(alerts);
   assert(
     !/\b(buy|purchase|procure|mua thêm)\b/i.test(JSON.stringify(
-      alerts.find((rule) => rule.alert === UNDIALLED_ALERT).annotations ?? {})),
-    `${UNDIALLED_ALERT} tells the on-call to buy capacity. No order it counts ever asked for a channel.`);
+      alerts.find((rule) => rule.alert === UNEVALUATED_ALERT).annotations ?? {})),
+    `${UNEVALUATED_ALERT} tells the on-call to buy capacity. No order it counts ever asked for a channel.`);
 
   // The other half of the ARCH-06 section 1 gap, still open and still asserted so it cannot rot
   // into a silent omission: cost_per_confirmed_order has no instrument because it has no
@@ -455,11 +464,11 @@ async function theShippedPoolMatchesTheModel({ peak }) {
       (environment) => `${environment}=${pools[environment]}`).join(", ")}). ${deadlineAlert.alert} `
     + `is zero-tolerance on ivr_missed_deadline_total{${reasons.label}="${reasons.capacityReason}"} `
     + "alone, which the shipped pool justifies. Each of the "
-    + `${reasons.emitted.size} reasons the sweep records has one reader (${Object.entries(
+    + `${reasons.emitted.size} reasons the sweep records has one reader or deliberately none (${Object.entries(
       MISSED_DEADLINE_REASONS).map(([reason, rule]) => `${reason} -> ${rule ?? "none"}`).join(", ")}), `
-    + `and ${UNDIALLED_ALERT} keeps ${undialled.attemptSeconds}s of attempts over `
-    + `${undialled.expirySeconds}s of expiries plus the longest window (${undialled.longestWindow}s), `
-    + `holding ${undialled.holdSeconds}s. `
+    + `and ${UNEVALUATED_ALERT} is zero-tolerance on its reason alone, with nothing to silence it, `
+    + `holding ${unevaluated.holdSeconds}s inside its ${unevaluated.expirySeconds}s lookback so that `
+    + "one order opens it. "
     + `cost_per_confirmed_order stays uninstrumented: ${quoteRows.length}/${quoteRows.length} `
     + "cost inputs are still blocked on a vendor quote (W-0008)\n");
 }

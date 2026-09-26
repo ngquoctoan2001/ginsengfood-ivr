@@ -7,10 +7,14 @@
 # and then page-storm on the first miss.
 #
 # W-0369 / K-61. Both rules on ivr_missed_deadline_total live here now. The capacity rule reads
-# only the capacity reason, so the fourth case hands it the other two and expects silence. The
-# rest are IvrConfirmationWindowsExpiringUndialled: it opens when windows keep closing with nothing
-# dialled, and stays shut while the dialler dials, for one order in a quiet half hour, and for the
-# calling hours ending.
+# only the capacity reason, so the fourth case hands it the other three and expects silence.
+#
+# W-0372 / K-64. The rest are IvrConfirmationWindowsExpiringUnevaluated, which replaced K-61's
+# IvrConfirmationWindowsExpiringUndialled once an order eligibility never answered got a reason of
+# its own. It opens for one such order, for a loop that answers some orders and not others while
+# the dialler stays busy -- the case the old rule, silenced by any dial, never saw -- and for the
+# loop stopping outright; and it stays shut for windows that run out on orders eligibility did
+# answer, dialled or held, and for the calling hours ending.
 rule_files:
   - ivr-slo.rules.yml
 
@@ -66,12 +70,14 @@ tests:
   - interval: 1m
     name: a window that ran out for any other reason opens no capacity ticket
     input_series:
-      # W-0369 / K-61. The first case's single miss, under the two reasons that are not a channel
-      # shortage. Before K-61 either one opened this ticket and sent the on-call to recalibrate a
-      # model that says nothing about them.
+      # W-0369 / K-61. The first case's single miss, under the reasons that are not a channel
+      # shortage. Before K-61 any one of them opened this ticket and sent the on-call to
+      # recalibrate a model that says nothing about them. W-0372 / K-64 added the third.
       - series: 'ivr_missed_deadline_total{ivr_program="GOLDEN_HOUR", ivr_reason_code="WINDOW_EXPIRED_BEFORE_FINAL_RESULT"}'
         values: '0x10 1x30'
       - series: 'ivr_missed_deadline_total{ivr_program="GOLDEN_HOUR", ivr_reason_code="CALLING_HOURS_CLOSED_BEFORE_DISPATCH"}'
+        values: '0x10 1x30'
+      - series: 'ivr_missed_deadline_total{ivr_program="GOLDEN_HOUR", ivr_reason_code="ELIGIBILITY_NOT_EVALUATED_BEFORE_DEADLINE"}'
         values: '0x10 1x30'
     alert_rule_test:
       - eval_time: 20m
@@ -79,67 +85,147 @@ tests:
         exp_alerts: []
 
   - interval: 1m
-    name: windows that keep closing while nothing is dialled open a ticket
+    name: one order eligibility never answered opens a ticket, which closes once it leaves the window
     input_series:
-      # W-0369 / K-61. The eligibility loop stops at minute 10. The dialler works through the jobs
-      # already cleared and goes quiet; from minute 16 an order's window closes every minute with
-      # nobody having called it. The last attempt leaves the 30m lookback at minute 39, and the
-      # rule has held for its 20 minutes at minute 59 -- still pending at 55, open at 65.
-      - series: 'ivr_call_attempts_total{ivr_attempt_number="1"}'
-        values: '0+1x10 10x80'
-      - series: 'ivr_missed_deadline_total{ivr_program="TWENTY_FOUR_SEVEN", ivr_reason_code="WINDOW_EXPIRED_BEFORE_FINAL_RESULT"}'
-        values: '0x15 1+1x75'
+      # W-0372 / K-64. A single order closes unevaluated at minute 11. The threshold is zero, so it
+      # opens the ticket on its own once the rule has held five minutes -- still pending at 14,
+      # open at 20 -- and the ticket closes once the increment has left the 15m lookback, as the
+      # third case proves for the capacity rule. The capacity rule never reads it.
+      - series: 'ivr_missed_deadline_total{ivr_program="GOLDEN_HOUR", ivr_reason_code="ELIGIBILITY_NOT_EVALUATED_BEFORE_DEADLINE"}'
+        values: '0x10 1x50'
     alert_rule_test:
-      - eval_time: 55m
-        alertname: IvrConfirmationWindowsExpiringUndialled
+      - eval_time: 14m
+        alertname: IvrConfirmationWindowsExpiringUnevaluated
         exp_alerts: []
-      - eval_time: 65m
-        alertname: IvrConfirmationWindowsExpiringUndialled
+      - eval_time: 20m
+        alertname: IvrConfirmationWindowsExpiringUnevaluated
         exp_alerts:
           - exp_labels:
               severity: ticket
-              slo: dispatch_flow
+              slo: eligibility_flow
               slo_status: proposed
             exp_annotations:
-              summary: Confirmation windows keep closing while nothing is dialled
-              description: For twenty minutes confirmation windows have kept closing without a final result, and no call has been dialled for half an hour. This is not a channel shortage, which closes under its own reason and opens IvrConfirmationDeadlineMissed. Orders are not reaching the dialler; start with the eligibility loop in the worker health body.
-              runbook_url: docs/slo.md#confirmation-windows-expiring-undialled
+              summary: Confirmation windows are closing on orders eligibility never answered
+              description: A confirmation window closed in the last 15 minutes while eligibility had still not answered its order, so nobody decided whether it could be called and it was not. Its result, IVR_CONFIRMATION_WINDOW_EXPIRED with a hold for review, is already queued for Module 3. This is not a channel shortage and not a capacity model fault; start with the eligibility loop in the worker health body.
+              runbook_url: docs/slo.md#confirmation-windows-expiring-unevaluated
+      - eval_time: 20m
+        alertname: IvrConfirmationDeadlineMissed
+        exp_alerts: []
+      - eval_time: 45m
+        alertname: IvrConfirmationWindowsExpiringUnevaluated
+        exp_alerts: []
+
+  - interval: 1m
+    name: a loop that answers some orders and not others opens a ticket while the dialler stays busy
+    input_series:
+      # W-0372 / K-64. The case K-61's rule never saw. Eligibility answers most orders and the
+      # dialler keeps dialling them; customers not reached keep running out of window, as they
+      # always do; and every ten minutes from minute 21 an order eligibility never reached closes
+      # too. Under K-61 those orders shared the window reason, and the dials silenced the rule for
+      # as long as the partial outage lasted. Counted apart, the first one opens the ticket at 26
+      # and the next keep it open.
+      - series: 'ivr_call_attempts_total{ivr_attempt_number="1"}'
+        values: '0+2x90'
+      - series: 'ivr_missed_deadline_total{ivr_program="GOLDEN_HOUR", ivr_reason_code="WINDOW_EXPIRED_BEFORE_FINAL_RESULT"}'
+        values: '0x15 1+1x75'
+      - series: 'ivr_missed_deadline_total{ivr_program="GOLDEN_HOUR", ivr_reason_code="ELIGIBILITY_NOT_EVALUATED_BEFORE_DEADLINE"}'
+        values: '0x20 1x9 2x9 3x9 4x9 5x30'
+    alert_rule_test:
+      - eval_time: 30m
+        alertname: IvrConfirmationWindowsExpiringUnevaluated
+        exp_alerts:
+          - exp_labels:
+              severity: ticket
+              slo: eligibility_flow
+              slo_status: proposed
+            exp_annotations:
+              summary: Confirmation windows are closing on orders eligibility never answered
+              description: A confirmation window closed in the last 15 minutes while eligibility had still not answered its order, so nobody decided whether it could be called and it was not. Its result, IVR_CONFIRMATION_WINDOW_EXPIRED with a hold for review, is already queued for Module 3. This is not a channel shortage and not a capacity model fault; start with the eligibility loop in the worker health body.
+              runbook_url: docs/slo.md#confirmation-windows-expiring-unevaluated
+      - eval_time: 60m
+        alertname: IvrConfirmationWindowsExpiringUnevaluated
+        exp_alerts:
+          - exp_labels:
+              severity: ticket
+              slo: eligibility_flow
+              slo_status: proposed
+            exp_annotations:
+              summary: Confirmation windows are closing on orders eligibility never answered
+              description: A confirmation window closed in the last 15 minutes while eligibility had still not answered its order, so nobody decided whether it could be called and it was not. Its result, IVR_CONFIRMATION_WINDOW_EXPIRED with a hold for review, is already queued for Module 3. This is not a channel shortage and not a capacity model fault; start with the eligibility loop in the worker health body.
+              runbook_url: docs/slo.md#confirmation-windows-expiring-unevaluated
       # And none of it is a capacity miss.
-      - eval_time: 65m
+      - eval_time: 60m
         alertname: IvrConfirmationDeadlineMissed
         exp_alerts: []
 
   - interval: 1m
-    name: windows that run out while the dialler keeps dialling open nothing
+    name: a loop that has stopped opens a ticket minutes after the first window it missed
     input_series:
-      # W-0369 / K-61. The routine case: customers dialled and not reached before their windows
-      # closed, one a minute for over an hour. Every one of them had an attempt, so the rule never
-      # sees a window close with nothing dialled.
+      # W-0372 / K-64. The case K-61 was built for. The loop stops at minute 10; the dialler works
+      # through the orders already cleared and goes quiet, and from minute 16 an order's window
+      # closes every minute with nobody having evaluated it. K-61's rule opened a ticket at 60,
+      # once the last dial had left its half-hour lookback; this one is pending from 16 and open
+      # at 21.
+      - series: 'ivr_call_attempts_total{ivr_attempt_number="1"}'
+        values: '0+1x10 10x80'
+      - series: 'ivr_missed_deadline_total{ivr_program="TWENTY_FOUR_SEVEN", ivr_reason_code="ELIGIBILITY_NOT_EVALUATED_BEFORE_DEADLINE"}'
+        values: '0x15 1+1x75'
+    alert_rule_test:
+      - eval_time: 19m
+        alertname: IvrConfirmationWindowsExpiringUnevaluated
+        exp_alerts: []
+      - eval_time: 25m
+        alertname: IvrConfirmationWindowsExpiringUnevaluated
+        exp_alerts:
+          - exp_labels:
+              severity: ticket
+              slo: eligibility_flow
+              slo_status: proposed
+            exp_annotations:
+              summary: Confirmation windows are closing on orders eligibility never answered
+              description: A confirmation window closed in the last 15 minutes while eligibility had still not answered its order, so nobody decided whether it could be called and it was not. Its result, IVR_CONFIRMATION_WINDOW_EXPIRED with a hold for review, is already queued for Module 3. This is not a channel shortage and not a capacity model fault; start with the eligibility loop in the worker health body.
+              runbook_url: docs/slo.md#confirmation-windows-expiring-unevaluated
+      - eval_time: 25m
+        alertname: IvrConfirmationDeadlineMissed
+        exp_alerts: []
+
+  - interval: 1m
+    name: customers dialled and not reached in time open neither ticket
+    input_series:
+      # W-0369 / K-61, kept for K-64. The routine case: customers dialled and not reached before
+      # their windows closed, one a minute for over an hour. A result Module 3 receives, and
+      # nothing for a person to do.
       - series: 'ivr_call_attempts_total{ivr_attempt_number="1"}'
         values: '0+1x90'
       - series: 'ivr_missed_deadline_total{ivr_program="GOLDEN_HOUR", ivr_reason_code="WINDOW_EXPIRED_BEFORE_FINAL_RESULT"}'
         values: '0x15 1+1x75'
     alert_rule_test:
       - eval_time: 70m
-        alertname: IvrConfirmationWindowsExpiringUndialled
+        alertname: IvrConfirmationWindowsExpiringUnevaluated
+        exp_alerts: []
+      - eval_time: 70m
+        alertname: IvrConfirmationDeadlineMissed
         exp_alerts: []
 
   - interval: 1m
-    name: one order expiring in a quiet half hour opens no ticket
+    name: orders held for review expiring in a quiet hour open neither ticket
     input_series:
-      # W-0369 / K-61. Nothing dialled all hour, and one order held for review expires at minute
-      # 21. Its increment stays inside the 15m lookback for fourteen minutes, never the twenty the
-      # rule has to hold for. 34m is the last minute the condition is true; 45m is after it.
+      # W-0372 / K-64. Nothing dialled all hour, and orders eligibility held for review expire one
+      # a minute. This is the shape K-61's rule read as an eligibility outage, and it opened a
+      # ticket here at 36. Eligibility did answer these orders: each hold was counted in
+      # ivr_fail_closed_total when it was made, and IvrDownstreamFailClosedSpike pages on their
+      # proportion while the windows are still open. Neither rule on this counter reads the window
+      # reason now.
       - series: 'ivr_call_attempts_total{ivr_attempt_number="1"}'
-        values: '5x60'
+        values: '5x90'
       - series: 'ivr_missed_deadline_total{ivr_program="GOLDEN_HOUR", ivr_reason_code="WINDOW_EXPIRED_BEFORE_FINAL_RESULT"}'
-        values: '0x20 1x40'
+        values: '0x15 1+1x75'
     alert_rule_test:
-      - eval_time: 34m
-        alertname: IvrConfirmationWindowsExpiringUndialled
+      - eval_time: 70m
+        alertname: IvrConfirmationWindowsExpiringUnevaluated
         exp_alerts: []
-      - eval_time: 45m
-        alertname: IvrConfirmationWindowsExpiringUndialled
+      - eval_time: 70m
+        alertname: IvrConfirmationDeadlineMissed
         exp_alerts: []
 
   - interval: 1m
@@ -153,7 +239,7 @@ tests:
         values: '0x15 1+1x75'
     alert_rule_test:
       - eval_time: 70m
-        alertname: IvrConfirmationWindowsExpiringUndialled
+        alertname: IvrConfirmationWindowsExpiringUnevaluated
         exp_alerts: []
       - eval_time: 70m
         alertname: IvrConfirmationDeadlineMissed

@@ -5,6 +5,7 @@ using Ivr.Api.Application;
 using Ivr.Domain.Confirmation;
 using Ivr.Domain.Policies;
 using Ivr.Domain.Ports;
+using Ivr.Infrastructure.Callbacks;
 using Ivr.Infrastructure.Configuration;
 using Ivr.Infrastructure.Eligibility;
 using Ivr.Infrastructure.Intake;
@@ -1691,6 +1692,250 @@ public sealed class SchedulerPersistenceTests(PostgresPersistenceFixture fixture
                 }),
                 new FixedTimeProvider(at))
             .ReadAsync(16, CancellationToken.None);
+
+    /// <summary>
+    /// W-0372 / K-64. An order eligibility never answered is counted under a reason of its own when
+    /// its window closes, and nothing else about the close moves. Under the window reason it sat
+    /// beside customers dialled and not reached and orders held for review, so an eligibility loop
+    /// that answered some orders and not others raised nothing: the alert could only read the shape
+    /// of the whole loop stopping.
+    /// <para>
+    /// Four windows close one after another, so each sweep closes exactly one job and the reason
+    /// it records can only be that job's: the two shapes eligibility never answered (the lab job
+    /// and the dry run), one eligibility held for review through the real path, and one dialled
+    /// once and not answered. Only the first two change reason, and only on the counter. Every
+    /// result still reads IVR_CONFIRMATION_WINDOW_EXPIRED for WINDOW_EXPIRED_BEFORE_FINAL_RESULT, and
+    /// every callback is rebuilt here, byte for byte, from what the sweep wrote before K-64 - so
+    /// Module 3 still cannot tell an order nobody evaluated from one held for a person, which is
+    /// the contract K-54 left in place.
+    /// </para>
+    /// </summary>
+    [Fact]
+    [Trait("TestId", "IT-SCH-UNEVALUATED-01")]
+    public async Task AnOrderEligibilityNeverAnsweredIsCountedUnderItsOwnReasonAndClosesAsBefore()
+    {
+        await fixture.ResetAsync();
+        IDbContextFactory<IvrDbContext> factory = Factory();
+        const string pendingLab = "JOB-SCH-UNEVALUATED-LAB";
+        const string pendingDryRun = "JOB-SCH-UNEVALUATED-DRY";
+        const string heldForReview = "JOB-SCH-UNEVALUATED-HELD";
+        const string dialled = "JOB-SCH-UNEVALUATED-DIALLED";
+        var closesAt = new Dictionary<string, DateTimeOffset>(StringComparer.Ordinal)
+        {
+            [pendingLab] = Now.AddMinutes(4),
+            [pendingDryRun] = Now.AddMinutes(5),
+            [heldForReview] = Now.AddMinutes(6),
+            [dialled] = Now.AddMinutes(7),
+        };
+        await SeedAwaitingEligibilityAsync(
+            factory,
+            "TASK-SCH-UNEVALUATED-LAB",
+            pendingLab,
+            closesAt[pendingLab],
+            mock: false);
+        await SeedAwaitingEligibilityAsync(
+            factory,
+            "TASK-SCH-UNEVALUATED-DRY",
+            pendingDryRun,
+            closesAt[pendingDryRun],
+            mock: true);
+
+        // Sales saying its own eligibility source could not answer, which eligibility holds for a
+        // person rather than dials. Evaluated, so not the fault this reason is for.
+        await SeedAwaitingEligibilityAsync(
+            factory,
+            "TASK-SCH-UNEVALUATED-HELD",
+            heldForReview,
+            closesAt[heldForReview],
+            mock: false,
+            sourceAvailable: false);
+        EligibilityEvaluation evaluation = await new EligibilityService(
+                new PostgresEligibilityRepository(factory),
+                new SchedulerEligibilityCapacityProvider(new PostgresSchedulerCapacityService(
+                    factory,
+                    new SchedulerExecutionContext(IvrOptions.LabRealSimExecutionMode),
+                    Options.Create(new SchedulerOptions()))),
+                new FixedTimeProvider(Now))
+            .EvaluateAsync("TASK-SCH-UNEVALUATED-HELD", "corr-sch-unevaluated-01");
+        Assert.Equal(EligibilityDecisions.HeldAdminReview, evaluation.Decision);
+
+        // Cleared, queued and dialled once, and the customer did not answer before the window
+        // closed: the routine expiry the window reason is left with.
+        await SeedReadyJobAsync(
+            factory,
+            "TASK-SCH-UNEVALUATED-DIALLED",
+            dialled,
+            Now.AddMinutes(-1),
+            expiresAt: closesAt[dialled]);
+        await using (IvrDbContext seed = await factory.CreateDbContextAsync())
+        {
+            CallJobEntity job = await seed.CallJobs.SingleAsync(
+                candidate => candidate.IvrCallJobId == dialled);
+            seed.CallAttempts.Add(new CallAttemptEntity
+            {
+                IvrCallAttemptId = "ATTEMPT-SCH-UNEVALUATED-DIALLED",
+                IvrCallJobId = job.IvrCallJobId,
+                TaskId = job.TaskId,
+                AttemptNumber = 1,
+                MaxAttemptsSnapshot = 2,
+                ScheduledAt = Now.AddMinutes(-1),
+                ScheduledWindowExpiresAt = closesAt[dialled],
+                StartedAt = Now.AddMinutes(-1),
+                Status = "NORMALIZED_ATTEMPT_COMPLETE",
+                ResultStatus = "IVR_NO_ANSWER_ATTEMPT",
+                IsCountedCustomerAttempt = true,
+                PolicyVersion = job.AttemptPolicyCode,
+                ScriptVersion = job.ScriptVersion,
+            });
+            await seed.SaveChangesAsync();
+        }
+
+        var store = new PostgresSchedulerStore(factory, new FixedTimeProvider(Now));
+        List<(string Instrument, string Value)> observed = [];
+        var reasons = new Dictionary<string, string[]>(StringComparer.Ordinal);
+        var results = new Dictionary<string, string[]>(StringComparer.Ordinal);
+        using (MeterListener listener = ListenForReasonsAndResults(observed))
+        {
+            foreach ((string job, DateTimeOffset closes) in closesAt.OrderBy(entry => entry.Value))
+            {
+                lock (observed)
+                {
+                    observed.Clear();
+                }
+
+                Assert.Equal(1, await store.CloseMissedDeadlinesAsync(closes.AddSeconds(1), 16));
+                lock (observed)
+                {
+                    reasons[job] = [.. observed
+                        .Where(measurement => measurement.Instrument == "ivr_missed_deadline_total")
+                        .Select(measurement => measurement.Value)];
+                    results[job] = [.. observed
+                        .Where(measurement => measurement.Instrument == "ivr_call_results_total")
+                        .Select(measurement => measurement.Value)];
+                }
+            }
+        }
+
+        Assert.Equal([PostgresSchedulerStore.EligibilityNotEvaluatedBeforeDeadline], reasons[pendingLab]);
+        Assert.Equal([PostgresSchedulerStore.EligibilityNotEvaluatedBeforeDeadline], reasons[pendingDryRun]);
+        Assert.Equal(["WINDOW_EXPIRED_BEFORE_FINAL_RESULT"], reasons[heldForReview]);
+        Assert.Equal(["WINDOW_EXPIRED_BEFORE_FINAL_RESULT"], reasons[dialled]);
+        Assert.All(
+            results.Values,
+            recorded => Assert.Equal(["IVR_CONFIRMATION_WINDOW_EXPIRED"], recorded));
+
+        await using IvrDbContext verification = await factory.CreateDbContextAsync();
+
+        // Nobody asked for a channel in any of the four, and none of them spent a customer attempt.
+        Assert.Equal(0, await verification.CapacityIncidents.CountAsync());
+        Assert.Equal(1, await verification.CallAttempts.CountAsync());
+        foreach ((string jobId, string decision, bool reached) in new[]
+        {
+            (pendingLab, EligibilityDecisions.Pending, false),
+            (pendingDryRun, EligibilityDecisions.Pending, false),
+            (heldForReview, EligibilityDecisions.HeldAdminReview, false),
+            (dialled, EligibilityDecisions.Eligible, true),
+        })
+        {
+            CallJobEntity job = await verification.CallJobs.AsNoTracking()
+                .SingleAsync(candidate => candidate.IvrCallJobId == jobId);
+            Assert.Equal("WINDOW_EXPIRED", job.Status);
+            Assert.Equal("CLOSED_WINDOW_EXPIRED", job.QueueStatus);
+            Assert.Equal(closesAt[jobId].AddSeconds(1), job.ClosedAt);
+            Assert.Null(job.CapacityIncidentId);
+            Assert.Equal(decision, job.EligibilityDecision);
+
+            CallResultEntity result = await verification.CallResults.AsNoTracking()
+                .SingleAsync(row => row.IvrCallJobId == jobId);
+            Assert.Equal("IVR_CONFIRMATION_WINDOW_EXPIRED", result.ResultType);
+            Assert.Equal("WINDOW_EXPIRED_BEFORE_FINAL_RESULT", result.ResultReason);
+            Assert.True(result.IsFinalForIvr);
+            Assert.False(result.IsCountedCustomerAttempt);
+            Assert.Equal(
+                reached ? "REVALIDATE_AND_EXPIRE_CONFIRMATION" : "REVALIDATE_AND_HOLD_ADMIN_REVIEW",
+                result.RecommendedCoreAction);
+            Assert.Equal(!reached, result.HumanReviewRequired);
+
+            // What the sweep's window branch wrote before K-64, rebuilt from the same factory with
+            // the row's own ids. The payload is stored as text since W-0043, so equal here is equal
+            // on the wire.
+            ResultCallbackEntity callback = await verification.ResultCallbacks.AsNoTracking()
+                .SingleAsync(row => row.IvrCallResultId == result.IvrCallResultId);
+            ResultCallbackEntity before = CallbackOutboxSnapshotFactory.Create(
+                result.IvrCallResultId,
+                job,
+                reached ? 2 : 1,
+                new NormalizedResult(
+                    IvrResultType.IvrConfirmationWindowExpired,
+                    false,
+                    true,
+                    "WINDOW_EXPIRED_BEFORE_FINAL_RESULT",
+                    null,
+                    null,
+                    reached
+                        ? CoreActionRecommendation.RevalidateAndExpireConfirmation
+                        : CoreActionRecommendation.RevalidateAndHoldAdminReview,
+                    !reached,
+                    false,
+                    0),
+                Assert.Single(JsonSerializer.Deserialize<string[]>(result.EvidenceRefsJson ?? "[]")!),
+                Assert.Single(JsonSerializer.Deserialize<string[]>(result.AuditRefsJson ?? "[]")!),
+                closesAt[jobId].AddSeconds(1));
+            Assert.Equal(before.PayloadJson, callback.PayloadJson);
+            Assert.Equal(before.PayloadSha256, callback.PayloadSha256);
+            Assert.Equal("READY", callback.DeliveryStatus);
+
+            // And the audit row is the window's, naming the decision as K-54 made it.
+            AuditLogEntity audit = await verification.AuditLog.AsNoTracking()
+                .SingleAsync(row => row.TargetId == jobId && row.Action == "SCHEDULER_WINDOW_EXPIRED");
+            using JsonDocument data = JsonDocument.Parse(audit.DataJson);
+            Assert.Equal(decision, data.RootElement.GetProperty("eligibility_decision").GetString());
+            Assert.Equal(reached, data.RootElement.GetProperty("customer_was_reached").GetBoolean());
+        }
+
+        Assert.Equal(
+            0,
+            await verification.AuditLog.CountAsync(row => row.Action == "SCHEDULER_DEADLINE_MISSED"));
+    }
+
+    /// <summary>
+    /// W-0372 / K-64. The reason each missed deadline was counted under, and the type each result
+    /// was counted as. <see cref="ListenForCapacityMetrics"/> keeps the programme instead, which the
+    /// jobs in these tests all share.
+    /// </summary>
+    private static MeterListener ListenForReasonsAndResults(
+        List<(string Instrument, string Value)> observed)
+    {
+        var listener = new MeterListener
+        {
+            InstrumentPublished = (instrument, target) =>
+            {
+                if (instrument.Meter.Name == IvrTelemetry.ServiceName
+                    && instrument.Name is "ivr_missed_deadline_total" or "ivr_call_results_total")
+                {
+                    target.EnableMeasurementEvents(instrument);
+                }
+            },
+        };
+        listener.SetMeasurementEventCallback<long>((instrument, _, tags, _) =>
+        {
+            string value = string.Empty;
+            foreach (KeyValuePair<string, object?> tag in tags)
+            {
+                if (tag.Key is TelemetryTags.ReasonCode or TelemetryTags.ResultType)
+                {
+                    value = tag.Value?.ToString() ?? string.Empty;
+                }
+            }
+
+            lock (observed)
+            {
+                observed.Add((instrument.Name, value));
+            }
+        });
+        listener.Start();
+        return listener;
+    }
 
     [Fact]
     [Trait("TestId", "IT-SCH-HOLD-10")]

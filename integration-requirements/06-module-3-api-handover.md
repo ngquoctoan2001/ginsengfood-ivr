@@ -651,7 +651,7 @@ Các decision Module 3 cần xử lý:
 | HTTP / decision | Ý nghĩa | Module 3 làm gì |
 | --- | --- | --- |
 | `200 TASK_ACCEPTED_CALL_JOB_CREATED` | IVR đã nhận task real-mode và tạo job | Lưu `ivr_call_job_id`, chờ callback |
-| `200 TASK_ACCEPTED_DRY_RUN_ONLY` | Chỉ ghi nhận MOCK, không gọi thật | Không chờ callback khách thật |
+| `200 TASK_ACCEPTED_DRY_RUN_ONLY` | Chỉ deployment `MOCK` (sandbox, `IR-08`) trả decision này. IVR nhận task, tạo job rồi chạy cùng chuỗi xử lý như task thật, nhưng quay số tới SIM giả — **không** gọi khách. Kết quả là kịch bản cấu hình sẵn trên deployment: sandbox chọn theo `task_id` (`IR-08` §6), `task_id` không có kịch bản riêng thì nghe máy và bấm `1` | Lưu `ivr_call_job_id`, **chờ callback** như task thật — tới đầu nhận mà deployment đó trỏ vào (sandbox: `IR-08` §7) — và trả ACK: kết quả cuối của cuộc gọi giả lập, hoặc kết quả hết cửa sổ (§4.3). Callback này giống hệt callback thật — cùng body §4.2, cùng bộ header, **không** field nào báo giả lập — nên chỉ trỏ sandbox vào đầu nhận thử của Module 3, không bao giờ vào đơn thật; muốn tách thì dựa vào decision này, lưu theo `task_id`. *Sửa `26/09` (`K-65`): bản trước ghi "Chỉ ghi nhận MOCK, không gọi thật" và "Không chờ callback khách thật", đọc như thể không có callback. Sandbox `MOCK` (`W-0282`) phát callback cho task này; từ `K-54` (`W-0365`), cả khi eligibility chưa kịp xét task trước lúc hết cửa sổ* |
 | `200 TASK_HELD_ADMIN_REVIEW` | IVR chưa thể thực thi vì gate kỹ thuật/an toàn | Không coi là đã gọi; đưa vận hành xử lý |
 | `200 TASK_HELD_POLICY_MISSING` | Policy/version thực thi chưa sẵn sàng | Sửa cấu hình/payload; không chờ callback |
 | `200 TASK_BLOCKED_OPERATIONAL` | IVR không nhận task vì một chặn vận hành; task **không** được lưu. Hai reason trong `blocked_reasons`: `CALLING_WINDOW_CLOSED_FOR_WHOLE_CONFIRMATION_WINDOW` — `T0` ngoài giờ gọi (§3.4.2); `DIAL_TOKEN_PROTECTION_UNAVAILABLE` — task gửi `dial_token` **không** kèm `phone_e164`, trên deployment ngoài MOCK chưa có bộ mã hoá dial token (production hiện chưa có) | **Không chờ callback. Không retry với cùng payload** — kết quả không đổi. Giờ gọi: đơn `TWENTY_FOUR_SEVEN` (COD) thì giữ lại, gửi lại từ `08:00` với cửa sổ mới và `Idempotency-Key` mới (được dùng lại `task_id`) — §3.4.2. Bộ mã hoá dial token: vấn đề cấu hình phía IVR; báo IVR. *Thêm `25/09` (mục `C15` trong danh sách chief)* |
@@ -672,7 +672,22 @@ Target guarantee cần đạt trước integration thật:
 
 - Chỉ `TASK_ACCEPTED_CALL_JOB_CREATED` nghĩa là IVR đã nhận trách nhiệm thực thi.
 - Mọi task đã accepted phải đi đến một terminal outcome/callback hoặc một incident kỹ thuật có thể quan sát; không được âm thầm business-skip.
-- Module 3 không chờ callback cho `DRY_RUN` hoặc `HELD_*`.
+- `TASK_ACCEPTED_DRY_RUN_ONLY` **có** callback: task đi cùng chuỗi xử lý với task thật, nhưng quay
+  số tới SIM giả (dòng `DRY_RUN` ở bảng trên).
+- `TASK_HELD_ADMIN_REVIEW` và `TASK_HELD_POLICY_MISSING` ở intake **không** tạo job, nên **không bao
+  giờ** có callback, và phía IVR không còn gì để xử lý tiếp. Lý do nằm ở `blocked_reasons`:
+  `TASK_HELD_POLICY_MISSING` khi `attempt_policy_version` chưa có hoặc chưa được duyệt cho chế độ
+  đang chạy (`ATTEMPT_POLICY_NOT_FOUND`, `ATTEMPT_POLICY_NOT_APPROVED_FOR_MODE`), hoặc khi deployment
+  ngoài `MOCK` nhận task thiếu `evidence_policy_version`/`privacy_policy_version`
+  (`NON_MOCK_DEPENDENCY_EVIDENCE_MISSING`, §3.5); `TASK_HELD_ADMIN_REVIEW` hôm nay chỉ có trên
+  deployment `PRODUCTION_REAL` khi chưa mở gọi khách thật (`REAL_CUSTOMER_CALL_ALLOWED_NO`). Sửa
+  nguyên nhân rồi gửi lại với `Idempotency-Key` **mới**, được dùng lại `task_id`; gửi lại cùng key thì
+  IVR trả lại quyết định cũ, hoặc `409` nếu body đã đổi.
+- Task **đã nhận** mà bước eligibility giữ lại sau intake là trường hợp khác: có callback khi hết cửa
+  sổ (§3.11, §4.3).
+
+*Sửa `26/09` (`K-65`): bản trước ghi "Module 3 không chờ callback cho `DRY_RUN` hoặc `HELD_*`" — sai
+với `DRY_RUN`, và không nói task bị giữ ở intake phải được gửi lại.*
 
 ### 3.10. Quy định producer — `ivr_confirmation_required` và cặp program × payment
 
@@ -688,9 +703,13 @@ service; reject cứng có error envelope `4xx`. Chỉ response `200` mới có
 
 Producer của M3 **PHẢI** rẽ nhánh theo HTTP/response shape trước, rồi mới đọc `decision` khi body là
 `IvrTaskIntakeResult`. Nếu chỉ kiểm `2xx` mà không đọc decision, M3 vẫn có thể chờ callback cho
-`DRY_RUN`/`HELD`; nếu cố đọc decision từ `4xx`, nó sẽ bỏ qua stable `error.code`.
+`HELD_*`, loại không bao giờ có callback (§3.9); nếu cố đọc decision từ `4xx`, nó sẽ bỏ qua stable
+`error.code`.
 
-Chỉ đúng một decision nghĩa là IVR đã nhận trách nhiệm gọi: `TASK_ACCEPTED_CALL_JOB_CREATED`. Mọi giá trị khác đều là "M3 tự xử lý tiếp".
+Chỉ đúng một decision nghĩa là IVR đã nhận trách nhiệm gọi: `TASK_ACCEPTED_CALL_JOB_CREATED`. Mọi giá trị khác đều là "M3 tự xử lý tiếp" — trừ `TASK_ACCEPTED_DRY_RUN_ONLY`, decision chỉ deployment `MOCK` trả: IVR không gọi khách nhưng vẫn gửi callback của cuộc gọi giả lập (§3.9).
+
+*Sửa `26/09` (`K-65`): bản trước ghi "chờ callback cho `DRY_RUN`/`HELD`" như một lỗi, tức coi `DRY_RUN`
+cũng không có callback.*
 
 #### R2 — Không bao giờ gửi task kèm `ivr_confirmation_required=false`
 

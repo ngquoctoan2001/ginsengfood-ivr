@@ -185,7 +185,7 @@ phương án B, chờ Sếp trả lời mục B2 (`OD-V1-17`, `18`); `OD-V1-09` 
 | **IVR đề xuất** | Rẽ nhánh theo **`decision`**. HTTP `200` **không** có nghĩa là "đã tạo cuộc gọi". |
 | **Vì sao** | `200` mang **năm** kết quả khác nhau, trong đó có hai kết quả **không** tạo cuộc gọi nào. Rẽ theo status sẽ coi task bị giữ lại là đã gọi. |
 | **12 giá trị `decision`** | `TASK_ACCEPTED_CALL_JOB_CREATED` · `TASK_ACCEPTED_DRY_RUN_ONLY` · `TASK_SKIPPED_TRUSTED_CUSTOMER` *(legacy, không phát nữa)* · `TASK_REJECTED_NOT_OFFICIAL_ORDER` · `TASK_REJECTED_STATE_NOT_CALLABLE` · `TASK_REJECTED_POLICY_MISMATCH` · `TASK_REJECTED_CONTACT_INVALID` · `TASK_REJECTED_SCRIPT_NOT_APPROVED` · `TASK_REJECTED_INVALID_TRACE` · `TASK_BLOCKED_OPERATIONAL` · `TASK_HELD_ADMIN_REVIEW` · `TASK_HELD_POLICY_MISSING` |
-| **IVR đề xuất cách xử lý** | `*_ACCEPTED_*` → chờ callback. `*_REJECTED_*` → **không** retry mù, sửa dữ liệu rồi gửi lại với `Idempotency-Key` **mới**. `TASK_BLOCKED_OPERATIONAL` → **retry được**, đây là trạng thái tạm (kill switch/hết dung lượng) *(xem đính chính 25/09)*. `TASK_HELD_*` → **không** retry, chờ người xử lý phía IVR. |
+| **IVR đề xuất cách xử lý** | `*_ACCEPTED_*` → chờ callback. `*_REJECTED_*` → **không** retry mù, sửa dữ liệu rồi gửi lại với `Idempotency-Key` **mới**. `TASK_BLOCKED_OPERATIONAL` → **retry được**, đây là trạng thái tạm (kill switch/hết dung lượng) *(xem đính chính 25/09)*. `TASK_HELD_*` → **không** retry, chờ người xử lý phía IVR *(xem đính chính 26/09, `K-65`)*. |
 | **Nếu M3 chọn khác** | Retry mù trên `*_REJECTED_*` sẽ lặp vô hạn: nguyên nhân là dữ liệu, không phải thời điểm. |
 | **Trả lời** | ☐ ĐỒNG Ý ☐ KHÁC: ____________________________________________ |
 
@@ -801,3 +801,20 @@ vì `200` rồi không bao giờ được gọi.*
 | Tên hàng có chữ trùng dấu địa chỉ | *(không nói)* | Tên hàng được kiểm bằng guard sản phẩm ở intake, và từ `26/09` (`Q-12`) cũng ở lúc quay, nên các món yến sào, chất tạo ngọt… Module 3 gửi có dấu được nhận và được gọi. Tên hàng viết **không dấu** mà trùng chữ địa chỉ vẫn bị intake từ chối như trước |
 | Endpoint phát lại callback · trạng thái nhận | `RETRY_EXHAUSTED`, `INVALID_DEAD_LETTER` | Thêm `AUTH_REJECTED` (`Q-19`, `draft.34`): khi IVR xác thực callback, một credential sai làm mọi kết quả rơi vào trạng thái này |
 | Endpoint phát lại callback · tuổi | *(dòng `M3-10` · `D-5` của đính chính `25/09`)* không giới hạn tuổi | Giới hạn `7` ngày, cấu hình `1–30`; quá thì `409 IVR_VERSION_CONFLICT`. Dòng đó đã sửa tại chỗ, cùng dòng `E-8` |
+
+---
+
+## Đính chính bổ sung `2026-09-26` — task bị giữ ngay ở intake, và task `DRY_RUN` (`K-65`)
+
+> Viết sau hai đính chính `26/09` ngay trên (`K-59`, và contract `draft.34`). Chỗ nào mục này nói khác phần trên hoặc các đính chính trước thì
+> **mục này thắng**. Không đổi contract, không đổi hành vi của IVR: sửa một đề xuất xử lý ở `M3-02` không khớp
+> runtime, và nói rõ callback trên sandbox. [`IR-06`](06-module-3-api-handover.md) §3.9 sửa cùng lượt.
+
+**Nếu chỉ đọc một câu:** *task bị giữ ngay ở intake (`TASK_HELD_*`) không bao giờ có callback và phía IVR không còn gì
+để xử lý tiếp — sửa nguyên nhân rồi gửi lại với `Idempotency-Key` mới; còn `TASK_ACCEPTED_DRY_RUN_ONLY` trên sandbox
+thì **có** callback, giống hệt callback thật.*
+
+| Chỗ trong phiếu | Phiếu ghi | Đúng là |
+| --- | --- | --- |
+| `M3-02` · *IVR đề xuất cách xử lý* · `TASK_HELD_*` | **Không** retry, chờ người xử lý phía IVR | Task bị giữ ngay ở intake (`200 TASK_HELD_ADMIN_REVIEW`, `200 TASK_HELD_POLICY_MISSING`) **không** được lưu thành job: không có callback, và phía IVR không còn gì để xử lý tiếp — chờ là chờ mãi. Đọc lý do ở `blocked_reasons`, sửa nguyên nhân (payload phía Module 3; cấu hình phía IVR thì báo IVR), rồi gửi lại với `Idempotency-Key` **mới** — được dùng lại `task_id`; gửi lại cùng key thì nhận lại quyết định cũ, hoặc `409` nếu body đã đổi. Danh sách lý do ở `IR-06` §3.9. Task **đã nhận** mà bước eligibility giữ lại sau đó là trường hợp khác: có callback khi hết cửa sổ (đính chính `26/09`, `K-59`, ngay trên) |
+| `M3-02` · `TASK_ACCEPTED_DRY_RUN_ONLY` | *(không nói gì riêng; gộp vào `*_ACCEPTED_*` → chờ callback)* | Vẫn chờ callback, và trả ACK. Decision này chỉ deployment `MOCK` (sandbox [`IR-08`](08-module-3-sandbox-guide.md)) trả: IVR quay số tới SIM giả, không gọi khách, rồi gửi callback như task thật — kết quả cuối của cuộc gọi giả lập, hoặc kết quả hết cửa sổ — tới đầu nhận mà sandbox trỏ vào (`IR-08` §7). Callback đó giống hệt callback thật, **không** field nào báo giả lập: chỉ trỏ sandbox vào đầu nhận thử của Module 3 (`M3-21`), không bao giờ vào đơn thật. `IR-06` §3.9 trước đây ghi "không chờ callback" cho `DRY_RUN`; đã sửa (`K-65`) |

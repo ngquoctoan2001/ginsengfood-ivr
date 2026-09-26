@@ -1,6 +1,7 @@
 using System.Data;
 using System.Text.Json;
 using Ivr.Domain.Confirmation;
+using Ivr.Domain.Policies;
 using Ivr.Infrastructure.Callbacks;
 using Ivr.Infrastructure.Observability;
 using Ivr.Infrastructure.Persistence;
@@ -76,6 +77,21 @@ public sealed class PostgresSchedulerStore(
     /// change: the result is still <c>IVR_CAPACITY_EXCEPTION</c> with its usual reason.
     /// </summary>
     public const string CallingHoursClosedBeforeDispatch = "CALLING_HOURS_CLOSED_BEFORE_DISPATCH";
+
+    /// <summary>
+    /// W-0372 / K-64 (2026-09-26). The <c>ivr.reason_code</c> on <c>ivr_missed_deadline_total</c> for
+    /// a job whose window closed while it was still waiting on eligibility
+    /// (<c>PENDING_ELIGIBILITY</c>): nobody ever decided whether the order could be called. Both
+    /// shapes intake writes get it, the lab job and the dry run - in MOCK the eligibility loop
+    /// evaluates the dry run exactly as it evaluates the lab job elsewhere, so a dry run it never
+    /// reached is the same fault in a sandbox. Under the window reason these jobs sat beside
+    /// customers dialled and not reached, dry runs and orders held for review, most of which need
+    /// nobody, so an eligibility loop answering some orders and not others moved nothing an alert
+    /// could read. What Module 3 receives does not change: the result is still
+    /// <c>IVR_CONFIRMATION_WINDOW_EXPIRED</c> for <c>WINDOW_EXPIRED_BEFORE_FINAL_RESULT</c>, and the
+    /// audit row already names the decision.
+    /// </summary>
+    public const string EligibilityNotEvaluatedBeforeDeadline = "ELIGIBILITY_NOT_EVALUATED_BEFORE_DEADLINE";
 
     /// <summary>
     /// Q-22.2. Whether this store was given the calling hours and the call length, so that its
@@ -506,6 +522,20 @@ public sealed class PostgresSchedulerStore(
             // incident: that shortage was measured when it was held.
             bool hoursRanOut = capacityMiss && !capacityHeld && CallingHoursRanOut(job);
 
+            // W-0372 / K-64. A job still waiting on eligibility when its window closed was never
+            // evaluated at all: the eligibility loop was off, failing, or never reached this order.
+            // The decision is the whole test - eligibility replaces PENDING_ELIGIBILITY with
+            // whatever it decides, and since K-60 a late evaluation refuses under the row lock, so
+            // every such job ends here still pending. It closes exactly as K-54 made it close, and
+            // is counted under its own reason: under the window reason it hid among customers
+            // dialled and not reached, dry runs and orders held for review, and a loop that
+            // answered some orders and not others raised nothing. Never a capacity miss either: its
+            // status is CREATED or DRY_RUN, so no channel was ever asked for.
+            bool eligibilityNeverAnswered = string.Equals(
+                job.EligibilityDecision,
+                EligibilityDecisions.Pending,
+                StringComparison.Ordinal);
+
             // The customer side of the same question, and it is not the same question. Reaching
             // the customer at least once means the confirmation genuinely lapsed and Core can
             // expire it. Never reaching them means the order would die for a call that was never
@@ -633,10 +663,16 @@ public sealed class PostgresSchedulerStore(
             job.ClosedAt = detectedAt;
             job.ClosedReason = normalized.ResultStatus;
             context.AuditLog.Add(audit);
+
+            // The reason the counter carries, which is not always the result's: running out of
+            // calling hours (Q-22.2) and never being evaluated (W-0372 / K-64) are told apart here
+            // and nowhere in what Module 3 receives.
             closed.Add((
                 job.ProgramType,
                 normalized.ResultStatus,
-                hoursRanOut ? CallingHoursClosedBeforeDispatch : reasonCode));
+                hoursRanOut
+                    ? CallingHoursClosedBeforeDispatch
+                    : eligibilityNeverAnswered ? EligibilityNotEvaluatedBeforeDeadline : reasonCode));
         }
 
         await context.SaveChangesAsync(cancellationToken);

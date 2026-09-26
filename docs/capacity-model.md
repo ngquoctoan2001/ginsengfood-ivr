@@ -231,7 +231,10 @@ có mô hình lỗi kênh. `CAP-ALERT-04` đòi đúng ba điều — luật t�
 đi qua `increase()` (một counter đơn điệu so thẳng với 0 sẽ **nổ mãi mãi** sau lần đầu). *(Sửa `26/09`, `K-61`: nay
 thêm điều thứ tư — luật chỉ đọc lý do thiếu kênh, `NO_DISPATCH_BEFORE_DEADLINE`, và mỗi lý do sweep ghi, đọc lại từ
 code, có đúng một luật đọc nó. Đơn bị giữ chờ duyệt, chưa được eligibility trả lời hay hết giờ gọi không nói gì về mô
-hình; xem `docs/slo.md` §9 và §9a.)*
+hình; xem `docs/slo.md` §9 và §9a.)* *(Sửa `26/09`, `K-64`: "đúng một luật đọc nó" nói chính xác là một chỗ đã
+quyết. Đơn eligibility chưa trả lời nay có lý do riêng, `ELIGIBILITY_NOT_EVALUATED_BEFORE_DEADLINE`, do luật §9a đọc;
+`WINDOW_EXPIRED_BEFORE_FINAL_RESULT` và `CALLING_HOURS_CLOSED_BEFORE_DISPATCH` được quyết là không luật nào đọc. Luật
+dung lượng không đổi.)*
 
 Và nó buộc hai thứ vào nhau: **luật không-khoan-nhượng chỉ trung thực khi pool ship còn phủ được
 đỉnh mô hình**. Nếu `simPoolSize` prod tụt xuống dưới, chính pool đó bảo đảm sẽ trượt, luật thành

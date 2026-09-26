@@ -90,10 +90,11 @@ groups:
       # the rule cannot outlive its own justification.
       #
       # W-0369 / K-61. Only the capacity reason, because the argument above covers nothing else.
-      # The sweep closes a job under one of three reasons (ivr_reason_code), and only
+      # The sweep closes a job under one of four reasons (ivr_reason_code), and only
       # NO_DISPATCH_BEFORE_DEADLINE says a channel was missing: queued and none came, or held by
       # eligibility because none would (K-52). WINDOW_EXPIRED_BEFORE_FINAL_RESULT is a job that was
-      # dialled, a dry run, one held for review or one eligibility never answered (K-54);
+      # dialled, a dry run or one held for review; ELIGIBILITY_NOT_EVALUATED_BEFORE_DEADLINE is one
+      # eligibility never answered (K-54, a reason of its own since W-0372 / K-64);
       # CALLING_HOURS_CLOSED_BEFORE_DISPATCH is the calling hours running out (Q-22.2). The model
       # says nothing about any of them, so summing them here sent the on-call to recalibrate it
       # over orders no channel could have saved. An exact match, not an exclusion: a reason added
@@ -116,45 +117,58 @@ groups:
           description: The capacity model says the shipped pool covers the modelled peak, so a miss on {{ $labels.ivr_program }} falsifies a model assumption. The fix is recalibration against a measured call duration (W-0008), not a bigger pool.
           runbook_url: docs/slo.md#capacity-deadline-missed
 
-      # W-0369 / K-61. The rest of the same counter. Most windows that run out without a final
-      # result need nobody: a customer dialled and not reached in time is a result Module 3
-      # receives, a dry run never wanted a channel, and an order held for review was counted in
+      # W-0372 / K-64. An order whose window closed while eligibility had still not answered it
+      # (K-54): nobody decided whether it could be called, and it was not. The sweep counts it under
+      # a reason of its own now, so this rule reads it directly. K-61 had to find these orders by
+      # their shape instead, because the window reason also carries customers dialled and not
+      # reached, dry runs and orders held for review: "windows keep closing while nothing at all is
+      # dialled". That shape exists only once the loop has stopped outright, and it opened a ticket
+      # about an hour later. A loop that answered some orders and not others never raised it at
+      # all: the orders it did answer kept the dialler busy, and one dial silenced the rule.
+      #
+      # The threshold is zero, and that is derived rather than chosen. While the loop runs it asks
+      # every second and backs off to at most 30s after a failure (LoopBackoff), and a confirmation
+      # window lasts five minutes or fifteen, so no order should reach its deadline unanswered. One
+      # that does is a customer who lost the confirmation call without anybody deciding so: the
+      # loop is off, fails every pass, or fails for some orders -- one the endpoint refuses every
+      # time, or more orders than the passes can evaluate. Nothing else sees any of it. Nothing was
+      # evaluated, so nothing failed closed; a loop that throws is still live to the probe, by
+      # design; and an order nobody cleared has no attempt for the backlog gauge to age.
+      #
+      # Dry runs count too. In MOCK the loop evaluates a dry run exactly as it evaluates the lab
+      # job elsewhere, so a dry run it never reached is the same fault in a sandbox, and the
+      # sandbox is where the loop's wiring gets rehearsed. The chart turns neither the scheduler nor
+      # the loop on (worker.eligibilityPolling.enabled defaults to false and no values file sets it,
+      # and the sweep runs only inside the scheduler); an environment that turns the scheduler on
+      # and leaves the loop off gets a ticket for each order that arrives, which is the point --
+      # nothing else would say so.
+      #
+      # for: 5m, as the other zero-threshold counters here. It delays the ticket and cannot hide an
+      # order: one increment stays in the 15m lookback three times as long as the hold, and
+      # CAP-ALERT-04 keeps the hold shorter than the lookback. sum, not by ivr_program: the loop is
+      # one for every programme, so one fault opens one ticket. And nothing is combined with the
+      # read -- K-61's "unless" on dials is what hid a partial outage, and CAP-ALERT-04 refuses it.
+      #
+      # The window reason itself is read by no rule now. What is left under it needs nobody: a
+      # customer dialled and not reached in time is a result Module 3 receives, a dry run
+      # eligibility cleared never wanted a channel, and an order held for review was counted in
       # ivr_fail_closed_total when it was held -- IvrDownstreamFailClosedSpike pages on those while
-      # their windows are still open. There is no baseline for a threshold on the count, so this
-      # rule does not put one on it.
+      # their windows are still open. There is no baseline for a threshold on the count.
       #
-      # What needs a person is an order eligibility never answered (K-54): the worker's
-      # eligibility loop failing every pass, or switched off. Nothing else sees that. Nothing is
-      # evaluated, so nothing fails closed; a loop that throws is still live to the probe, by
-      # design; and an order nobody cleared has no attempt for the backlog gauge to age. Before
-      # K-61 only the capacity rule fired for it, pointing at the model. The reason cannot tell
-      # those orders from the rest, but their shape can: windows keep closing while nothing at
-      # all is dialled.
-      #
-      # 30m of attempts against 15m of expiries. A dialled job's attempt falls inside its window,
-      # so at most 15 minutes (24/7, the longest) before it expires, and 15 + 15 keeps that attempt
-      # in view for as long as the expiry is counted: a job that was dialled can never raise this
-      # rule, only one that was not. for: 20m, the lookback plus the five minutes the rule above
-      # holds, so one order held in a quiet half hour cannot open a ticket -- windows have to keep
-      # closing. CAP-ALERT-04 holds both inequalities against the model's longest window.
-      #
-      # Not the hours reason: it closes jobs when calling stops for the night, when nothing is
-      # dialled by design, and would open a ticket every evening. Ticket, as above: every job here
-      # is already closed and its result is already queued for Module 3.
-      - alert: IvrConfirmationWindowsExpiringUndialled
-        expr: |
-          sum(increase(ivr_missed_deadline_total{ivr_reason_code="WINDOW_EXPIRED_BEFORE_FINAL_RESULT"}[15m])) > 0
-          unless
-          sum(increase(ivr_call_attempts_total[30m])) > 0
-        for: 20m
+      # Ticket, not page: every job here is already closed, its result is queued for Module 3 and
+      # carries REVALIDATE_AND_HOLD_ADMIN_REVIEW, so a person owns each order. A loop that stays
+      # down keeps losing orders until someone acts, which is why an owner may yet want a page.
+      - alert: IvrConfirmationWindowsExpiringUnevaluated
+        expr: sum(increase(ivr_missed_deadline_total{ivr_reason_code="ELIGIBILITY_NOT_EVALUATED_BEFORE_DEADLINE"}[15m])) > 0
+        for: 5m
         labels:
           severity: ticket
-          slo: dispatch_flow
+          slo: eligibility_flow
           slo_status: proposed
         annotations:
-          summary: Confirmation windows keep closing while nothing is dialled
-          description: For twenty minutes confirmation windows have kept closing without a final result, and no call has been dialled for half an hour. This is not a channel shortage, which closes under its own reason and opens IvrConfirmationDeadlineMissed. Orders are not reaching the dialler; start with the eligibility loop in the worker health body.
-          runbook_url: docs/slo.md#confirmation-windows-expiring-undialled
+          summary: Confirmation windows are closing on orders eligibility never answered
+          description: A confirmation window closed in the last 15 minutes while eligibility had still not answered its order, so nobody decided whether it could be called and it was not. Its result, IVR_CONFIRMATION_WINDOW_EXPIRED with a hold for review, is already queued for Module 3. This is not a channel shortage and not a capacity model fault; start with the eligibility loop in the worker health body.
+          runbook_url: docs/slo.md#confirmation-windows-expiring-unevaluated
 
       - alert: IvrIntakeRejectionRatioHigh
         expr: |

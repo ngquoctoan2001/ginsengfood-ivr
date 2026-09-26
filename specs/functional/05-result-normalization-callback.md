@@ -19,10 +19,16 @@ Hai mã còn lại được giữ để tương thích nhưng **không phải ca
   `BLOCKED_BY_CORE`; kết quả quan sát (`IVR_CONFIRMED`, `IVR_CUSTOMER_CANCELLED`, ...) không bị
   viết lại.
 
-`IVR_CONFIRMATION_WINDOW_EXPIRED` do scheduler IVR tạo khi cửa sổ hết trước final result. Sweep
-không tính thêm customer attempt. Nếu đã có counted attempt, advisory là revalidate rồi expire;
-nếu chưa từng có counted attempt, advisory là revalidate rồi hold admin review. Sales/Order Core
-vẫn là bên duy nhất được đổi order state.
+`IVR_CONFIRMATION_WINDOW_EXPIRED` do scheduler IVR tạo khi cửa sổ hết trước final result, trừ hai
+loại job chưa từng được đưa đi quay số: job đang xếp hàng, và job bị eligibility giữ vì hết dung
+lượng — hai loại này đóng bằng `IVR_CAPACITY_EXCEPTION`. Sweep không tính thêm customer attempt.
+Nếu đã có counted attempt, action là `CORE_REVALIDATE_AND_EXPIRE_CONFIRMATION`; nếu chưa từng có
+counted attempt, action là `CORE_REVALIDATE_AND_HOLD_ADMIN_REVIEW`. Với kết quả này action
+**không** phải advisory: Module 3 bắt buộc đọc nó, vì bảng `ivr-cancel-reason-map.v1` khoá theo
+action ([IR-06](../../integration-requirements/06-module-3-api-handover.md) §4.3, §4.4).
+Sales/Order Core vẫn là bên duy nhất được đổi order state. *Sửa `26/09` (`K-65`): bản trước gọi hai
+action này là "advisory", trái đính chính `C22` ở IR-06, và chưa nêu ngoại lệ
+`IVR_CAPACITY_EXCEPTION` (`K-52`).*
 Technical/capacity/window-sweep exceptions are not customer attempts. IVR never transitions the
 order. Quyết định chi tiết và nguồn KPI nằm ở
 [DT-06](../decisions/DT-06-blocked-result-semantics.md); gói ký hiện hành nằm ở
@@ -43,7 +49,17 @@ Current Golden Hour endpoint is an isolated compatibility adapter, not Target V1
 
 ## No-answer
 
-`IVR_NO_ANSWER_FINAL` recommends `CORE_NO_STATE_CHANGE_WAIT_FOR_TIMEOUT`; Sales timeout worker may expire only after revalidation. IVR does not cancel and does not send notification.
+`IVR_NO_ANSWER_FINAL` carries `recommended_core_action = CORE_NO_STATE_CHANGE_WAIT_FOR_TIMEOUT`, but
+for this result the value is only a label that an IVR database constraint locks to it
+(`ck_ivr_call_results_action_matches_type`). Module 3 neither follows it nor waits for a timeout: it
+cancels a `TWENTY_FOUR_SEVEN` (COD) order with reason `IVR_NO_ANSWER_MAX`, and for a `GOLDEN_HOUR`
+order lets the confirmation lapse and releases the slot per flow 05 (reason `IVR_NO_ANSWER_MAX`).
+IVR itself never cancels an order and sends no notification. Source:
+[IR-06](../../integration-requirements/06-module-3-api-handover.md) §4.4, correction `C7`, and
+[IR-07](../../integration-requirements/07-module-3-decision-sheet.md), correction `25/09`, rows
+`A-10` and `M3-13`. *Sửa `26/09` (`K-65`): bản trước ghi "recommends
+`CORE_NO_STATE_CHANGE_WAIT_FOR_TIMEOUT`; Sales timeout worker may expire only after revalidation" —
+viết trước chốt chief `C7` (`25/09`).*
 
 ## Requirements
 

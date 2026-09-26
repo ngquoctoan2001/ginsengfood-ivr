@@ -1,0 +1,25 @@
+{
+  "schema": "ivr-acceptance-tests/v1",
+  "workId": "W-0372",
+  "scope": "software",
+  "requiredTestIds": [
+    "UT-AST-HTTP-01",
+    "UT-AST-HTTP-02",
+    "UT-AST-HTTP-03",
+    "UT-AST-HTTP-04",
+    "UT-AST-HTTP-05",
+    "IT-SCH-UNEVALUATED-01",
+    "UT-DASH-REASON-06",
+    "IT-SLO-CAPACITY-04"
+  ],
+  "gates": [
+    "generate-test-traceability.mjs",
+    "gate-status.mjs",
+    "capacity-selftest.mjs",
+    "d06-revalidation-evidence-validator.mjs",
+    "dial-token-production-bundle-validator.mjs",
+    "opt-out-suppression-bundle-validator.mjs",
+    "upstream-session-signoff-validator.mjs",
+    "contract-freeze-verifier.mjs"
+  ]
+}

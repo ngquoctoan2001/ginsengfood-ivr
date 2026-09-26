@@ -1,4 +1,5 @@
 using System.Collections.Concurrent;
+using System.Net;
 using System.Net.Http.Headers;
 using System.Net.WebSockets;
 using System.Text;
@@ -69,6 +70,47 @@ public sealed class AsteriskAriSimGateway(
         public TaskCompletionSource<bool> Ended { get; } =
             new(TaskCreationOptions.RunContinuationsAsynchronously);
     }
+
+    /// <summary>
+    /// The ARI REST operations the adapter makes. Each reads an unsuccessful answer its own way
+    /// (W-0372 / K-63, <see cref="Unsuccessful"/>).
+    /// </summary>
+    private enum AriOperation
+    {
+        Originate,
+        Playback,
+        Hangup,
+        HealthPing,
+    }
+
+    /// <summary>
+    /// How long one ARI REST call, or the opening of the event stream, may take before the adapter
+    /// gives up on it (W-0372 / K-63).
+    /// <para>
+    /// Neither had a bound of its own. A REST call waited out HttpClient's default hundred seconds,
+    /// and the event stream's handshake waited for as long as the far end held the connection open.
+    /// An Asterisk that drops packets instead of refusing them - a blackholed link, a process that
+    /// has hung - answers neither, so a dispatch stalled that long before it failed, and a stalled
+    /// handshake held every dial behind it, since only one at a time may open the stream.
+    /// </para>
+    /// <para>
+    /// Ten seconds, because every one of these calls goes to the local Asterisk, the only one the
+    /// options validator admits, and a healthy one answers them at once: an originate returns as
+    /// soon as the channel is allocated, and the ringing is waited for on the event stream, under
+    /// the dial's own timeout, not here. That leaves a slow Asterisk ample room and still bounds
+    /// what a silent one costs a dispatch: one bound at the health check, where a dispatch meets
+    /// Asterisk first, or two after an originate Asterisk did not reply to, whose channel is then
+    /// hung up under the same bound.
+    /// </para>
+    /// </summary>
+    private static readonly TimeSpan AriRequestTimeout = TimeSpan.FromSeconds(10);
+
+    /// <summary>
+    /// The code an ARI REST call that ran out of <see cref="AriRequestTimeout"/> fails under
+    /// (W-0372 / K-63). Named because DialAsync looks for it: an originate that ended this way is
+    /// the one failure after which a channel IVR never heard of may exist.
+    /// </summary>
+    private const string HttpTimeoutCode = "ASTERISK_HTTP_TIMEOUT";
 
     /// <summary>
     /// How long disposal waits for Asterisk to answer the close frame it sends (W-0369 / K-58).
@@ -179,7 +221,7 @@ public sealed class AsteriskAriSimGateway(
                     ["callerId"] = callerId,
                 },
                 cancellationToken);
-            await EnsureSuccessAsync(response, "ASTERISK_DIAL_FAILED", cancellationToken);
+            await EnsureSuccessAsync(response, AriOperation.Originate, cancellationToken);
             await state.ConnectedOrEnded.Task.WaitAsync(
                 TimeSpan.FromSeconds(configured.DialTimeoutSeconds + 2),
                 timeProvider,
@@ -204,6 +246,20 @@ public sealed class AsteriskAriSimGateway(
                 request.FencingGeneration,
                 state.StartedAt,
                 false);
+        }
+        catch (AsteriskAriOperationException exception) when (string.Equals(
+            exception.TechnicalErrorCode,
+            HttpTimeoutCode,
+            StringComparison.Ordinal))
+        {
+            // W-0372 / K-63. Asterisk did not reply to the originate, which is not to say it did not
+            // carry it out: one that is slow rather than gone may have created the channel and be
+            // ringing the customer's phone while this dial is recorded as failed and the customer
+            // is called again later. IVR named the channel itself, so it can hang that name up
+            // without having heard back. The failure reported is the originate's either way.
+            calls.TryRemove(channelId, out _);
+            await HangUpPossibleOrphanAsync(channelId);
+            throw;
         }
         catch
         {
@@ -282,11 +338,7 @@ public sealed class AsteriskAriSimGateway(
 
         if (state.EndedAt.HasValue)
         {
-            throw Failure(
-                SimProviderDisposition.Dropped,
-                "ASTERISK_CHANNEL_ALREADY_ENDED",
-                true,
-                "The ARI channel ended before playback.");
+            throw ChannelAlreadyEnded();
         }
 
         using HttpResponseMessage response = await SendAsync(
@@ -298,7 +350,7 @@ public sealed class AsteriskAriSimGateway(
                 ["playbackId"] = string.Concat("play-", Guid.NewGuid().ToString("N")),
             },
             cancellationToken);
-        await EnsureSuccessAsync(response, "ASTERISK_PLAYBACK_FAILED", cancellationToken);
+        await EnsureSuccessAsync(response, AriOperation.Playback, cancellationToken);
     }
 
     public async ValueTask<SimDtmfCapture> CaptureDtmfAsync(
@@ -377,7 +429,7 @@ public sealed class AsteriskAriSimGateway(
                 cancellationToken);
             if (response.StatusCode != System.Net.HttpStatusCode.NotFound)
             {
-                await EnsureSuccessAsync(response, "ASTERISK_HANGUP_FAILED", cancellationToken);
+                await EnsureSuccessAsync(response, AriOperation.Hangup, cancellationToken);
             }
         }
 
@@ -398,7 +450,7 @@ public sealed class AsteriskAriSimGateway(
                 "/ari/asterisk/ping",
                 null,
                 cancellationToken);
-            await EnsureSuccessAsync(response, "ASTERISK_HEALTH_FAILED", cancellationToken);
+            await EnsureSuccessAsync(response, AriOperation.HealthPing, cancellationToken);
             return new SimGatewayHealth(
                 simChannelId,
                 SimChannelHealthState.Healthy,
@@ -408,6 +460,12 @@ public sealed class AsteriskAriSimGateway(
         }
         catch (AsteriskAriOperationException)
         {
+            // W-0372 / K-63. Every failure of the ping ends here, a silent Asterisk's included. That
+            // one used to end in a TaskCanceledException a hundred seconds in, which went past this
+            // catch and every named arm of the dispatch gateway, and was recorded against the SIM.
+            // What a failure says about the SIM is not read here: the ping asks after Asterisk,
+            // whichever channel it is for, and the dispatch gateway records Unavailable without a
+            // word about the SIM (W-0369 / K-62).
             return new SimGatewayHealth(
                 simChannelId,
                 SimChannelHealthState.Unavailable,
@@ -498,13 +556,24 @@ public sealed class AsteriskAriSimGateway(
                 "Authorization",
                 BasicAuthorization(configured.Username, configured.Password));
             Uri eventUri = BuildWebSocketUri(configured);
-            await socket.ConnectAsync(eventUri, cancellationToken);
+
+            // W-0372 / K-63. The handshake is bounded the way a REST call is. ClientWebSocket puts
+            // no limit of its own on it, so an Asterisk that took the connection in and never
+            // answered the upgrade held this dial here for good - and, through socketGate, every
+            // dial after it.
+            using var timeout = new CancellationTokenSource(AriRequestTimeout, timeProvider);
+            using var bounded = CancellationTokenSource.CreateLinkedTokenSource(
+                cancellationToken,
+                timeout.Token);
+            await socket.ConnectAsync(eventUri, bounded.Token);
             ClientWebSocket activeSocket = socket;
             eventPump = Task.Run(
                 () => PumpEventsAsync(activeSocket, CancellationToken.None),
                 CancellationToken.None);
         }
-        catch (Exception exception) when (exception is HttpRequestException or WebSocketException)
+        catch (Exception exception) when (
+            exception is HttpRequestException or WebSocketException
+            || (exception is OperationCanceledException && !cancellationToken.IsCancellationRequested))
         {
             // W-0369 / K-62. Asterisk out of reach says nothing about the SIM this dial was for, so
             // the channel's health is left unsaid, as for a stream lost under a call (W-0367 /
@@ -514,6 +583,10 @@ public sealed class AsteriskAriSimGateway(
             // down is SchedulerDispatchPump's job, not the channel's: this dispatch fails, and each
             // failed dispatch pushes the next start further off, doubling up to thirty seconds,
             // until one goes through.
+            //
+            // W-0372 / K-63. A handshake that ran out of time is the same Asterisk out of reach, and
+            // fails the same way. The caller cancelling is not: that still leaves as the
+            // OperationCanceledException it is.
             throw Failure(
                 SimProviderDisposition.NetworkError,
                 "ASTERISK_EVENT_STREAM_UNAVAILABLE",
@@ -736,9 +809,32 @@ public sealed class AsteriskAriSimGateway(
         request.Headers.Authorization = AuthenticationHeaderValue.Parse(
             BasicAuthorization(configured.Username, configured.Password));
         HttpClient client = httpClientFactory.CreateClient(nameof(AsteriskAriSimGateway));
+
+        // W-0372 / K-63. AriRequestTimeout, not HttpClient's default hundred seconds. The bound runs
+        // on a source of its own so that its expiry can be told from the caller cancelling: a
+        // worker shutting down still gets the OperationCanceledException it always got.
+        using var timeout = new CancellationTokenSource(AriRequestTimeout, timeProvider);
+        using var bounded = CancellationTokenSource.CreateLinkedTokenSource(
+            cancellationToken,
+            timeout.Token);
         try
         {
-            return await client.SendAsync(request, cancellationToken);
+            return await client.SendAsync(request, bounded.Token);
+        }
+        catch (OperationCanceledException exception) when (!cancellationToken.IsCancellationRequested)
+        {
+            // W-0372 / K-63. Asterisk silent rather than refusing: a link that drops packets, or a
+            // process that has hung. What used to end the request was HttpClient's own timeout, a
+            // TaskCanceledException rather than the HttpRequestException caught below, so it left
+            // the adapter as it was, and the dispatch gateway's catch-all recorded it as the SIM's
+            // fault: ASTERISK_DISPATCH_TECHNICAL_FAILURE, the channel unhealthy. A silence says no
+            // more about the SIM than a refusal does, and is reported the same way.
+            throw Failure(
+                SimProviderDisposition.NetworkError,
+                HttpTimeoutCode,
+                null,
+                "The ARI HTTP endpoint did not answer in time.",
+                exception);
         }
         catch (HttpRequestException exception)
         {
@@ -755,9 +851,41 @@ public sealed class AsteriskAriSimGateway(
         }
     }
 
+    /// <summary>
+    /// W-0372 / K-63. Hangs up the channel named by an originate Asterisk did not reply to, in case
+    /// it created the channel after all: an orphan, since this adapter no longer tracks it. However
+    /// that goes - the channel hung up, a 404 because it never existed, a refusal, or no reply
+    /// within <see cref="AriRequestTimeout"/> - the caller goes on to report the originate's own
+    /// failure; this only tries.
+    /// <para>
+    /// Not under the dial's token, for the reason the dispatch gateway hangs up under none: a
+    /// channel that may be ringing a customer is ended whatever else is going on, and the bound is
+    /// what keeps that from holding anything up. If it fails, a channel that does exist rings until
+    /// the dial timeout handed to Asterisk with the originate runs out; answered before then, it is
+    /// a call nobody speaks on.
+    /// </para>
+    /// </summary>
+    private async Task HangUpPossibleOrphanAsync(string channelId)
+    {
+        try
+        {
+            (await SendAsync(
+                HttpMethod.Delete,
+                string.Concat("/ari/channels/", Uri.EscapeDataString(channelId)),
+                null,
+                CancellationToken.None)).Dispose();
+        }
+#pragma warning disable CA1031 // Best-effort: the failure to report is the originate's, not this one's.
+        catch (Exception)
+#pragma warning restore CA1031
+        {
+            // Nothing more can be done from here: see the summary for what is left.
+        }
+    }
+
     private static async Task EnsureSuccessAsync(
         HttpResponseMessage response,
-        string technicalCode,
+        AriOperation operation,
         CancellationToken cancellationToken)
     {
         if (response.IsSuccessStatusCode)
@@ -766,12 +894,78 @@ public sealed class AsteriskAriSimGateway(
         }
 
         _ = await response.Content.ReadAsStringAsync(cancellationToken);
-        throw Failure(
-            SimProviderDisposition.NetworkError,
-            technicalCode,
-            response.StatusCode != System.Net.HttpStatusCode.ServiceUnavailable,
-            "ARI returned an unsuccessful response.");
+        throw Unsuccessful(operation, response.StatusCode);
     }
+
+    /// <summary>
+    /// What an unsuccessful ARI answer to <paramref name="operation"/> stands for, and above all
+    /// what it says about the SIM (W-0372 / K-63). The table this implements is in
+    /// specs/api/04-sim-adapter-contract.md.
+    /// <para>
+    /// The SIM's health used to be read off a single status: every answer but a 503 called the
+    /// channel healthy, and a 503 called it unhealthy. Both halves were wrong. A 503 is Asterisk
+    /// that has not finished booting; a 401 or 403 is IVR's credentials, or an ARI user that may
+    /// only read; none of them is the SIM's doing. Called healthy after an answered call, such a
+    /// refusal cleared the SIM's failure streak; called unhealthy, it put a strike on it.
+    /// </para>
+    /// <para>
+    /// Only two answers now say anything about the SIM. A 500 to an originate is ARI's "Allocation
+    /// failed": the channel driver could not create the outgoing channel, because the endpoint,
+    /// trunk or device behind it is not there, and that counts against the SIM. A 404, 409 or 412
+    /// to a playback is a channel that has gone, or is going, after it was answered - the customer
+    /// or the network ended the call - so the SIM carried it; it is reported exactly as PlayAsync
+    /// reports the same ending when ChannelDestroyed happens to arrive first, so that which of the
+    /// two Asterisk sends first no longer decides what is recorded. Everything else - IVR's own
+    /// request, its credentials, Asterisk itself, a status nobody expected - says nothing about the
+    /// SIM. A 401 or 403 also has a code of its own, since it is the one refusal a person has to
+    /// fix by hand, and it should not read as a dial or a playback that failed.
+    /// </para>
+    /// </summary>
+    private static AsteriskAriOperationException Unsuccessful(
+        AriOperation operation,
+        HttpStatusCode status)
+    {
+        string technicalCode = operation switch
+        {
+            AriOperation.Originate => "ASTERISK_DIAL_FAILED",
+            AriOperation.Playback => "ASTERISK_PLAYBACK_FAILED",
+            AriOperation.Hangup => "ASTERISK_HANGUP_FAILED",
+            AriOperation.HealthPing => "ASTERISK_HEALTH_FAILED",
+            _ => throw new ArgumentOutOfRangeException(nameof(operation)),
+        };
+        return (operation, status) switch
+        {
+            (_, HttpStatusCode.Unauthorized or HttpStatusCode.Forbidden) => Failure(
+                SimProviderDisposition.NetworkError,
+                "ASTERISK_HTTP_UNAUTHORIZED",
+                null,
+                "ARI refused IVR's credentials or their permissions."),
+            (AriOperation.Originate, HttpStatusCode.InternalServerError) => Failure(
+                SimProviderDisposition.NetworkError,
+                technicalCode,
+                false,
+                "ARI could not allocate the outgoing channel."),
+            (AriOperation.Playback,
+                HttpStatusCode.NotFound or HttpStatusCode.Conflict or HttpStatusCode.PreconditionFailed) =>
+                ChannelAlreadyEnded(),
+            _ => Failure(
+                SimProviderDisposition.NetworkError,
+                technicalCode,
+                null,
+                "ARI returned an unsuccessful response."),
+        };
+    }
+
+    /// <summary>
+    /// The call ended before its playback: dropped, and the SIM healthy, since it carried the call.
+    /// Asterisk says so either by ChannelDestroyed on the event stream or by the playback's own
+    /// answer, whichever comes first, and both end here (W-0372 / K-63).
+    /// </summary>
+    private static AsteriskAriOperationException ChannelAlreadyEnded() => Failure(
+        SimProviderDisposition.Dropped,
+        "ASTERISK_CHANNEL_ALREADY_ENDED",
+        true,
+        "The ARI channel ended before playback.");
 
     private static Uri BuildUri(
         string baseUrl,
