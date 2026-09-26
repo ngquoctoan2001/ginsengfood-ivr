@@ -84,5 +84,39 @@ class S5Guards(unittest.TestCase):
             self.assertEqual(sum(value.endswith(',readonly') for value in mounts), 4)
 
 
+class M8Allocation(unittest.TestCase):
+    """Q-24 (PA3, 26/09): what the S5 tools create stays inside Module 8's allocation."""
+
+    def test_results_go_strictly_below_the_m8_root(self):
+        s5.require_m8_output(Path('/home/ssv/m8/w0335-run-1'))
+        s5.require_m8_output(Path('/home/ssv/m8/2026-09-26/run-2'))
+        for outside in ('/home/ssv/m8', '/home/ssv/w0335-run-1', '/home/ssv/m8-old/run', '/tmp/run', '/home/ssv'):
+            with self.subTest(output=outside):
+                with self.assertRaisesRegex(ValueError, 'Q-24'):
+                    s5.require_m8_output(Path(outside))
+
+    def test_published_ports_are_6800_to_6899(self):
+        for port in (6800, 6843, 6899):
+            s5.require_m8_port(port)
+        for port in (58443, 6799, 6900, 8080):
+            with self.subTest(port=port):
+                with self.assertRaisesRegex(ValueError, 'Q-24'):
+                    s5.require_m8_port(port)
+
+    def test_container_names_carry_the_m8_prefix(self):
+        name = s5.m8_name('ivr-s5-probe')
+        self.assertRegex(name, r'^m8_ivr-s5-probe-[0-9a-f]{12}$')
+        self.assertNotEqual(name, s5.m8_name('ivr-s5-probe'))
+
+    def test_a_refused_s5_run_leaves_no_directory_behind(self):
+        with tempfile.TemporaryDirectory() as folder:
+            output = Path(folder) / 'run'
+            with self.assertRaisesRegex(ValueError, 'Q-24'):
+                s5.prepare_output(output, True)
+            self.assertFalse(output.exists())
+            s5.prepare_output(output, False)
+            self.assertTrue(output.is_dir())
+
+
 if __name__ == '__main__':
     unittest.main()

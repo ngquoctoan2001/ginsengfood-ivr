@@ -23,6 +23,11 @@ namespace Ivr.UnitTests.Intake;
 /// answer refused tasks the scheduler would still have called, and admitted tasks whose first
 /// call slid to 08:00 and closed up on the second.
 /// <para>
+/// Q-22 (2026-09-26) closed the evening the same way: every attempt has to fall inside calling
+/// hours, so a T0 late enough to push the last attempt to 21:08 or later - from 21:00:30 for 24/7,
+/// 21:05:30 for Golden Hour - is refused like a night order instead of getting one call.
+/// </para>
+/// <para>
 /// Each case sets the clock to T0 - the task has just arrived - on a fixed day, with the default
 /// calling window of 08:00-21:08 at +07:00, so nothing here reads the machine's clock or time
 /// zone.
@@ -34,6 +39,10 @@ public sealed class IntakeMorningBoundaryTests
     // expectations below are not computed by the class under test.
     private const int CallingHoursOpen = 8 * 3600;
     private const int CallingHoursClose = (21 * 3600) + (8 * 60);
+
+    // The candidate policies' last attempt, in seconds after T0 (the first is always at T0).
+    private const int GoldenHourLastOffset = 150;
+    private const int TwentyFourSevenLastOffset = 450;
 
     // The decision and the reason stay what W-0298 put on the wire; only the condition changed.
     private const string ClosedReason =
@@ -104,20 +113,21 @@ public sealed class IntakeMorningBoundaryTests
     }
 
     /// <summary>
-    /// The evening edge did not move. A T0 before 21:08 is accepted - the calling window drops
-    /// seconds, so 21:07:59 is still inside - and 21:08:00 is refused. The 24/7 row at 21:00:30
-    /// and the Golden Hour row at 21:05:30 are the first whose second attempt falls at 21:08 and
-    /// is never dialled. They are accepted today; Q-22 is still open, and these rows are where a
-    /// change to that would show.
+    /// The evening edge is the last T0 whose last attempt still falls before 21:08: 21:00:29 for
+    /// 24/7 (second attempt at 21:07:59, inside, because the calling window drops seconds) and
+    /// 21:05:29 for Golden Hour. One second later that attempt lands on 21:08:00, is never
+    /// dialled, and the task is refused (Q-22, 2026-09-26). Until then these rows were accepted
+    /// and got one call; 21:08:00 was already refused and still is.
     /// </summary>
     [Theory]
-    [InlineData(ProgramCode.TWENTY_FOUR_SEVEN, 21, 0, 30, true)]
-    [InlineData(ProgramCode.TWENTY_FOUR_SEVEN, 21, 7, 59, true)]
+    [InlineData(ProgramCode.TWENTY_FOUR_SEVEN, 21, 0, 29, true)]
+    [InlineData(ProgramCode.TWENTY_FOUR_SEVEN, 21, 0, 30, false)]
     [InlineData(ProgramCode.TWENTY_FOUR_SEVEN, 21, 8, 0, false)]
-    [InlineData(ProgramCode.GOLDEN_HOUR, 21, 5, 30, true)]
+    [InlineData(ProgramCode.GOLDEN_HOUR, 21, 5, 29, true)]
+    [InlineData(ProgramCode.GOLDEN_HOUR, 21, 5, 30, false)]
     [InlineData(ProgramCode.GOLDEN_HOUR, 21, 8, 0, false)]
     [Trait("TestId", "UT-INTAKE-EVENING-01")]
-    public async Task TheEveningEdgeDidNotMove(
+    public async Task TheEveningEdgeIsTheLastT0WhoseLastAttemptFits(
         ProgramCode program,
         int hour,
         int minute,
@@ -143,13 +153,46 @@ public sealed class IntakeMorningBoundaryTests
     }
 
     /// <summary>
-    /// Every minute of the local day for both programmes, plus the seconds at the two edges
-    /// (07:59:59, 08:00:00, 21:07:59, 21:08:00). A task is accepted exactly when its T0 lies in
-    /// [08:00, 21:08) and refused for calling hours otherwise, and a refusal persists nothing.
+    /// Q-22 (2026-09-26). The evening stretch that used to get a single call - T0 21:00:30-21:07:59
+    /// for 24/7, 21:05:30-21:07:59 for Golden Hour - is refused the way a night order is: the same
+    /// decision, the same reason on the wire, and nothing stored, so Module 3 holds the order and
+    /// sends it again from 08:00 under the same task id.
+    /// </summary>
+    [Theory]
+    [InlineData(ProgramCode.TWENTY_FOUR_SEVEN, 21, 0, 30)]
+    [InlineData(ProgramCode.TWENTY_FOUR_SEVEN, 21, 4, 0)]
+    [InlineData(ProgramCode.TWENTY_FOUR_SEVEN, 21, 7, 59)]
+    [InlineData(ProgramCode.GOLDEN_HOUR, 21, 5, 30)]
+    [InlineData(ProgramCode.GOLDEN_HOUR, 21, 7, 59)]
+    [Trait("TestId", "UT-INTAKE-EVENING-02")]
+    public async Task TheEveningStretchWithRoomForOneCallIsRefusedLikeANightOrder(
+        ProgramCode program,
+        int hour,
+        int minute,
+        int second)
+    {
+        DateTimeOffset t0 = At(SecondOfDay(hour, minute, second));
+        using Harness harness = Harness.Create(t0);
+
+        TaskIntakeOutcome outcome = await harness.Service.IntakeAsync(
+            Command(CreateTask(program, t0, "TASK-Q22-EVENING-02")));
+
+        AssertRefusedForCallingHours(outcome);
+        Assert.Equal(0, harness.Store.TaskCount);
+        Assert.Equal(0, harness.Store.CallJobCount);
+        Assert.Equal(0, harness.Store.OutboxCount);
+    }
+
+    /// <summary>
+    /// Every minute of the local day for both programmes, plus the seconds at the edges (07:59:59,
+    /// 08:00:00, 21:00:29, 21:00:30, 21:05:29, 21:05:30, 21:07:59, 21:08:00). A task is accepted
+    /// exactly when every attempt falls inside calling hours - T0 in [08:00, 21:08) and T0 plus the
+    /// last offset before 21:08 as well - and refused for calling hours otherwise, and a refusal
+    /// persists nothing.
     /// </summary>
     [Fact]
     [Trait("TestId", "UT-INTAKE-WINDOW-SWEEP-01")]
-    public async Task ATaskIsAcceptedExactlyWhenItsWindowOpensInsideCallingHours()
+    public async Task ATaskIsAcceptedExactlyWhenEveryAttemptFallsInsideCallingHours()
     {
         // The expectation below restates these hours. If the defaults move, fail here once rather
         // than as a thousand mismatches.
@@ -166,6 +209,10 @@ public sealed class IntakeMorningBoundaryTests
             .. Enumerable.Range(0, 24 * 60).Select(minute => minute * 60),
             SecondOfDay(7, 59, 59),
             SecondOfDay(8, 0, 0),
+            SecondOfDay(21, 0, 29),
+            SecondOfDay(21, 0, 30),
+            SecondOfDay(21, 5, 29),
+            SecondOfDay(21, 5, 30),
             SecondOfDay(21, 7, 59),
             SecondOfDay(21, 8, 0),
         ];
@@ -174,6 +221,9 @@ public sealed class IntakeMorningBoundaryTests
         foreach (ProgramCode program in Programs)
         {
             using Harness harness = Harness.Create(At(0));
+            int lastOffset = program == ProgramCode.GOLDEN_HOUR
+                ? GoldenHourLastOffset
+                : TwentyFourSevenLastOffset;
             int expectedAccepted = 0;
             for (int index = 0; index < probes.Length; index++)
             {
@@ -189,7 +239,10 @@ public sealed class IntakeMorningBoundaryTests
                 TaskIntakeOutcome outcome = await harness.Service.IntakeAsync(
                     Command(CreateTask(program, t0, taskId)));
 
-                bool expectAccepted = secondOfDay is >= CallingHoursOpen and < CallingHoursClose;
+                // The first attempt is at T0 and the last at T0 + lastOffset; in between the
+                // hours cannot shut, so these two bounds are every attempt.
+                bool expectAccepted = secondOfDay >= CallingHoursOpen
+                    && secondOfDay + lastOffset < CallingHoursClose;
                 bool asExpected = expectAccepted
                     ? IsAccepted(outcome)
                     : IsRefusedForCallingHours(outcome);
@@ -286,7 +339,7 @@ public sealed class IntakeMorningBoundaryTests
             Confirmation_window_expires_at = expiresAt,
             Attempt_policy_version = CandidateAttemptPolicies.Version,
             Max_customer_attempts = 2,
-            Attempt_offsets_seconds = [0, goldenHour ? 150 : 450],
+            Attempt_offsets_seconds = [0, goldenHour ? GoldenHourLastOffset : TwentyFourSevenLastOffset],
             Phone_ref = "phone-ref-b17-1",
             Phone_masked = "84xxxxx0001",
             Phone_validation_status = IvrConfirmationTaskV1Phone_validation_status.VALID,

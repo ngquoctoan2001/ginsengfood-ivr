@@ -379,19 +379,26 @@ kiểm `21:05:29` còn đủ hai cuộc.*
 > ⚠️ `TWENTY_FOUR_SEVEN` **cắt sớm hơn** `GOLDEN_HOUR` 5 phút. Tên chương trình nói về lúc Sales
 > nhận đơn, **không** phải lúc IVR được phép gọi: khung giờ không theo program.
 
-**Việc này đổi kết quả M3 nhận được, không chỉ số cuộc gọi.** Task phát sau mốc trên vẫn được nhận
-và vẫn được gọi **một** lần. Nhưng nếu khách không nghe:
+**Từ `26/09` (`Q-22`), task phát sau mốc trên bị từ chối ngay tại intake**, như đơn đêm: `200` kèm
+quyết định `TASK_BLOCKED_OPERATIONAL` và reason `CALLING_WINDOW_CLOSED_FOR_WHOLE_CONFIRMATION_WINDOW`,
+task không được lưu. Module 3 giữ đơn tới `08:00` rồi gửi lại với cửa sổ mới (khối *Bổ sung `W-0304`*
+ngay dưới). Nhờ vậy mọi task được nhận đều có **cả hai** attempt nằm trong giờ gọi. Điều kiện intake
+xét là từng attempt (`T0 + offset`), nên mốc chạy theo policy: `21:00:30` cho `TWENTY_FOUR_SEVEN`,
+`21:05:30` cho `GOLDEN_HOUR` (`UT-INTAKE-EVENING-01`, `UT-INTAKE-EVENING-02`,
+`UT-INTAKE-WINDOW-SWEEP-01`).
+
+*Trước `26/09`, task phát sau mốc vẫn được nhận và chỉ được gọi **một** lần. Nếu khách không nghe:*
 
 | Tình huống | `result_type` | `recommended_core_action` |
 | --- | --- | --- |
 | Đủ 2 attempt, không nghe | `IVR_NO_ANSWER_FINAL` | `CORE_NO_STATE_CHANGE_WAIT_FOR_TIMEOUT` — chỉ là nhãn, Module 3 **không** làm theo (§4.4) |
-| Attempt 2 rơi ngoài giờ gọi | `IVR_CONFIRMATION_WINDOW_EXPIRED` | `CORE_REVALIDATE_AND_EXPIRE_CONFIRMATION` hoặc `CORE_REVALIDATE_AND_HOLD_ADMIN_REVIEW` — Module 3 **phải** đọc (§4.3) |
+| Attempt 2 rơi ngoài giờ gọi *(chỉ task được bản trước `Q-22` nhận)* | `IVR_CONFIRMATION_WINDOW_EXPIRED` | `CORE_REVALIDATE_AND_EXPIRE_CONFIRMATION` hoặc `CORE_REVALIDATE_AND_HOLD_ADMIN_REVIEW` — Module 3 **phải** đọc (§4.3) |
 
 *Sửa `25/09`: bản trước ghi tên action không có tiền tố `CORE_`. Đó là giá trị IVR lưu trong DB của
 mình; trên dây luôn có tiền tố (`TargetV1ContractMapper`).*
 
-Cùng một hành vi khách hàng, hai kết quả khác nhau, quyết bởi giờ đặt đơn. Consumer của M3 phải xử
-lý được cả hai cho cùng một kịch bản "khách không nghe máy".
+*Cùng một hành vi khách hàng ra hai kết quả, quyết bởi giờ đặt đơn: đó là vùng tối mà `Q-22` đóng
+lại. Dòng thứ hai chỉ còn gặp ở task mà bản trước `Q-22` đã nhận.*
 
 **Đã chốt (`W-0220`, `2026-09-07`) — mục này không còn mở.** Owner chọn vế nới khung giờ:
 `End = 21:08`, ghi ở đầu §3.4.2 kèm lý do vì sao là `21:08` chứ không phải `21:07:30`. Câu *"chưa
@@ -408,10 +415,10 @@ suy mốc từ policy + window nên sẽ đỏ khi một trong hai đổi.
 >
 > | | |
 > | --- | --- |
-> | Điều kiện | `T0` (`confirmation_window_started_at`) nằm ngoài giờ gọi `08:00–21:08` (giờ VN) — *từ `25/09` (`B17`); trước đó: không attempt nào của `attempt_policy` rơi vào giờ gọi, trên toàn bộ confirmation window* |
+> | Điều kiện | Có attempt của `attempt_policy` (`T0 + offset`, `T0` là `confirmation_window_started_at`) rơi ngoài giờ gọi `08:00–21:08` (giờ VN): `T0` trước `08:00`, hoặc `T0` từ `21:00:30` (`TWENTY_FOUR_SEVEN`) / `21:05:30` (`GOLDEN_HOUR`) — *từ `26/09` (`Q-22`); từ `25/09` (`B17`) tới đó: `T0` nằm ngoài giờ gọi; trước nữa: không attempt nào rơi vào giờ gọi, trên toàn bộ confirmation window* |
 > | Quyết định | `TASK_BLOCKED_OPERATIONAL` |
-> | Reason code | `CALLING_WINDOW_CLOSED_FOR_WHOLE_CONFIRMATION_WINDOW` — giữ nguyên tên dù điều kiện đổi `25/09` |
-> | Test | `UT-INTAKE-NIGHT-01/02/03`, `UT-INTAKE-MORNING-01/02`, `UT-INTAKE-EVENING-01`, `UT-INTAKE-WINDOW-SWEEP-01` |
+> | Reason code | `CALLING_WINDOW_CLOSED_FOR_WHOLE_CONFIRMATION_WINDOW` — giữ nguyên tên dù điều kiện đổi `25/09` và `26/09` |
+> | Test | `UT-INTAKE-NIGHT-01/02/03`, `UT-INTAKE-MORNING-01/02`, `UT-INTAKE-EVENING-01`, `UT-INTAKE-EVENING-02`, `UT-INTAKE-WINDOW-SWEEP-01` |
 >
 > Guard này **tắt cùng `CallingWindow`**: khi `Enabled=false` thì mọi task đi qua như cũ, vì lúc đó
 > không có giờ nào bị coi là ngoài giờ.
@@ -423,9 +430,10 @@ suy mốc từ policy + window nên sẽ đỏ khi một trong hai đổi.
 > *Sửa `25/09` (`W-0354`): bản trước ghi mã `202` ở hai chỗ trong mục này. Endpoint trả `200` kèm
 > `decision` (`TaskIntakeEndpoint`, `Results.Ok`), trước lẫn sau `W-0298`. Câu "hoặc M3 giữ lại tới
 > `08:00`, hoặc xử lý ngoài IVR" nay chỉ còn một hướng, do chief chốt `25/09`:* **M3 giữ đơn
-> `TWENTY_FOUR_SEVEN` (COD) phát sinh ngoài `08:00–21:08`, rồi gửi task từ `08:00` với cửa sổ mới và
+> `TWENTY_FOUR_SEVEN` (COD) phát sinh ngoài `08:00–21:00:30`, rồi gửi task từ `08:00` với cửa sổ mới và
 > `Idempotency-Key` mới.** *Không retry trong cùng cửa sổ, vì kết quả sẽ không đổi. Chi tiết ở `IR-07`,
-> đính chính `25/09`.*
+> đính chính `25/09`. Mốc cuối là `21:00:30` từ `26/09` (`Q-22`); trước đó là `21:08`, và đơn
+> `21:00:30–21:07:59` được nhận nhưng chỉ kịp một cuộc.*
 
 > **Đính chính `25/09` (mục `B17` trong danh sách chief) — biên buổi sáng.** Điều kiện cũ xét **từng**
 > lịch attempt (`T0 + offset`), còn scheduler thì **gọi bù**: hàng rào giờ gọi của scheduler chỉ chặn
@@ -438,12 +446,13 @@ suy mốc từ policy + window nên sẽ đỏ khi một trong hai đổi.
 > | --- | --- | --- | --- | --- |
 > | Từ chối dù gọi được | `07:45:01–07:52:29` | `07:55:01–07:57:29` | Từ chối, dù cửa sổ xác nhận còn mở qua `08:00` nên scheduler quay được ít nhất một cuộc | Từ chối |
 > | Gọi bù, hai cuộc sát nhau | `07:52:30–07:59:59` | `07:57:30–07:59:59` | Nhận. Attempt 1 được quay bù lúc `08:00`; attempt 2 tới hạn ở `T0 + 450s` (24/7) hoặc `T0 + 150s` (Giờ Vàng), tức chỉ cách attempt 1 từ gần `0` tới `449 s` (24/7) hoặc `149 s` (Giờ Vàng). Ở đầu vùng, hai cuộc gần như liền nhau | Từ chối |
-> | Buổi tối, chỉ kịp một cuộc | `21:00:30–21:07:59` | `21:05:30–21:07:59` | Nhận; attempt 2 rơi ngoài giờ gọi. Khách không nghe cuộc 1 thì kết quả là `IVR_CONFIRMATION_WINDOW_EXPIRED`, không phải `IVR_NO_ANSWER_FINAL` | **Không đổi** — chief đang quyết |
+> | Buổi tối, chỉ kịp một cuộc | `21:00:30–21:07:59` | `21:05:30–21:07:59` | Nhận; attempt 2 rơi ngoài giờ gọi. Khách không nghe cuộc 1 thì kết quả là `IVR_CONFIRMATION_WINDOW_EXPIRED`, không phải `IVR_NO_ANSWER_FINAL` | Không đổi `25/09`; **từ chối từ `26/09`** (`Q-22`) |
 >
 > Từ `25/09`, mọi `T0` trước `08:00:00` bị từ chối bằng đúng quyết định `TASK_BLOCKED_OPERATIONAL` và
 > reason `CALLING_WINDOW_CLOSED_FOR_WHOLE_CONFIRMATION_WINDOW` của ca đơn đêm; với đơn
-> `TWENTY_FOUR_SEVEN` (COD), Module 3 xử lý như khối `Sửa 25/09` ngay trên. Biên tối không đổi. Các mốc
-> giây giả định lượt quét scheduler `≤ 1` giây.
+> `TWENTY_FOUR_SEVEN` (COD), Module 3 xử lý như khối `Sửa 25/09` ngay trên. Từ `26/09` (`Q-22`) biên
+> tối cũng vậy: `T0` mà attempt cuối rơi từ `21:08` trở đi bị từ chối cùng quyết định và reason đó. Các
+> mốc giây giả định lượt quét scheduler `≤ 1` giây.
 
 #### 3.4A. W-0151 correction — attempt policy
 

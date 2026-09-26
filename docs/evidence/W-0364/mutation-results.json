@@ -1,0 +1,108 @@
+{
+  "schema": "ivr-mutation-results/v1",
+  "workId": "W-0364",
+  "captured_at": "2026-09-26",
+  "method": "Each check breaks one thing the lot fixed, in an isolated copy of 4918948d plus this lot, rebuilds where the change is C#, runs the named tests (dotnet TestIds, or Python unittest names for the S5 tools), and writes the original bytes back (never git checkout). Every named test must fail, the named neighbour must stay green, and a control run after restoring must be green.",
+  "results": [
+    {
+      "id": "Q-22.1 the guard asks about T0 alone again (the B17 rule)",
+      "tests": {
+        "UT-INTAKE-EVENING-01": "Failed!  - Failed:     2, Passed:     4, Skipped:     0, Total:     6, Duration: 315 ms",
+        "UT-INTAKE-EVENING-02": "Failed!  - Failed:     5, Passed:     0, Skipped:     0, Total:     5, Duration: 210 ms",
+        "UT-INTAKE-WINDOW-SWEEP-01": "Failed!  - Failed:     1, Passed:     0, Skipped:     0, Total:     1, Duration: 449 ms"
+      },
+      "neighbour": "UT-INTAKE-MORNING-01",
+      "neighbourSummary": "Passed!  - Failed:     0, Passed:     9, Skipped:     0, Total:     9, Duration: 161 ms",
+      "verdict": "RED_AS_EXPECTED"
+    },
+    {
+      "id": "Q-22.1 only the last attempt is asked about (the morning edge regresses)",
+      "tests": {
+        "UT-INTAKE-MORNING-01": "Failed!  - Failed:     5, Passed:     4, Skipped:     0, Total:     9, Duration: 282 ms",
+        "UT-INTAKE-WINDOW-SWEEP-01": "Failed!  - Failed:     1, Passed:     0, Skipped:     0, Total:     1, Duration: 688 ms"
+      },
+      "neighbour": "UT-INTAKE-EVENING-02",
+      "neighbourSummary": "Passed!  - Failed:     0, Passed:     5, Skipped:     0, Total:     5, Duration: 462 ms",
+      "verdict": "RED_AS_EXPECTED"
+    },
+    {
+      "id": "Q-22.1 the calling-hours refusal is skipped",
+      "tests": {
+        "UT-INTAKE-NIGHT-01": "Failed!  - Failed:     1, Passed:     0, Skipped:     0, Total:     1, Duration: 271 ms",
+        "UT-INTAKE-MORNING-01": "Failed!  - Failed:     9, Passed:     0, Skipped:     0, Total:     9, Duration: 291 ms",
+        "UT-INTAKE-EVENING-02": "Failed!  - Failed:     5, Passed:     0, Skipped:     0, Total:     5, Duration: 229 ms",
+        "UT-INTAKE-WINDOW-SWEEP-01": "Failed!  - Failed:     1, Passed:     0, Skipped:     0, Total:     1, Duration: 713 ms"
+      },
+      "neighbour": "UT-INTAKE-MORNING-02",
+      "neighbourSummary": "Passed!  - Failed:     0, Passed:     2, Skipped:     0, Total:     2, Duration: 239 ms",
+      "verdict": "RED_AS_EXPECTED"
+    },
+    {
+      "id": "CONTROL C# restored (intake boundary and service tests)",
+      "summary": "Passed!  - Failed:     0, Passed:    57, Skipped:     0, Total:    57, Duration: 945 ms",
+      "verdict": "GREEN_AS_EXPECTED"
+    },
+    {
+      "id": "Q-24.1 s5_common accepts any result directory",
+      "tests": {
+        "test_s5_launcher.M8Allocation.test_results_go_strictly_below_the_m8_root": "FAILED (failures=5)",
+        "test_s5_launcher.M8Allocation.test_a_refused_s5_run_leaves_no_directory_behind": "FAILED (failures=1)"
+      },
+      "neighbour": "test_s5_launcher.M8Allocation.test_published_ports_are_6800_to_6899",
+      "neighbourSummary": "OK",
+      "verdict": "RED_AS_EXPECTED"
+    },
+    {
+      "id": "Q-24.1 s5_common accepts ports below 6800",
+      "tests": {
+        "test_s5_launcher.M8Allocation.test_published_ports_are_6800_to_6899": "FAILED (failures=1)",
+        "test_full_flow_s5.FullFlowS5Guards.test_launcher_and_s5_common_share_one_allocation": "FAILED (failures=1)"
+      },
+      "neighbour": "test_s5_launcher.M8Allocation.test_results_go_strictly_below_the_m8_root",
+      "neighbourSummary": "OK",
+      "verdict": "RED_AS_EXPECTED"
+    },
+    {
+      "id": "Q-24.1 containers lose the m8_ prefix",
+      "tests": {
+        "test_s5_launcher.M8Allocation.test_container_names_carry_the_m8_prefix": "FAILED (failures=1)"
+      },
+      "neighbour": "test_s5_launcher.M8Allocation.test_published_ports_are_6800_to_6899",
+      "neighbourSummary": "OK",
+      "verdict": "RED_AS_EXPECTED"
+    },
+    {
+      "id": "Q-24.1 the launcher skips the allocation check on S5",
+      "tests": {
+        "test_full_flow_s5.FullFlowS5Guards.test_a_refused_s5_run_leaves_no_directory_and_a_rehearsal_is_not_bound": "FAILED (failures=1)"
+      },
+      "neighbour": "test_full_flow_s5.FullFlowS5Guards.test_s5_run_stays_inside_the_m8_allocation",
+      "neighbourSummary": "OK",
+      "verdict": "RED_AS_EXPECTED"
+    },
+    {
+      "id": "Q-24.1 the launcher's default port is 58443 again",
+      "tests": {
+        "test_full_flow_s5.FullFlowS5Guards.test_launcher_and_s5_common_share_one_allocation": "FAILED (failures=1)",
+        "test_full_flow_s5.FullFlowS5Guards.test_s5_run_stays_inside_the_m8_allocation": "FAILED (errors=1)"
+      },
+      "neighbour": "test_full_flow_s5.FullFlowS5Guards.test_project_names_are_m8_and_the_case_runner_expects_them",
+      "neighbourSummary": "OK",
+      "verdict": "RED_AS_EXPECTED"
+    },
+    {
+      "id": "Q-24.1 the case runner still expects the old project name",
+      "tests": {
+        "test_full_flow_s5.FullFlowS5Guards.test_project_names_are_m8_and_the_case_runner_expects_them": "FAILED (failures=1)"
+      },
+      "neighbour": "test_full_flow_s5.FullFlowS5Guards.test_s5_run_stays_inside_the_m8_allocation",
+      "neighbourSummary": "OK",
+      "verdict": "RED_AS_EXPECTED"
+    },
+    {
+      "id": "CONTROL Python restored (all lab tests)",
+      "summary": "Ran 58 tests in 0.349s OK (skipped=1)",
+      "verdict": "GREEN_AS_EXPECTED"
+    }
+  ]
+}

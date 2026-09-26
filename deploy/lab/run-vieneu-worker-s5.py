@@ -10,7 +10,6 @@ from pathlib import Path
 import subprocess
 import sys
 import time
-import uuid
 
 sys.dont_write_bytecode = True
 
@@ -105,7 +104,8 @@ def run_worker_s5():
     common = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(common)
     base_manifest = common.verify_bundle(base)
-    output.mkdir(parents=True, exist_ok=False)
+    # Q-24: S5 results stay inside the m8 allocation; see s5_common.
+    common.prepare_output(output, not args.local_lab)
     if args.local_lab:
         docker, inventory, scope = ['docker'], {'scope': 'LOCAL_LAB'}, 'LOCAL_LAB'
     else:
@@ -130,7 +130,7 @@ def run_worker_s5():
         for index in range(args.runs):
             out = output / ('run-' + str(index + 1))
             out.mkdir()
-            name = 'ivr-w0335-' + uuid.uuid4().hex[:12]
+            name = common.m8_name('ivr-w0335')
             tts_cmd, client_cmd = commands(docker, base, root, out, tts_image, runtime, name, scope, args.soak_seconds, args.final_profile)
             print('RUN_START {} scope={} TTS=2CPU/4GiB; log={}'.format(index + 1, scope, out / 'client.log'), flush=True)
             try:

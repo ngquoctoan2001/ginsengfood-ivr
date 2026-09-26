@@ -199,6 +199,15 @@ cho tất cả ca (gồm phục hồi sau disconnect). Gói mới và hướng d
 [W-0338 S5](../../docs/evidence/W-0338/ubuntu-steps.md). Kết quả S5 W-0335 không tự trở thành
 bằng chứng cho profile cuối; phải chạy và trả raw mới nếu chốt trên máy đích.
 
+**Từ `26/09` (`Q-24`, PA3)**, ba công cụ S5 (`run-vieneu-s5.py`, `run-vieneu-worker-s5.py`,
+`full-flow-s5/launcher.py`) chỉ tạo tài nguyên trong phần máy test cấp cho Module 8: tên container và
+compose project bắt đầu bằng `m8_`, cổng publish nằm trong `6800–6899` (launcher mặc định `6843`), thư
+mục kết quả nằm dưới `/home/ssv/m8`. Chạy trên S5 mà `--output` hay `--port` ra ngoài phần đó thì công
+cụ dừng trước khi tạo bất cứ thứ gì; `--local-lab` không bị ràng buộc vì không chạy trên máy chung.
+Tài nguyên các lượt trước để lại (`ivr-w0344-*`, cổng `58443`, volume giữ sau lượt chạy) chưa bị động
+tới: giữ chỉ-đọc rồi dọn theo nhãn sau. 13 URI mirror trong `MODELS.lock` không đổi, chờ kho S5 thật
+(`CB-15`). Gói offline đã dựng (W-0335, W-0338, W-0344) mang bản công cụ cũ; lượt sau phải dựng lại gói.
+
 Harness `run-headless-dtmf.py --final-profile` từ chối nếu deadline hoặc quota TTS lệch.
 `--smoke-only --final-profile --fault-timeout` chỉ dùng khi lab rảnh: gây timeout trước dial,
 giữ peer qua technical retry, kiểm chỉ một lượt khách được tính và khôi phục route.

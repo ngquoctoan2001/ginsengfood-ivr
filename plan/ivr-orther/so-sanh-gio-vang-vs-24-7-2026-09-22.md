@@ -81,15 +81,15 @@ cùng một sự cố mạng, đơn 24/7 thường retry được, đơn Giờ V
 
 ## 4. Biên khung giờ 08:00 – 21:08 tác động khác nhau
 
-Intake từ chối thẳng nếu `T0` nằm ngoài giờ gọi (từ `25/09`; trước đó: nếu **mọi** lần gọi theo lịch
-đều rơi ngoài giờ), với lý do `CALLING_WINDOW_CLOSED_FOR_WHOLE_CONFIRMATION_WINDOW` — thay vì nhận đơn
+Intake từ chối thẳng nếu có lần gọi theo lịch rơi ngoài giờ gọi (từ `26/09`, `Q-22`; từ `25/09`: nếu `T0`
+nằm ngoài giờ gọi; trước đó: nếu **mọi** lần gọi theo lịch đều rơi ngoài giờ), với lý do `CALLING_WINDOW_CLOSED_FOR_WHOLE_CONFIRMATION_WINDOW` — thay vì nhận đơn
 rồi để nó chết lặng lẽ thành "khách không xác nhận".
 
 | Tình huống theo `T0` | Giờ Vàng | 24/7 |
 |---|---|---|
 | `T0` trước mốc này → **từ chối ngay** (buổi sáng) | trước **08:00:00** | trước **08:00:00** |
 | `T0` bình thường, đủ cả 2 cuộc | 08:00:00 → 21:05:29 | 08:00:00 → 21:00:29 |
-| `T0` trong vùng này → nhận nhưng **chỉ gọi được 1 lần** (buổi tối) | 21:05:30 → 21:07:59 | 21:00:30 → 21:07:59 |
+| `T0` trong vùng này → trước `26/09` nhận nhưng **chỉ gọi được 1 lần**; từ `26/09` (`Q-22`) **từ chối ngay** (buổi tối) | 21:05:30 → 21:07:59 | 21:00:30 → 21:07:59 |
 | `T0` từ **21:08:00** trở đi | **từ chối ngay** | **từ chối ngay** |
 
 > **Đính chính `25/09` (mục `B17` trong danh sách chief).** Bảng cũ có hai dòng buổi sáng: 24/7 từ chối
@@ -101,7 +101,8 @@ rồi để nó chết lặng lẽ thành "khách không xác nhận".
 > Ngược lại, vùng 24/7 `07:45:01 → 07:52:29` (Giờ Vàng `07:55:01 → 07:57:29`) bị từ chối dù cửa sổ còn
 > mở qua `08:00`, tức vẫn gọi được. Từ `25/09` guard xét chính `T0`: mọi `T0` trước `08:00:00` bị từ
 > chối; đơn 24/7 (COD) thì Module 3 giữ lại rồi gửi từ `08:00` với cửa sổ mới, như đơn đêm. Biên tối
-> không đổi — vùng tối "1 lần" đang chờ chief quyết.
+> đổi ngày `26/09` (`Q-22`, PA2): vùng tối "1 lần" nay bị từ chối như đơn đêm, nên đơn nào được nhận
+> cũng đủ 2 cuộc.
 
 Hai điều cần nhớ:
 
@@ -110,7 +111,8 @@ Hai điều cần nhớ:
    (`W-0220`), đơn 24/7 vào lúc 20:53 trở đi **âm thầm mất cuộc gọi thứ hai** và Sales nhận
    `IVR_CONFIRMATION_WINDOW_EXPIRED` thay vì `IVR_NO_ANSWER_FINAL`.
 2. **Vùng "chỉ gọi được 1 lần" của 24/7 rộng gấp 3 lần Giờ Vàng** (7 phút 30 so với 2 phút 30), đúng
-   bằng tỉ lệ giữa hai khoảng cách attempt. Vùng này **chỉ có ở buổi tối**. *Sửa `25/09`: bản trước ghi
+   bằng tỉ lệ giữa hai khoảng cách attempt. Vùng này **chỉ có ở buổi tối**, và từ `26/09` (`Q-22`) bị
+   từ chối tại intake thay vì nhận rồi chỉ gọi 1 lần. *Sửa `25/09`: bản trước ghi
    "ở cả hai đầu ngày"; vùng buổi sáng thật ra bị gọi 2 cuộc sát nhau, và từ `25/09` bị từ chối — xem
    đính chính dưới bảng.*
 

@@ -92,12 +92,42 @@ class FullFlowS5Guards(unittest.TestCase):
             with self.assertRaises(ValueError): flow.verify_kit(self.root)
 
     def test_cleanup_requires_exact_peer_project_not_just_work_label(self):
-        project = 'ivr-w0344-test'
-        other = {'Name': '/' + project + '-peer', 'Config': {'Labels': {'ivr.work': 'W0344', 'ivr.flow.project': 'ivr-w0344-other'}}}
+        project = 'm8_ivr-flow-test'
+        other = {'Name': '/' + project + '-peer', 'Config': {'Labels': {'ivr.work': 'W0344', 'ivr.flow.project': 'm8_ivr-flow-other'}}}
         self.assertFalse(flow.owns_container(other, project))
         other['Config']['Labels']['ivr.flow.project'] = project
         self.assertTrue(flow.owns_container(other, project))
-        self.assertFalse(flow.owns_container(other, 'ivr-w0344-other'))
+        self.assertFalse(flow.owns_container(other, 'm8_ivr-flow-other'))
+
+    def test_s5_run_stays_inside_the_m8_allocation(self):
+        # Q-24 (PA3, 26/09): results below /home/ssv/m8 and the API port in 6800-6899.
+        flow.require_s5_allocation(Path('/home/ssv/m8/w0344-run-1'), flow.DEFAULT_PORT)
+        for output, port in (('/home/ssv/w0344-run-1', 6843), ('/home/ssv/m8', 6843),
+                             ('/home/ssv/m8/run', 58443), ('/home/ssv/m8/run', 6799),
+                             ('/home/ssv/m8/run', 6900)):
+            with self.subTest(output=output, port=port):
+                with self.assertRaisesRegex(ValueError, 'Q-24'):
+                    flow.require_s5_allocation(Path(output), port)
+
+    def test_a_refused_s5_run_leaves_no_directory_and_a_rehearsal_is_not_bound(self):
+        output = self.root / 'result'
+        with self.assertRaisesRegex(ValueError, 'Q-24'):
+            flow.prepare_output(output, flow.DEFAULT_PORT, local_lab=False)
+        self.assertFalse(output.exists())
+        flow.prepare_output(output, 58443, local_lab=True)
+        self.assertTrue(output.is_dir())
+
+    def test_project_names_are_m8_and_the_case_runner_expects_them(self):
+        name = flow.project_name(flow.dt.datetime(2026, 9, 26, 3, 4, 5, tzinfo=flow.dt.timezone.utc))
+        self.assertRegex(name, r'^m8_ivr-flow-20260926030405-[0-9a-f]{6}$')
+        cases = (ROOT / 'deploy/lab/full-flow-s5/cases.py').read_text(encoding='utf-8')
+        self.assertIn("re.fullmatch(r'm8_ivr-flow-[a-z0-9-]+',PROJECT)", cases)
+
+    def test_launcher_and_s5_common_share_one_allocation(self):
+        self.assertEqual(flow.M8_PREFIX, common.M8_PREFIX)
+        self.assertEqual(flow.M8_ROOT, common.M8_ROOT)
+        self.assertEqual(flow.M8_PORTS, common.M8_PORTS)
+        self.assertIn(flow.DEFAULT_PORT, common.M8_PORTS)
 
     def test_receipt_excludes_credentials_and_database(self):
         output = self.root / 'result'; output.mkdir()

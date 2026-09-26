@@ -14,7 +14,7 @@ import urllib.error
 ROOT=Path(__file__).resolve().parent; OUT=Path(os.environ['IVR_FLOW_OUTPUT']).resolve(); PROJECT=os.environ['IVR_FLOW_PROJECT']
 SWITCH=PROJECT+'-asterisk-1'; DB=PROJECT+'-postgres-1'; WORKER=PROJECT+'-ivr-worker-1'; TTS=PROJECT+'-ivr-tts-1'
 PEER=PROJECT+'-peer'; NETWORK=PROJECT+'-lab'; API='http://127.0.0.1:'+os.environ['IVR_FLOW_PORT']+'/v1/ivr/order-confirmation'
-assert OUT.is_dir() and re.fullmatch(r'ivr-w0344-[a-z0-9-]+',PROJECT)
+assert OUT.is_dir() and re.fullmatch(r'm8_ivr-flow-[a-z0-9-]+',PROJECT)
 RESUME=False  # Every run starts with a fresh DB; partial runs cannot resume.
 RUN=OUT/'run-2'; RUN.mkdir(exist_ok=RESUME)
 paused=set()

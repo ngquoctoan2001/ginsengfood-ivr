@@ -5,12 +5,42 @@ import datetime as dt
 import hashlib
 import json
 import os
-from pathlib import Path
+from pathlib import Path, PurePosixPath
 import platform
 import socket
 import subprocess
 import sys
 import uuid
+
+# Q-24 (PA3, 2026-09-26). What these tools create on the shared test server stays inside Module 8's
+# allocation: container and compose names begin with m8_, a published port is one of 6800-6899,
+# and results are written below /home/ssv/m8. Resources that earlier runs left under their old
+# names are not touched here; they wait, read-only, to be cleaned up by label.
+M8_PREFIX = 'm8_'
+M8_ROOT = PurePosixPath('/home/ssv/m8')
+M8_PORTS = range(6800, 6900)
+
+
+def m8_name(stem):
+    return M8_PREFIX + stem + '-' + uuid.uuid4().hex[:12]
+
+
+def require_m8_output(output):
+    # Strictly below the root: a run writes into its own directory, never into the root itself.
+    if M8_ROOT not in PurePosixPath(Path(output).as_posix()).parents:
+        raise ValueError('On S5 the result directory must be inside ' + str(M8_ROOT) + ' (Q-24)')
+
+
+def require_m8_port(port):
+    if port not in M8_PORTS:
+        raise ValueError('On S5 a published port must be one of 6800-6899 (Q-24)')
+
+
+def prepare_output(output, on_s5):
+    # Checked before the directory exists, so a refused run leaves nothing behind on the server.
+    if on_s5:
+        require_m8_output(output)
+    output.mkdir(parents=True, exist_ok=False)
 
 
 def sha256(path):
@@ -131,7 +161,7 @@ def run_vieneu_s5():
     parser.add_argument('--memory-gib', type=int, default=4)
     args = parser.parse_args()
     output = args.output.resolve()
-    output.mkdir(parents=True, exist_ok=False)
+    prepare_output(output, args.run or bool(args.expected_host))
     docker, snapshot = inventory()
     (output / 'inventory.json').write_text(json.dumps(snapshot, indent=2) + '\n')
     print('INVENTORY_SAVED ' + str(output / 'inventory.json'), flush=True)
@@ -158,7 +188,7 @@ def run_vieneu_s5():
                 subprocess.run(docker + ['load', '--input', str(root / 'tts-image.tar')], stdout=log, stderr=subprocess.STDOUT, check=True)
     if not image:
         raise ValueError('Pinned image not found after loading the verified archive')
-    name = 'ivr-s5-probe-' + uuid.uuid4().hex[:12]
+    name = m8_name('ivr-s5-probe')
     binding = {'scope': 'S5_TARGET', 'image': image, 'image_index': manifest['image_index'],
                'image_config': manifest['image_config'], 'manifest_sha256': sha256(root / 'manifest.json'),
                'cpu_limit': args.cpus, 'memory_gib': args.memory_gib, 'real_customer_call_allowed': 'NO',

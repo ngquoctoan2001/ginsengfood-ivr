@@ -5,7 +5,7 @@ import datetime as dt
 import hashlib
 import json
 import os
-from pathlib import Path
+from pathlib import Path, PurePosixPath
 import re
 import secrets
 import shutil
@@ -26,6 +26,34 @@ CASES = ['confirm', 'customer-cancel', 'technical-retry', 'queued-expiry',
          'tts-expiry', 'no-input', 'operator-cancel']
 SERVICES = {'postgres', 'ivr-migrate', 'seed', 'lab-seed', 'media-init',
             'fake-sales', 'asterisk', 'ivr-api', 'ivr-worker', 'ivr-tts'}
+
+# Q-24 (PA3, 2026-09-26). The allocation s5_common (run-vieneu-s5.py) enforces: compose and
+# container names begin with m8_, the published API port is one of 6800-6899, and results go
+# below /home/ssv/m8. Restated rather than imported, because the kit's s5_common is loaded only
+# after the kit has been verified and the result directory is made before that. A local
+# rehearsal (--local-lab) is not on the shared server and keeps any port and directory.
+M8_PREFIX = 'm8_'
+M8_ROOT = PurePosixPath('/home/ssv/m8')
+M8_PORTS = range(6800, 6900)
+DEFAULT_PORT = 6843
+
+
+def project_name(now):
+    return M8_PREFIX + 'ivr-flow-' + now.strftime('%Y%m%d%H%M%S') + '-' + uuid.uuid4().hex[:6]
+
+
+def require_s5_allocation(output, port):
+    if M8_ROOT not in PurePosixPath(Path(output).as_posix()).parents:
+        raise ValueError('On S5 the result directory must be inside ' + str(M8_ROOT) + ' (Q-24)')
+    if port not in M8_PORTS:
+        raise ValueError('On S5 the API port must be one of 6800-6899 (Q-24)')
+
+
+def prepare_output(output, port, local_lab):
+    # Checked before the directory exists, so a refused run leaves nothing behind on the server.
+    if not local_lab:
+        require_s5_allocation(output, port)
+    output.mkdir(parents=True, exist_ok=False)
 
 
 def sha256(path):
@@ -212,7 +240,7 @@ def main():
     parser.add_argument('--bundle', type=Path, default=Path(__file__).resolve().parent)
     parser.add_argument('--models', type=Path, required=True)
     parser.add_argument('--output', type=Path, required=True)
-    parser.add_argument('--port', type=int, default=58443)
+    parser.add_argument('--port', type=int, default=DEFAULT_PORT)
     parser.add_argument('--run', action='store_true')
     parser.add_argument('--local-lab', action='store_true', help='Explicit rehearsal; cannot claim S5 evidence')
     args = parser.parse_args()
@@ -222,8 +250,8 @@ def main():
     root, models, output = args.bundle.resolve(), args.models.resolve(), args.output.resolve()
     if root in output.parents or output == root:
         raise ValueError('Output must be outside the immutable kit')
-    output.mkdir(parents=True, exist_ok=False)
-    project = 'ivr-w0344-' + dt.datetime.now(dt.timezone.utc).strftime('%Y%m%d%H%M%S') + '-' + uuid.uuid4().hex[:6]
+    prepare_output(output, args.port, args.local_lab)
+    project = project_name(dt.datetime.now(dt.timezone.utc))
     result = {'work_id': 'W-0344', 'candidate': SHA, 'REAL_CUSTOMER_CALL_ALLOWED': 'NO',
               'scope': 'LOCAL_REHEARSAL' if args.local_lab else 'S5_TARGET_SYNTHETIC_SIP',
               'project': project, 'started_utc': dt.datetime.now(dt.timezone.utc).isoformat(), 'status': 'FAIL'}

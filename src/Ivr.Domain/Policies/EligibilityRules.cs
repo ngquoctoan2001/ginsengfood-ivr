@@ -78,7 +78,10 @@ public static class EligibilityReasonCodes
     /// whose window opens outside the hours a customer may be telephoned is refused. Before B17 the
     /// test was that every attempt falls outside those hours; but the scheduler dials an overdue
     /// attempt as soon as the hours open, so that test refused callable morning orders and let others
-    /// be rung twice within seconds at 08:00.
+    /// be rung twice within seconds at 08:00. Since Q-22 (2026-09-26) a task any of whose attempts
+    /// falls outside those hours is refused too: in the evening, from 21:00:30 for 24/7 and 21:05:30
+    /// for Golden Hour, the last attempt would be due after 21:08 and never dialled. The name is kept
+    /// although the condition changed twice; Module 3 reads it on the wire.
     /// <para>
     /// Before this existed the task was accepted, sat there, and produced
     /// <c>IVR_CONFIRMATION_WINDOW_EXPIRED</c> minutes later — a result that reads as "the customer
