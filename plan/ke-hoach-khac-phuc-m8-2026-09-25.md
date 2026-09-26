@@ -487,7 +487,7 @@ Quyết `Q-12` nên nói luôn cho tên khách.
 
 | Việc sau khi quyết | Giờ | Trạng thái |
 | --- | ---: | --- |
-| `Q-12.1` Sửa guard + test xuyên intake → dispatch với "Tổ yến" | 2 | ⬜ |
+| `Q-12.1` Sửa guard + test xuyên intake → dispatch với "Tổ yến" | 2 | 🟡 26/09 12:32 · phiên soak và L5 (Q-12, Q-15, Q-16, Q-19) |
 
 #### `Q-13` — B17: mô hình biên buổi sáng 🔥 · Toàn (audit giao dev chọn; báo chief vì đổi tài liệu gửi M3)
 
@@ -546,6 +546,10 @@ rồi `WINDOW_EXPIRED`.)
 
 **Khuyến nghị: PA1.**
 
+| Việc sau khi quyết | Giờ | Trạng thái |
+| --- | ---: | --- |
+| `Q-15.1` Theo PA1: xoá `IVR_ADAPTER_MODE`, `IVR_KILL_SWITCH_ENABLED`, `IVR_LAB_DESTINATION_ALLOWLIST` khỏi helm, Dockerfile, compose; chuyển `k8s-selftest.mjs`, `image-selftest.mjs`, `docs-selftest.mjs` và tài liệu sang khoá thật | 2,5 | 🟡 26/09 12:32 · phiên soak và L5 (Q-12, Q-15, Q-16, Q-19) |
+
 #### `Q-16` — Đóng hẳn lớp lỗi "intake nhận – lúc quay từ chối" (B16) · Toàn đề xuất, chief duyệt
 
 Lớp gồm: tổng tiền >999.999.999.999, `quantity` nhiều chữ số lẻ, tên hàng dính guard, bản thoại >1.200 ký tự.
@@ -557,6 +561,10 @@ Lớp gồm: tổng tiền >999.999.999.999, `quantity` nhiều chữ số lẻ,
 | PA3 | Giữ như W-0354, chỉ vá các chỗ còn cách ly SIM (`K-26`, `K-45`) | Không đổi contract | Đơn lỗi dữ liệu vẫn không được gọi; M3 chỉ thấy `WINDOW_EXPIRED` không lý do | 0 (đã tính ở K) |
 
 **Khuyến nghị: PA2, sau `Q-12`.**
+
+| Việc sau khi quyết | Giờ | Trạng thái |
+| --- | ---: | --- |
+| `Q-16.1` Theo PA2: render thử tại intake sau khi có `approvedScript`, lỗi thì từ chối với reason mới bằng decision và mã có sẵn; giới hạn số chỉ ghi trong description; đính chính IR-07 và bảng mã lỗi | 3 | 🟡 26/09 12:32 · phiên soak và L5 (Q-12, Q-15, Q-16, Q-19) |
 
 #### `Q-17` — Hạ S2 / `legal_gate` / `internal_mirror_gate` đang PASS bằng chữ ký tự kiêm (A1 bước 2; A3, A4, B8 bước 2) · Toàn (chief đã chỉ hướng; nhánh ủy quyền do Sếp)
 
@@ -601,7 +609,7 @@ và viết hoa; bí danh "Owner module IVR"; tham chiếu trong repo; thiếu/sa
 
 | Việc sau khi quyết | Giờ | Trạng thái |
 | --- | ---: | --- |
-| `Q-19.1` Code + `IT-API-DEADLETTER-15/16`, `UT-CB-REPLAY-AGE-01`; cho phép phát lại `AUTH_REJECTED` (hiện chỉ nhận `RETRY_EXHAUSTED`/`INVALID_DEAD_LETTER` — khi bật C11, cấu hình credential sai là mọi kết quả chết, chỉ gỡ được bằng UPDATE tay) + `IT-API-DEADLETTER-17`; bump contract `draft.34`: mô tả 409 quá tuổi + sửa chữ OAS `:972` (`K-15`); IR-06 §4A.3 + IR-07 `:721` bỏ câu "chưa đặt giới hạn"; chuỗi bump đầy đủ (luật 5) | 4,5 | ⬜ |
+| `Q-19.1` Code + `IT-API-DEADLETTER-15/16`, `UT-CB-REPLAY-AGE-01`; cho phép phát lại `AUTH_REJECTED` (hiện chỉ nhận `RETRY_EXHAUSTED`/`INVALID_DEAD_LETTER` — khi bật C11, cấu hình credential sai là mọi kết quả chết, chỉ gỡ được bằng UPDATE tay) + `IT-API-DEADLETTER-17`; bump contract `draft.34`: mô tả 409 quá tuổi + sửa chữ OAS `:972` (`K-15`); IR-06 §4A.3 + IR-07 `:721` bỏ câu "chưa đặt giới hạn"; chuỗi bump đầy đủ (luật 5) | 4,5 | 🟡 26/09 12:32 · phiên soak và L5 (Q-12, Q-15, Q-16, Q-19) |
 
 ### Nhóm 2 — chief / Tech Lead quyết (dev chuẩn bị phương án)
 
@@ -961,7 +969,7 @@ git commit -m "type(scope): W-XXXX mô tả" -- <paths>
 | `B12` | Telephony adapter production | ⛔ nhà mạng; `Q-27`, `Q-28` ✔ PA2 25/09 | `K-25`, `K-42…K-47`, `Q-27`, `Q-28`, `CB-12`, `CB-13` |
 | `B13`, `B14` | `LabRealSim` gán cứng | ✅ + bù | `K-42` |
 | `B15` | `ToString` record mang số | ✅ + bù | `K-37`, `K-38` |
-| `B16` | `total_amount` số lẻ, cách ly SIM | Một phần ✅; `Q-12` PA1, `Q-16` PA2 ✔ 26/09, chưa làm | `K-14`, `K-26`, `K-27`, `K-29`, `K-30`, `Q-12`, `Q-16` |
+| `B16` | `total_amount` số lẻ, cách ly SIM | Một phần ✅; `Q-12` PA1, `Q-16` PA2 ✔ 26/09, đang làm (🟡 26/09) | `K-14`, `K-26`, `K-27`, `K-29`, `K-30`, `Q-12`, `Q-16` |
 | `B17` | Guard W-0298 ở biên buổi sáng | `Q-13` ✅ `3d04eee`; `Q-22` ✔ PA2 25/09: `Q-22.1` ✅ `c98c479` 26/09, `Q-22.2` ✅ `5a41439` 26/09 | `Q-13`, `Q-22` |
 | `C1` | `program_code` | ⛔ M3 | `Q-33`, `CB-05` |
 | `C2` | 9 result code, dòng m8-05 | ✅ đính chính + còn câu trỏ; §13 ⛔ chief | `K-13`, `CB-16` |
@@ -979,7 +987,7 @@ git commit -m "type(scope): W-XXXX mô tả" -- <paths>
 | `C16` | Contact Gate / dial token | ⛔ Sếp + SIP-04; `Q-28` ✔ PA2 25/09: `Q-28.1–2` ✅ `c51976d` 26/09, `Q-28.3` cùng SIP-04 | `Q-28`, `CB-10`, `CB-13` |
 | `C18` | Server test ngoài cấp phát | `Q-24` ✔ PA3 25/09: công cụ `Q-24.1` ✅ `c98c479` 26/09; tài nguyên cũ chưa dọn | `Q-24`, `CB-15` |
 | `C19` | Phương án B trên contract | ➖ gộp A2 | `Q-32` |
-| `C21` | Phát lại callback không giới hạn tuổi | Tài liệu ✅; code: `Q-19` ✔ PA2 26/09, chưa làm | `K-13`, `Q-19` |
+| `C21` | Phát lại callback không giới hạn tuổi | Tài liệu ✅; code: `Q-19` ✔ PA2 26/09, đang làm (🟡 26/09) | `K-13`, `Q-19` |
 | `C22` | Bảng map v0 bỏ phân biệt runtime | ⏸ chờ nguyên văn v1 | `Q-03`, `CB-02` |
 | `C23` | IR-07 hứa VieNeu đọc lúc gọi | Đính chính ✅ `3d04eee` (`Q-02`); phần N1 theo `Q-29` PA2 | `Q-02` |
 | `N1` | Không sinh giọng lúc gọi | `K-48…K-50` ✅ `8efa3ee` 26/09 (bước 4–6); `Q-25`, `Q-26` PA1 và `Q-29` PA2 ✔ 25/09; `Q-29.1…Q-29.5` chưa làm, `Q-11` ✔ PA1 26/09 | `K-48`, `K-49`, `K-50`, `Q-11`, `Q-25`, `Q-26`, `Q-29` |
@@ -991,7 +999,7 @@ git commit -m "type(scope): W-XXXX mô tả" -- <paths>
 | `V6-6`/`V6-14` | Provider hỏng → fail an toàn | Đạt vế không tính lượt; 🆕 lỗ luồng ARI | `K-47`, N1 |
 | `V6-7`/`V6-15` | Classifier P1 | Không làm trước cổng V6.4 | — |
 | `D1…D11` | Đã đạt | ✅ còn đúng (kiểm lại 25/09) | `K-08`, `K-05` (chữ D11) |
-| Dòng 106, 123 | `IVR_ADAPTER_MODE` dùng làm bằng chứng | 🆕 biến không có tác dụng; `Q-15` ✔ PA1 26/09, chưa làm | `Q-15` |
+| Dòng 106, 123 | `IVR_ADAPTER_MODE` dùng làm bằng chứng | 🆕 biến không có tác dụng; `Q-15` ✔ PA1 26/09, đang làm (🟡 26/09) | `Q-15` |
 | Dòng 120, 717 | Thiếu `X-Actor-Id` → 403 | ✅ `f3e26a6` (IR-06, IR-08) | — |
 | Dòng 121 | Cảnh báo "(none registered)" lúc khởi động | ✅ 5aec684 | `K-33` |
 | Dòng 714 | CI hosted không xanh | `openapi_lint` ✅; còn `deploy_dev`; `Q-14` ✔ PA2 26/09, chưa làm | `K-01`, `K-05`, `Q-14`, `CB-17` |
