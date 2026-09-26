@@ -429,3 +429,9 @@ c51976df1866971bc939d8f959efddb90fbcf831:src/Ivr.Infrastructure/Persistence/Migr
 c51976df1866971bc939d8f959efddb90fbcf831:src/Ivr.Infrastructure/Persistence/Migrations/20260926032500_ProductionPilotApprovalKinds.Designer.cs:generic-api-key:920
 c51976df1866971bc939d8f959efddb90fbcf831:deploy/ci/scripts/production-pilot-selftest.mjs:generic-api-key:8
 c51976df1866971bc939d8f959efddb90fbcf831:tests/Ivr.UnitTests/Telephony/SipTrunkProductionDialTests.cs:generic-api-key:35
+# W-0371 (commit 04ebecea, contract 1.0.0-draft.34) regenerated the API portal. The same two false positives every
+# portal build brings: the Redoc rendering of the flag name v1NotificationEnabled at line 1272, and the portal
+# sourceHashes value for docs/api-changelog.md, which equals that file's SHA-256 at the same commit (328bf027...,
+# checked 26/09 before the push). Same commit/file/rule/line pinning.
+04ebecea30180f32e9501b1171c72423f723101a:docs/api/ivr-order-confirmation-v1.html:generic-api-key:1272
+04ebecea30180f32e9501b1171c72423f723101a:docs/api/portal-manifest.json:generic-api-key:27
