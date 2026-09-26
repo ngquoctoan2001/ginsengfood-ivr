@@ -132,13 +132,24 @@ public interface ITelephonyDispatchStore
         TimeSpan cooldown,
         CancellationToken cancellationToken = default);
 
+    /// <param name="channelHealthy">
+    /// What the failure says about the SIM channel, read as
+    /// <see cref="SimDispositionReport.ChannelHealthy"/> is: <c>null</c> leaves the channel's
+    /// failure streak exactly as it was (W-0367 / K-57).
+    /// </param>
+    /// <param name="playbackStarted">
+    /// Whether the call's speech had started playing when it failed. Only the gateway knows; the
+    /// raw event used to record every failure after a dial as played, a refused playback included
+    /// (W-0367 / K-57). Left out, the event does not claim a playback.
+    /// </param>
     public Task FailAsync(
         SchedulerDispatchLease lease,
         SimCallSession? session,
         SimProviderDisposition disposition,
         string technicalErrorCode,
-        bool channelHealthy,
+        bool? channelHealthy,
         TimeSpan cooldown,
+        bool playbackStarted = false,
         CancellationToken cancellationToken = default);
 }
 
@@ -326,6 +337,9 @@ public sealed class PostgresTelephonyDispatchStore(
             SanitizeDtmf(dtmf.Key),
             disposition.TechnicalErrorCode,
             disposition.ChannelHealthy,
+            // W-0367 / K-57. Both gateways play only once a call is answered, and complete only
+            // after that playback returned; an unanswered call completes without one.
+            session.IsConnected,
             disposition.StartedAt,
             disposition.EndedAt,
             cooldown,
@@ -337,8 +351,9 @@ public sealed class PostgresTelephonyDispatchStore(
         SimCallSession? session,
         SimProviderDisposition disposition,
         string technicalErrorCode,
-        bool channelHealthy,
+        bool? channelHealthy,
         TimeSpan cooldown,
+        bool playbackStarted = false,
         CancellationToken cancellationToken = default)
     {
         ArgumentException.ThrowIfNullOrWhiteSpace(technicalErrorCode);
@@ -349,6 +364,7 @@ public sealed class PostgresTelephonyDispatchStore(
             null,
             SafeTechnicalCode(technicalErrorCode),
             channelHealthy,
+            playbackStarted,
             session?.StartedAt,
             timeProvider.GetUtcNow(),
             cooldown,
@@ -361,7 +377,8 @@ public sealed class PostgresTelephonyDispatchStore(
         SimProviderDisposition disposition,
         string? dtmf,
         string? technicalErrorCode,
-        bool channelHealthy,
+        bool? channelHealthy,
+        bool playbackStarted,
         DateTimeOffset? startedAt,
         DateTimeOffset endedAt,
         TimeSpan cooldown,
@@ -398,9 +415,14 @@ public sealed class PostgresTelephonyDispatchStore(
                         attempt.IvrCallAttemptId),
                     RawCallStatus = rawStatus,
                     RawDtmf = dtmf,
+
+                    // W-0367 / K-57. PLAYED only when the playback did start. A dial alone used to
+                    // earn it, so a call that was never answered, or whose playback was refused,
+                    // left a raw event saying the customer had been read the order.
                     AudioStatus = disposition == SimProviderDisposition.AudioError
                         ? "ERROR"
-                        : session is null ? "NOT_STARTED" : "PLAYED",
+                        : session is null ? "NOT_STARTED"
+                        : playbackStarted ? "PLAYED" : "NOT_PLAYED",
                     TechnicalErrorCode = technicalErrorCode,
                     RecordingRef = null,
                     ReceivedAt = endedAt,
@@ -424,25 +446,31 @@ public sealed class PostgresTelephonyDispatchStore(
                 // just before it: a channel two faults from DT-04's auto-disable went back to the
                 // front of the queue with a clean record. Such an outcome now leaves the streak as
                 // it found it.
+                //
+                // W-0367 / K-57. A call can end for a reason that says nothing about its channel even
+                // after the dial: the adapter losing its event stream (null). That leaves the streak
+                // alone too, and the channel goes back to the pool after its cooldown like any call
+                // that ended without a fault of its own.
+                bool channelFailed = channelHealthy == false;
                 bool autoDisabled = false;
-                if (!channelHealthy)
+                if (channelFailed)
                 {
                     autoDisabled = SimChannelFailurePolicy.RecordFailure(channel, endedAt);
                 }
-                else if (session is not null)
+                else if (channelHealthy == true && session is not null)
                 {
                     SimChannelFailurePolicy.RecordHealthy(channel);
                 }
 
                 channel.LastHealthCheckAt = endedAt;
                 channel.CooldownUntil = endedAt.Add(cooldown);
-                channel.Status = channelHealthy
+                channel.Status = !channelFailed
                     ? "IDLE"
                     : autoDisabled ? "HEALTH_FAILED" : "QUARANTINED";
-                channel.QuarantineUntil = channelHealthy
+                channel.QuarantineUntil = !channelFailed
                     ? null
                     : endedAt.Add(cooldown);
-                channel.DisabledReason = channelHealthy
+                channel.DisabledReason = !channelFailed
                     ? null
                     : technicalErrorCode ?? "CHANNEL_UNHEALTHY";
                 ReleaseLease(channel);
@@ -450,7 +478,7 @@ public sealed class PostgresTelephonyDispatchStore(
                 // W-0042 / P6-3, DT-04. Count every unhealthy-provider transition. The shared
                 // failure policy owns the per-channel ten-minute threshold; this metric separately
                 // gives operations a team-wide burst signal and also covers the lease-expiry path.
-                if (!channelHealthy)
+                if (channelFailed)
                 {
                     Observability.IvrTelemetry.RecordChannelQuarantine(
                         (Observability.TelemetryTags.ReasonCode,

@@ -50,6 +50,9 @@ Trạng thái: `SRS_DRAFT` · Sinh bởi: `p05` · Nguồn: `phase-8/06` (SIM ad
   `B2` phiếu Sếp `25/09`; `OD-V1-05` ở `M8_POSITION_SIGNED / M3_NOT_RECEIVED` từ `16/09` (`W-0304`),
   chờ Module 3 đối ký. Nội dung token không đổi.
 - `ONE_SIM_ONE_ACTIVE_CALL`; cooldown 5s; `fail_count≥3/10′` → disable+alert (DT-04).
+  *Thêm `26/09` (`K-57`, `W-0367`):* chỉ lỗi của chính kênh SIM mới vào `fail_count`. Adapter mất luồng sự kiện
+  của nó (ARI, `ASTERISK_EVENT_STREAM_*`) thì cuộc gọi kết thúc là lỗi mạng không tính lượt khách, nhưng chuỗi lỗi của SIM
+  giữ nguyên, không cộng cũng không xoá: một luồng phục vụ mọi SIM của worker, nên đếm nó là đếm lỗi cho mọi SIM đang gọi.
 - Recording **OFF** mặc định (DT-05); nếu bật, chỉ lưu `recording_ref` + retention (DF-07 PENDING).
 
 ## 3. Disposition mapping (DT-02 — LOCKED; re-verify khi có SIM)

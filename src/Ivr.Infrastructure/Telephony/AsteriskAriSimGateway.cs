@@ -12,7 +12,7 @@ namespace Ivr.Infrastructure.Telephony;
 public sealed class AsteriskAriOperationException(
     SimProviderDisposition disposition,
     string technicalErrorCode,
-    bool channelHealthy,
+    bool? channelHealthy,
     string message,
     Exception? innerException = null) : Exception(message, innerException)
 {
@@ -20,7 +20,11 @@ public sealed class AsteriskAriOperationException(
 
     public string TechnicalErrorCode { get; } = technicalErrorCode;
 
-    public bool ChannelHealthy { get; } = channelHealthy;
+    /// <summary>
+    /// What the failure says about the SIM channel, read as <see cref="SimDispositionReport.ChannelHealthy"/>
+    /// is: <c>null</c> when it says nothing either way (W-0367 / K-57).
+    /// </summary>
+    public bool? ChannelHealthy { get; } = channelHealthy;
 }
 
 /// <summary>
@@ -254,7 +258,8 @@ public sealed class AsteriskAriSimGateway(
             // healthy, ASTERISK_CHANNEL_ALREADY_ENDED - a customer hanging up, on a channel
             // Asterisk never said had ended, with no word of the stream. It fails the way the same
             // loss one step later is reported: the stream's own code, and the answer
-            // GetDispositionAsync gives for that call, channel health included.
+            // GetDispositionAsync gives for that call, channel health included - which since
+            // W-0367 / K-57 says nothing about the SIM either way.
             SimDispositionReport lost = await GetDispositionAsync(session, cancellationToken);
             throw Failure(
                 lost.Disposition,
@@ -327,7 +332,15 @@ public sealed class AsteriskAriSimGateway(
             state.StartedAt,
             endedAt,
             state.TechnicalErrorCode,
-            disposition is not (SimProviderDisposition.NetworkError or SimProviderDisposition.SimError)));
+            // W-0367 / K-57. A call this side ended because the event stream failed says nothing
+            // about its SIM. The stream belongs to the adapter, and one stream serves every SIM
+            // this worker drives: reading its loss as a network fault on each channel put a strike
+            // on every SIM with a call up, and three short outages inside DT-04's ten minutes
+            // took them all out of service. Nothing returned them: the admin enable path refuses
+            // any channel that is not MOCK. The channel keeps whatever streak it had.
+            state.EndedWithoutAsterisk
+                ? null
+                : disposition is not (SimProviderDisposition.NetworkError or SimProviderDisposition.SimError)));
     }
 
     public async ValueTask HangupAsync(
@@ -752,7 +765,7 @@ public sealed class AsteriskAriSimGateway(
     private static AsteriskAriOperationException Failure(
         SimProviderDisposition disposition,
         string code,
-        bool channelHealthy,
+        bool? channelHealthy,
         string message,
         Exception? exception = null) =>
         new(disposition, code, channelHealthy, message, exception);

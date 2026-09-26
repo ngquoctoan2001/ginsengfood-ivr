@@ -257,12 +257,19 @@ public sealed record SimDtmfCapture(
     bool NoInput,
     string? TechnicalErrorCode);
 
+/// <param name="ChannelHealthy">
+/// What the outcome says about the SIM channel. <c>false</c> counts a failure against it (DT-04),
+/// and <c>true</c> clears its failure streak once it has carried a call. <c>null</c> says nothing
+/// either way: the call ended for a reason outside the channel, so its streak is left as it was.
+/// W-0367 / K-57: the adapter losing its own event stream is such a reason. One stream serves every
+/// SIM a worker drives, so counting its loss would strike every channel with a call up at once.
+/// </param>
 public sealed record SimDispositionReport(
     SimProviderDisposition Disposition,
     DateTimeOffset StartedAt,
     DateTimeOffset EndedAt,
     string? TechnicalErrorCode,
-    bool ChannelHealthy);
+    bool? ChannelHealthy);
 
 public sealed record SimGatewayHealth(
     string SimChannelId,

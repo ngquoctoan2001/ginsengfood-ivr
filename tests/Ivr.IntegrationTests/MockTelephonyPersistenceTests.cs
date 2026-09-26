@@ -897,6 +897,165 @@ public sealed class MockTelephonyPersistenceTests(PostgresPersistenceFixture fix
         Assert.Null(persisted.LeaseToken);
     }
 
+    /// <summary>
+    /// W-0367 / K-57. An outcome that says nothing about the SIM leaves its streak exactly as it was.
+    /// The channel of IT-TEL-HEALTH-RESET-08 - two failures inside the window - loses the event stream
+    /// of the adapter under a call it had answered. Counted as a third failure, that loss took the
+    /// channel out of service for good; read as healthy, it wiped the two real failures before it. The
+    /// channel now keeps both, goes back to the pool after its cooldown, and the audit row leaves its
+    /// health unsaid. Through both ways a dispatch ends: a failure, and a completed call whose report
+    /// says it.
+    /// </summary>
+    [Theory]
+    [InlineData(false)]
+    [InlineData(true)]
+    [Trait("TestId", "IT-TEL-HEALTH-NEUTRAL-10")]
+    public async Task AnOutcomeThatSaysNothingAboutTheSimLeavesItsStreakAlone(bool throughCompletion)
+    {
+        await fixture.ResetAsync();
+        IDbContextFactory<IvrDbContext> factory = Factory();
+        await SeedMockDispatchAsync(factory, "TASK-TEL-10N", "JOB-TEL-10N", "SIM-MOCK-10N");
+        await using (IvrDbContext setup = await factory.CreateDbContextAsync())
+        {
+            SimChannelEntity channel = await setup.SimChannels.SingleAsync();
+            channel.FailCount = 2;
+            channel.FailureWindowStartedAt = Now.AddMinutes(-5);
+            await setup.SaveChangesAsync();
+        }
+
+        var scheduler = new PostgresSchedulerStore(factory, new FixedTimeProvider(Now));
+        SchedulerDispatchLease lease = Assert.IsType<SchedulerDispatchLease>(
+            await scheduler.TryClaimDueDispatchAsync(
+                "worker-health-neutral",
+                IvrOptions.MockExecutionMode,
+                TimeSpan.FromMinutes(2)));
+        var session = new SimCallSession(
+            AttemptId.Create(lease.AttemptId),
+            lease.SimChannelId,
+            "provider-call-neutral-10",
+            lease.FencingGeneration,
+            Now,
+            true);
+        PostgresTelephonyDispatchStore store = CreateStore(factory);
+        if (throughCompletion)
+        {
+            await store.CompleteAsync(
+                lease,
+                session,
+                new SimDtmfCapture(null, false, "ASTERISK_EVENT_STREAM_LOST"),
+                new SimDispositionReport(
+                    SimProviderDisposition.NetworkError,
+                    Now,
+                    Now,
+                    "ASTERISK_EVENT_STREAM_LOST",
+                    ChannelHealthy: null),
+                TimeSpan.FromSeconds(5));
+        }
+        else
+        {
+            await store.FailAsync(
+                lease,
+                session,
+                SimProviderDisposition.NetworkError,
+                "ASTERISK_EVENT_STREAM_LOST",
+                channelHealthy: null,
+                TimeSpan.FromSeconds(5));
+        }
+
+        await using IvrDbContext verification = await factory.CreateDbContextAsync();
+        SimChannelEntity persisted = await verification.SimChannels.AsNoTracking().SingleAsync();
+        Assert.Equal(2, persisted.FailCount);
+        Assert.Equal(Now.AddMinutes(-5), persisted.FailureWindowStartedAt);
+        Assert.Equal("IDLE", persisted.Status);
+        Assert.Null(persisted.QuarantineUntil);
+        Assert.Null(persisted.DisabledReason);
+        Assert.Null(persisted.LeaseToken);
+
+        AuditLogEntity captured = await verification.AuditLog.AsNoTracking()
+            .SingleAsync(audit => audit.Action == "SIM_PROVIDER_EVENT_CAPTURED");
+        using JsonDocument data = JsonDocument.Parse(captured.DataJson);
+        Assert.Equal(JsonValueKind.Null, data.RootElement.GetProperty("channel_healthy").ValueKind);
+        Assert.Equal(2, data.RootElement.GetProperty("channel_fail_count").GetInt32());
+        Assert.False(data.RootElement.GetProperty("channel_auto_disabled").GetBoolean());
+    }
+
+    /// <summary>
+    /// W-0367 / K-57. The raw event says the order was played only when the playback started. A
+    /// dial used to be enough, so a call never answered, and one whose playback failed before it
+    /// began, both left a raw event claiming the customer had heard the order.
+    /// </summary>
+    [Theory]
+    [InlineData("fail-before-playback", "NOT_PLAYED")]
+    [InlineData("fail-after-playback", "PLAYED")]
+    [InlineData("fail-audio", "ERROR")]
+    [InlineData("complete-unanswered", "NOT_PLAYED")]
+    [InlineData("complete-answered", "PLAYED")]
+    [Trait("TestId", "IT-TEL-AUDIO-STATUS-11")]
+    public async Task TheRawEventSaysPlayedOnlyWhenThePlaybackStarted(string outcome, string audioStatus)
+    {
+        await fixture.ResetAsync();
+        IDbContextFactory<IvrDbContext> factory = Factory();
+        await SeedMockDispatchAsync(factory, "TASK-TEL-11A", "JOB-TEL-11A", "SIM-MOCK-11A");
+        var scheduler = new PostgresSchedulerStore(factory, new FixedTimeProvider(Now));
+        SchedulerDispatchLease lease = Assert.IsType<SchedulerDispatchLease>(
+            await scheduler.TryClaimDueDispatchAsync(
+                "worker-audio-status",
+                IvrOptions.MockExecutionMode,
+                TimeSpan.FromMinutes(2)));
+        var session = new SimCallSession(
+            AttemptId.Create(lease.AttemptId),
+            lease.SimChannelId,
+            "provider-call-audio-11",
+            lease.FencingGeneration,
+            Now,
+            outcome != "complete-unanswered");
+        PostgresTelephonyDispatchStore store = CreateStore(factory);
+        TimeSpan cooldown = TimeSpan.FromSeconds(5);
+        Task recorded = outcome switch
+        {
+            "fail-before-playback" => store.FailAsync(
+                lease,
+                session,
+                SimProviderDisposition.NetworkError,
+                "ASTERISK_EVENT_STREAM_LOST",
+                channelHealthy: null,
+                cooldown),
+            "fail-after-playback" => store.FailAsync(
+                lease,
+                session,
+                SimProviderDisposition.NetworkError,
+                "PROVIDER_NETWORK_ERROR",
+                channelHealthy: false,
+                cooldown,
+                playbackStarted: true),
+            "fail-audio" => store.FailAsync(
+                lease,
+                session,
+                SimProviderDisposition.AudioError,
+                "ASTERISK_PLAYBACK_FAILED",
+                channelHealthy: true,
+                cooldown),
+            "complete-unanswered" => store.CompleteAsync(
+                lease,
+                session,
+                new SimDtmfCapture(null, false, null),
+                new SimDispositionReport(SimProviderDisposition.RingTimeout, Now, Now, null, true),
+                cooldown),
+            "complete-answered" => store.CompleteAsync(
+                lease,
+                session,
+                new SimDtmfCapture("1", false, null),
+                new SimDispositionReport(SimProviderDisposition.Answered, Now, Now, null, true),
+                cooldown),
+            _ => throw new ArgumentOutOfRangeException(nameof(outcome)),
+        };
+        await recorded;
+
+        await using IvrDbContext verification = await factory.CreateDbContextAsync();
+        RawCallEventEntity rawEvent = await verification.RawCallEvents.AsNoTracking().SingleAsync();
+        Assert.Equal(audioStatus, rawEvent.AudioStatus);
+    }
+
     private IDbContextFactory<IvrDbContext> Factory() => fixture.Services
         .GetRequiredService<IDbContextFactory<IvrDbContext>>();
 

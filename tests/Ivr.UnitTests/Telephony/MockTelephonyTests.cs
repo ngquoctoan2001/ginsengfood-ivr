@@ -609,11 +609,35 @@ public sealed class MockTelephonyTests
     }
 
     /// <summary>
-    /// One MOCK dispatch through the real fake SIM: it answers, refuses the playback (the AudioError
-    /// scenario), and the gateway hangs up - or fails to, when <paramref name="hangupFailure"/> is
-    /// given.
+    /// W-0367 / K-57. The MOCK dispatch loop tells the store whether the speech had started playing
+    /// when the call failed: not when the playback itself was refused, yes when the call failed after
+    /// it, at the key capture. The raw event used to record both as played.
     /// </summary>
-    private static async Task<HangupScenarioRun> DispatchWithMockHangupAsync(Exception? hangupFailure)
+    [Theory]
+    [InlineData(SimProviderDisposition.AudioError, "MOCK_AUDIO_ERROR", false)]
+    [InlineData(SimProviderDisposition.DtmfError, "MOCK_DTMF_ERROR", true)]
+    [Trait("TestId", "UT-TEL-PLAYBACK-01")]
+    public async Task TheMockLoopSaysWhetherThePlaybackHadStartedWhenTheCallFailed(
+        SimProviderDisposition scenario,
+        string expectedCode,
+        bool playbackStarted)
+    {
+        HangupScenarioRun run = await DispatchWithMockHangupAsync(null, scenario, expectedCode);
+        RecordedDispatchFailure failure = Assert.Single(run.Failures);
+        Assert.Equal(expectedCode, failure.TechnicalErrorCode);
+        Assert.Equal(playbackStarted, failure.PlaybackStarted);
+        Assert.True(failure.ChannelHealthy);
+    }
+
+    /// <summary>
+    /// One MOCK dispatch through the real fake SIM: it answers, fails as <paramref name="scenario"/>
+    /// says - by default refusing the playback (the AudioError scenario) - and the gateway hangs up,
+    /// or fails to, when <paramref name="hangupFailure"/> is given.
+    /// </summary>
+    private static async Task<HangupScenarioRun> DispatchWithMockHangupAsync(
+        Exception? hangupFailure,
+        SimProviderDisposition scenario = SimProviderDisposition.AudioError,
+        string expectedCode = "MOCK_AUDIO_ERROR")
     {
         var clock = new FixedTimeProvider(Now);
         var lease = new SchedulerDispatchLease(
@@ -636,13 +660,14 @@ public sealed class MockTelephonyTests
             Ivr.Domain.Scripts.TargetV1SpeechPolicy.MockTemplateVersion,
             3));
 
-        // AudioError answers the dial and then refuses the playback, so the call is up when the
-        // dispatch fails and the gateway has a hangup to make.
+        // Both scenarios used here answer the dial before they fail - AudioError at the playback,
+        // DtmfError at the key capture - so the call is up when the dispatch fails and the gateway
+        // has a hangup to make.
         var sim = new HangupFailingSimGateway(
             new FakeSimGateway(
                 new Dictionary<string, FakeSimScenario>
                 {
-                    [lease.AttemptId] = new(SimProviderDisposition.AudioError),
+                    [lease.AttemptId] = new(scenario),
                 },
                 timeProvider: clock),
             hangupFailure);
@@ -679,7 +704,7 @@ public sealed class MockTelephonyTests
             MockSimOperationException playback =
                 await Assert.ThrowsAsync<MockSimOperationException>(
                     () => gateway.DispatchAsync(lease, CancellationToken.None));
-            Assert.Equal("MOCK_AUDIO_ERROR", playback.TechnicalErrorCode);
+            Assert.Equal(expectedCode, playback.TechnicalErrorCode);
         }
 
         return new HangupScenarioRun(

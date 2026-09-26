@@ -76,6 +76,10 @@ public sealed partial class AsteriskSchedulerDispatchGateway(
 
         SimCallSession? session = null;
         bool hungUp = false;
+
+        // W-0367 / K-57. Told to the store with a failure: whether the speech had started playing,
+        // which only this loop knows.
+        bool playbackStarted = false;
         TimeSpan cooldown = TimeSpan.FromSeconds(configured.CooldownSeconds);
         try
         {
@@ -197,6 +201,7 @@ public sealed partial class AsteriskSchedulerDispatchGateway(
             if (session.IsConnected)
             {
                 await simGateway.PlayAsync(session, speech, cancellationToken);
+                playbackStarted = true;
                 dtmf = await CaptureDtmfOrTerminationAsync(
                     session,
                     lease,
@@ -233,7 +238,7 @@ public sealed partial class AsteriskSchedulerDispatchGateway(
         catch (Exception exception)
         {
             await TryHangupAsync(session, hungUp, CancellationToken.None);
-            (SimProviderDisposition disposition, string technicalCode, bool channelHealthy) =
+            (SimProviderDisposition disposition, string technicalCode, bool? channelHealthy) =
                 exception switch
                 {
                     TtsSynthesisException tts =>
@@ -286,6 +291,7 @@ public sealed partial class AsteriskSchedulerDispatchGateway(
                 technicalCode,
                 channelHealthy,
                 cooldown,
+                playbackStarted,
                 cancellationToken);
             throw;
         }

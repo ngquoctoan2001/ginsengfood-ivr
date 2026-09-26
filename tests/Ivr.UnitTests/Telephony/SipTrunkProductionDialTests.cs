@@ -823,8 +823,9 @@ public sealed class SipTrunkProductionDialTests
             SimCallSession? session,
             SimProviderDisposition disposition,
             string technicalErrorCode,
-            bool channelHealthy,
+            bool? channelHealthy,
             TimeSpan cooldown,
+            bool playbackStarted = false,
             CancellationToken cancellationToken = default) => throw Touched();
 
         public Task<CallTerminationRequest?> ReadTerminationAsync(

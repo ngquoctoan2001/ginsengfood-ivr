@@ -330,6 +330,44 @@ public sealed class AsteriskLabTelephonyTests
     }
 
     /// <summary>
+    /// W-0367 / K-57. The dispatch loop hands the store what the adapter said about the channel,
+    /// unchanged, and whether the speech had started playing.
+    /// <para>
+    /// A stream lost before the playback says nothing about the SIM, so the store neither counts a
+    /// failure against the channel nor clears its streak; before K-57 the same loss was recorded as
+    /// the SIM's own fault. A failure after the playback started still counts against the channel
+    /// when the adapter says so, and the raw event then records that the order was played.
+    /// </para>
+    /// </summary>
+    [Fact]
+    [Trait("TestId", "UT-AST-HEALTH-01")]
+    public async Task TheDispatchLoopPassesOnWhatTheAdapterSaidAboutTheChannelAndThePlayback()
+    {
+        RecordedDispatchFailure lost = await DispatchThroughStagedAriAsync(
+            playbackFailure: new AsteriskAriOperationException(
+                SimProviderDisposition.NetworkError,
+                "ASTERISK_EVENT_STREAM_LOST",
+                null,
+                "The ARI event stream was lost before playback; this side ended the call."),
+            captureFailure: null);
+        Assert.Equal(SimProviderDisposition.NetworkError, lost.Disposition);
+        Assert.Equal("ASTERISK_EVENT_STREAM_LOST", lost.TechnicalErrorCode);
+        Assert.Null(lost.ChannelHealthy);
+        Assert.False(lost.PlaybackStarted);
+
+        RecordedDispatchFailure afterPlayback = await DispatchThroughStagedAriAsync(
+            playbackFailure: null,
+            captureFailure: new AsteriskAriOperationException(
+                SimProviderDisposition.NetworkError,
+                "ASTERISK_HTTP_UNAVAILABLE",
+                false,
+                "ARI stopped answering."));
+        Assert.Equal("ASTERISK_HTTP_UNAVAILABLE", afterPlayback.TechnicalErrorCode);
+        Assert.False(afterPlayback.ChannelHealthy);
+        Assert.True(afterPlayback.PlaybackStarted);
+    }
+
+    /// <summary>
     /// W-0362 / K-47 (V6-6). Losing the ARI event stream ends every call still open on it, at once,
     /// as a network error that does not count against the customer.
     /// <para>
@@ -344,6 +382,11 @@ public sealed class AsteriskLabTelephonyTests
     /// <para>
     /// Only this side ended those calls. Asterisk may still hold the customer, or still be ringing
     /// them, so each hangup that follows has to reach it as a DELETE.
+    /// </para>
+    /// <para>
+    /// Nor are they the SIM's doing. Since W-0367 / K-57 each report leaves the channel's health
+    /// unsaid (null), so the store neither counts a failure against the SIM nor clears its streak:
+    /// the stream belongs to the adapter and is shared by every SIM the worker drives.
     /// </para>
     /// </summary>
     [Fact]
@@ -396,7 +439,7 @@ public sealed class AsteriskLabTelephonyTests
                 CancellationToken.None);
             Assert.Equal(SimProviderDisposition.NetworkError, report.Disposition);
             Assert.Equal("ASTERISK_EVENT_STREAM_LOST", report.TechnicalErrorCode);
-            Assert.False(report.ChannelHealthy);
+            Assert.Null(report.ChannelHealthy);
 
             NormalizedResult result = DispositionMapper.Normalize(
                 report.Disposition,
@@ -709,7 +752,9 @@ public sealed class AsteriskLabTelephonyTests
             CancellationToken.None);
         Assert.Equal(report.Disposition, refused.Disposition);
         Assert.Equal(report.ChannelHealthy, refused.ChannelHealthy);
-        Assert.False(refused.ChannelHealthy);
+
+        // W-0367 / K-57. And, like the report, it says nothing about the SIM.
+        Assert.Null(refused.ChannelHealthy);
 
         // What the store is handed for it normalizes, like every lost stream, to a technical
         // exception that is not counted and keeps the name of the loss.
@@ -1166,8 +1211,9 @@ public sealed class AsteriskLabTelephonyTests
             SimCallSession? session,
             SimProviderDisposition disposition,
             string technicalErrorCode,
-            bool channelHealthy,
+            bool? channelHealthy,
             TimeSpan cooldown,
+            bool playbackStarted = false,
             CancellationToken cancellationToken = default)
         {
             FailureCode = technicalErrorCode;
@@ -1372,6 +1418,83 @@ public sealed class AsteriskLabTelephonyTests
                 throw hangupFailure;
             }
 
+            return ValueTask.CompletedTask;
+        }
+    }
+
+    /// <summary>
+    /// W-0367 / K-57. One lab dispatch through <see cref="StagedAriSimGateway"/>: the call is answered
+    /// and fails where the arguments say. Returns what the gateway told the store.
+    /// </summary>
+    private static async Task<RecordedDispatchFailure> DispatchThroughStagedAriAsync(
+        Exception? playbackFailure,
+        Exception? captureFailure)
+    {
+        var store = new RecordingDispatchStore(DispatchContext());
+        var sim = new StagedAriSimGateway(playbackFailure, captureFailure);
+        AsteriskSchedulerDispatchGateway gateway = OpenGateway(store, new FixedSpeechRenderer(), sim);
+        await Assert.ThrowsAsync<AsteriskAriOperationException>(
+            () => gateway.DispatchAsync(Lease(), CancellationToken.None));
+        Assert.Equal(1, sim.HangupCalls);
+        return Assert.Single(store.Failures);
+    }
+
+    /// <summary>
+    /// W-0367 / K-57. An ARI line that answers, and then fails at the playback or, once the playback
+    /// is done, at the key capture, with the exception it was given. Nothing past it is reached.
+    /// </summary>
+    private sealed class StagedAriSimGateway(Exception? playbackFailure, Exception? captureFailure)
+        : ISimGateway
+    {
+        public int HangupCalls { get; private set; }
+
+        public ValueTask<SimGatewayHealth> CheckHealthAsync(
+            string simChannelId,
+            CancellationToken cancellationToken) =>
+            ValueTask.FromResult(new SimGatewayHealth(
+                simChannelId,
+                SimChannelHealthState.Healthy,
+                Now,
+                null,
+                true));
+
+        public ValueTask<SimCallSession> DialAsync(
+            SimDialRequest request,
+            CancellationToken cancellationToken)
+        {
+            ArgumentNullException.ThrowIfNull(request);
+            return ValueTask.FromResult(new SimCallSession(
+                request.AttemptId,
+                request.SimChannelId,
+                "ari-channel-lab-staged",
+                request.FencingGeneration,
+                Now,
+                true));
+        }
+
+        public ValueTask PlayAsync(
+            SimCallSession session,
+            RenderedSpeech speech,
+            CancellationToken cancellationToken) =>
+            playbackFailure is null ? ValueTask.CompletedTask : throw playbackFailure;
+
+        public ValueTask<SimDtmfCapture> CaptureDtmfAsync(
+            SimCallSession session,
+            TimeSpan timeout,
+            CancellationToken cancellationToken) =>
+            throw captureFailure
+                ?? new InvalidOperationException("Every staged call fails at the playback or the capture.");
+
+        public ValueTask<SimDispositionReport> GetDispositionAsync(
+            SimCallSession session,
+            CancellationToken cancellationToken) =>
+            throw new InvalidOperationException("A staged call never reaches a disposition.");
+
+        public ValueTask HangupAsync(
+            SimCallSession session,
+            CancellationToken cancellationToken)
+        {
+            HangupCalls++;
             return ValueTask.CompletedTask;
         }
     }

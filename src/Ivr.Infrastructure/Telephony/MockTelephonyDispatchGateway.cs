@@ -225,6 +225,10 @@ public sealed partial class MockSchedulerDispatchGateway(
 
         SimCallSession? session = null;
         bool hungUp = false;
+
+        // W-0367 / K-57. Told to the store with a failure: whether the speech had started playing,
+        // which only this loop knows.
+        bool playbackStarted = false;
         TimeSpan cooldown = TimeSpan.FromSeconds(mockOptions.Value.CooldownSeconds);
         try
         {
@@ -309,6 +313,7 @@ public sealed partial class MockSchedulerDispatchGateway(
             if (session.IsConnected)
             {
                 await simGateway.PlayAsync(session, speech, cancellationToken);
+                playbackStarted = true;
                 dtmf = await CaptureDtmfOrTerminationAsync(
                     session,
                     lease,
@@ -399,6 +404,7 @@ public sealed partial class MockSchedulerDispatchGateway(
                 technicalCode,
                 channelHealthy,
                 cooldown,
+                playbackStarted,
                 cancellationToken);
             throw;
         }

@@ -1,0 +1,18 @@
+{
+  "schema": "ivr-acceptance-tests/v1",
+  "workId": "W-0367",
+  "scope": "software",
+  "requiredTestIds": [
+    "UT-AST-HEALTH-01",
+    "IT-TEL-HEALTH-NEUTRAL-10",
+    "UT-AST-EVENTS-11",
+    "UT-AST-EVENTS-14",
+    "IT-TEL-AUDIO-STATUS-11",
+    "UT-TEL-PLAYBACK-01"
+  ],
+  "gates": [
+    "generate-test-traceability.mjs",
+    "gate-status.mjs",
+    "dial-token-production-bundle-validator.mjs"
+  ]
+}

@@ -13,13 +13,18 @@ namespace Ivr.UnitTests.Telephony;
 // W-0359. Test doubles shared by the two dispatch gateways' unit tests (AsteriskLabTelephonyTests
 // and MockTelephonyTests): what a gateway recorded, what it logged, and what it counted.
 
-/// <summary>One <c>FailAsync</c> call, exactly as the gateway made it.</summary>
+/// <summary>
+/// One <c>FailAsync</c> call, exactly as the gateway made it. <paramref name="ChannelHealthy"/> is null
+/// when the gateway said the failure tells nothing about the SIM, and <paramref name="PlaybackStarted"/>
+/// is whether the speech had started playing (W-0367 / K-57).
+/// </summary>
 internal sealed record RecordedDispatchFailure(
     SimCallSession? Session,
     SimProviderDisposition Disposition,
     string TechnicalErrorCode,
-    bool ChannelHealthy,
-    TimeSpan Cooldown);
+    bool? ChannelHealthy,
+    TimeSpan Cooldown,
+    bool PlaybackStarted);
 
 /// <summary>
 /// W-0359 / K-31. What one dispatch left behind: the failures it recorded, the warnings it wrote,
@@ -85,8 +90,9 @@ internal sealed class RecordingDispatchStore(
         SimCallSession? session,
         SimProviderDisposition disposition,
         string technicalErrorCode,
-        bool channelHealthy,
+        bool? channelHealthy,
         TimeSpan cooldown,
+        bool playbackStarted = false,
         CancellationToken cancellationToken = default)
     {
         failures.Add(new RecordedDispatchFailure(
@@ -94,7 +100,8 @@ internal sealed class RecordingDispatchStore(
             disposition,
             technicalErrorCode,
             channelHealthy,
-            cooldown));
+            cooldown,
+            playbackStarted));
         return Task.CompletedTask;
     }
 }
