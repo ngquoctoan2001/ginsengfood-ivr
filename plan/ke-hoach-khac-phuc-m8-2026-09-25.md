@@ -631,8 +631,8 @@ và viết hoa; bí danh "Owner module IVR"; tham chiếu trong repo; thiếu/sa
 
 | Việc sau khi quyết | Giờ | Trạng thái |
 | --- | ---: | --- |
-| `Q-22.1` Vị từ + test + tài liệu (gộp với `Q-13.1` nếu kịp) | 0,5 | 🟡 26/09 09:38 · phiên soak và L5 (Q-22, Q-24, Q-28) |
-| `Q-22.2` Task nhận ở giây cuối trước 21:08 không kịp claim bị tính `capacityMiss` (incident OPEN + metric sizing SIM phồng, `PostgresSchedulerStore.cs:446-474`) → phân loại lại chỉ ở incident/metric, **không** đổi result gửi M3 | 1,25 | 🟡 26/09 09:38 · phiên soak và L5 (Q-22, Q-24, Q-28) |
+| `Q-22.1` Vị từ + test + tài liệu (gộp với `Q-13.1` nếu kịp) | 0,5 | ✅ c98c479 · 893/893 (W-0364) · UT-INTAKE-EVENING-01/02, UT-INTAKE-WINDOW-SWEEP-01; intake từ chối T0 từ 21:00:30 (24/7), 21:05:30 (Giờ Vàng); IR-06, IR-07 sửa theo, ghim lại hash |
+| `Q-22.2` Task nhận ở giây cuối trước 21:08 không kịp claim bị tính `capacityMiss` (incident OPEN + metric sizing SIM phồng, `PostgresSchedulerStore.cs:446-474`) → phân loại lại chỉ ở incident/metric, **không** đổi result gửi M3 | 1,25 | 🟡 26/09 09:38 · phiên soak và L5 (Q-22, Q-24, Q-28) · đợi K-54 vào main (cùng hàm sweep hết hạn) |
 
 #### `Q-23` — Token tĩnh Order Core luôn được nhận 🆕 · Tech Lead (vai M3) qua chief; Platform (OD-V1-07)
 
@@ -668,7 +668,7 @@ Công cụ đang tạo tài nguyên ngoài `/home/ssv/m8`: `deploy/lab/full-flow
 
 | Việc sau khi quyết | Giờ | Trạng thái |
 | --- | ---: | --- |
-| `Q-24.1` Công cụ cho các lượt sau theo PA2: tiền tố `m8_`, cổng 6800–6899, thư mục `/home/ssv/m8` (`launcher.py`, `run-vieneu-s5.py`, `run-vieneu-worker-s5.py` và test của chúng). Tài nguyên cũ giữ chỉ-đọc, dọn theo nhãn sau; mirror production không dời (chờ kho S5 thật, `CB-15`) | 2 | 🟡 26/09 09:38 · phiên soak và L5 (Q-22, Q-24, Q-28) |
+| `Q-24.1` Công cụ cho các lượt sau theo PA2: tiền tố `m8_`, cổng 6800–6899, thư mục `/home/ssv/m8` (`launcher.py`, `run-vieneu-s5.py`, `run-vieneu-worker-s5.py` và test của chúng). Tài nguyên cũ giữ chỉ-đọc, dọn theo nhãn sau; mirror production không dời (chờ kho S5 thật, `CB-15`) | 2 | ✅ c98c479 (W-0364) · test Python lab 58 (8 mới); tài nguyên S5 cũ chưa dọn, chief chưa được báo ngoại lệ tạm |
 
 #### `Q-25` — N1: nơi lưu ngân hàng clip · Toàn + chief (kho, C18) + Platform (S5)
 
@@ -956,7 +956,7 @@ git commit -m "type(scope): W-XXXX mô tả" -- <paths>
 | `B13`, `B14` | `LabRealSim` gán cứng | ✅ + bù | `K-42` |
 | `B15` | `ToString` record mang số | ✅ + bù | `K-37`, `K-38` |
 | `B16` | `total_amount` số lẻ, cách ly SIM | Một phần ✅; `Q-12` PA1, `Q-16` PA2 ✔ 26/09, chưa làm | `K-14`, `K-26`, `K-27`, `K-29`, `K-30`, `Q-12`, `Q-16` |
-| `B17` | Guard W-0298 ở biên buổi sáng | `Q-13` ✅ `3d04eee`; `Q-22` ✔ PA2 25/09, chưa làm | `Q-13`, `Q-22` |
+| `B17` | Guard W-0298 ở biên buổi sáng | `Q-13` ✅ `3d04eee`; `Q-22` ✔ PA2 25/09: `Q-22.1` ✅ `c98c479` 26/09, `Q-22.2` chưa làm | `Q-13`, `Q-22` |
 | `C1` | `program_code` | ⛔ M3 | `Q-33`, `CB-05` |
 | `C2` | 9 result code, dòng m8-05 | ✅ đính chính + còn câu trỏ; §13 ⛔ chief | `K-13`, `CB-16` |
 | `C3`, `C4` | `session_id` | ⛔ M3-07 | `Q-34`, `CB-04` |
@@ -971,7 +971,7 @@ git commit -m "type(scope): W-XXXX mô tả" -- <paths>
 | `C14` | Kết nối M2 | ✅ + sót checklist | `K-13` |
 | `C15`, `C20` | Đơn đêm | Bước 1, 3, 4 ✅ + sót; `Q-10` ✔ PA2 26/09, chưa làm | `K-05`, `K-11`, `Q-10`, `Q-13`, `Q-22`, `CB-08` |
 | `C16` | Contact Gate / dial token | ⛔ Sếp + SIP-04; 🆕 có việc dev mới (`Q-28` ✔ PA2 25/09, chưa làm) | `Q-28`, `CB-10`, `CB-13` |
-| `C18` | Server test ngoài cấp phát | `Q-24` ✔ PA3 25/09, chưa làm | `Q-24`, `CB-15` |
+| `C18` | Server test ngoài cấp phát | `Q-24` ✔ PA3 25/09: công cụ `Q-24.1` ✅ `c98c479` 26/09; tài nguyên cũ chưa dọn | `Q-24`, `CB-15` |
 | `C19` | Phương án B trên contract | ➖ gộp A2 | `Q-32` |
 | `C21` | Phát lại callback không giới hạn tuổi | Tài liệu ✅; code: `Q-19` ✔ PA2 26/09, chưa làm | `K-13`, `Q-19` |
 | `C22` | Bảng map v0 bỏ phân biệt runtime | ⏸ chờ nguyên văn v1 | `Q-03`, `CB-02` |
