@@ -32,13 +32,13 @@ ladder:
 # Why rung 1 is not attained, stated rather than left to inference.
 current_position:
   attained_rung: 0
-  reason: "288 of 357 work items are ACCEPTED; the rest are at most EVIDENCE_SUBMITTED, and submitted evidence is not accepted evidence (MASTER-05)"
+  reason: "288 of 358 work items are ACCEPTED; the rest are at most EVIDENCE_SUBMITTED, and submitted evidence is not accepted evidence (MASTER-05)"
   blocked_external_count: 19
   open_gate_count: 11
   # Rows whose evidence lives in the tracker row rather than in an evidence pack: unplanned
   # remediation work, which has no prompt and therefore no section 10 requirement. Counted so
   # the difference stays visible instead of being read as missing evidence.
-  rows_without_evidence_pack: 303
+  rows_without_evidence_pack: 304
 
 gates:
   - id: "G-CONTRACT"
@@ -1546,6 +1546,10 @@ work:
     prompt: "K-58…K-62 của kế hoạch khắc phục 25/09: năm phát hiện của W-0365 và W-0367 (Origin=UNPLANNED, owner: “tiếp tục K-58 69 60 61 62”, 69 đọc là K-59; kế hoạch của Toàn)"
     status: "EVIDENCE_SUBMITTED"
     evidence: "docs/evidence/W-0369/README.md"
+  - id: "W-0370"
+    prompt: "Phần II của kế hoạch khắc phục 25/09: Q-12.1, tên hàng intake đã nhận thì dựng được lời thoại và gọi được (Origin=UNPLANNED, owner: lô code độc lập Q-12, Q-15, Q-16, Q-19; Toàn chốt PA1 26/09)"
+    status: "EVIDENCE_SUBMITTED"
+    evidence: "docs/evidence/W-0370/README.md"
 
 production_flag:
   real_customer_call_allowed: false

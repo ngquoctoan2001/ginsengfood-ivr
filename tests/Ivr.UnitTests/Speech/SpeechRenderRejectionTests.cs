@@ -92,20 +92,26 @@ public sealed class SpeechRenderRejectionTests
     [Trait("TestId", "UT-RENDER-DATA-04")]
     public async Task AScriptThePrivacyGuardRefusesIsARenderRefusalNotATokenOne()
     {
-        // W-0359 / K-29. "Đường phèn" passes the product-name guard at intake (W-0243) and is
-        // refused by the full-text guard on the finished script (Q-12, still open). That refusal,
-        // like a placeholder the renderer cannot fill or a script past the length bound, used to
-        // escape as a bare InvalidOperationException and be recorded as a dial-token rejection.
+        // W-0359 / K-29. A finished script the privacy guard refuses, like a placeholder the
+        // renderer cannot fill or a script past the length bound, used to escape as a bare
+        // InvalidOperationException and be recorded as a dial-token rejection.
+        //
+        // The case used to be "Đường phèn", which intake admits and the full guard refused on the
+        // finished script. Q-12 (PA1) holds the item names to the product guard at the dial too,
+        // so it now renders (UT-PII-PRODUCT-06). The refusal kept here is one the product guard
+        // makes as well: a quantity with more decimals than the speller says falls back to its
+        // digits, and these digits read as a telephone number.
         using InMemoryScriptRegistry scripts = CreateScripts();
         SpeechRenderPolicyRejectedException rejected =
             await Assert.ThrowsAsync<SpeechRenderPolicyRejectedException>(() => CreateRenderer(scripts).RenderAsync(
-                Summary(210_637m, "Đường phèn"),
+                Summary(210_637m, quantity: 0.0912345678m),
                 "SCRIPT-ORDER-CONFIRM",
                 TargetV1SpeechPolicy.MockTemplateVersion,
                 ExecutionMode.Mock,
                 CancellationToken.None).AsTask());
 
-        Assert.IsType<InvalidOperationException>(rejected.InnerException);
+        InvalidOperationException refused = Assert.IsType<InvalidOperationException>(rejected.InnerException);
+        Assert.Equal("A restricted PII value was rejected.", refused.Message);
         Assert.Equal("SPEECH_RENDER_POLICY_REJECTED", SpeechRenderPolicyRejectedException.TechnicalCode);
     }
 
@@ -131,11 +137,14 @@ public sealed class SpeechRenderRejectionTests
             new RegionalVoiceMap(tts));
     }
 
-    private static PrivacySafeOrderSummary Summary(decimal amount, string productName = "Cháo sâm") =>
+    private static PrivacySafeOrderSummary Summary(
+        decimal amount,
+        string productName = "Cháo sâm",
+        decimal quantity = 2) =>
         PrivacySafeOrderSummary.Create(
             "Quý khách",
             "DH-B16",
-            [SpeechItem.Create(productName, 2, "hộp")],
+            [SpeechItem.Create(productName, quantity, "hộp")],
             Money.Vnd(amount),
             ShortDeliveryArea.Create("Quận 7"),
             "Giờ Vàng",

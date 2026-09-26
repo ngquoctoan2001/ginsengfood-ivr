@@ -3,7 +3,6 @@ using System.Globalization;
 using System.Text;
 using System.Text.RegularExpressions;
 using Ivr.Domain.Confirmation;
-using Ivr.Domain.Privacy;
 using Ivr.Domain.Speech;
 
 namespace Ivr.Domain.Scripts;
@@ -202,7 +201,10 @@ public sealed class VietnameseOrderScriptRenderer : IScriptPreviewRenderer
             throw new InvalidOperationException("Rendered script exceeds the configured speech limit.");
         }
 
-        PiiGuard.EnsureSafeText(exactText);
+        // Q-12 (PA1, 2026-09-26). Segment by segment rather than over the whole text: the item
+        // names are held to the product guard they were admitted under, everything else to the
+        // full guard as before. Over the whole text, "Tổ yến" passed intake and failed every dial.
+        SpokenTextGuard.EnsureSafe(segments);
         string inputHash = summary.ComputeHash();
         ScriptInputSnapshot inputSnapshot = new(
             summary.CustomerDisplayName,

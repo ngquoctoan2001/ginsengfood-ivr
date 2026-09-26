@@ -794,6 +794,96 @@ public sealed class PostgresPersistenceTests(PostgresPersistenceFixture fixture)
         return (string?)await command.ExecuteScalarAsync() ?? string.Empty;
     }
 
+    /// <summary>
+    /// Q-12 (PA1, 2026-09-26). The stored speech summary used to be read with the full guard as
+    /// text, and the text differs by where it came from: intake writes the serializer's output,
+    /// which escapes every accented letter, while a task read back from its jsonb column carries the
+    /// letters. So a task of "Tổ yến" was saved at intake and refused on the next save of the same
+    /// row - eligibility's - and never reached a dial (IT-TEL-PRODUCT-NAME-12 is that path end to
+    /// end). The summary is now read decoded, field by field, with the guard intake admitted each
+    /// field under, and the text is still read whole with the product guard.
+    /// </summary>
+    [Fact]
+    [Trait("TestId", "IT-DB-TASK-SUMMARY-12")]
+    public async Task AStoredSummaryIsGuardedFieldByFieldTheWayIntakeAdmittedIt()
+    {
+        await fixture.ResetAsync();
+
+        // Saved as intake saves it, then saved again from the row, as eligibility does: both pass.
+        await using (IvrDbContext intake = await Factory().CreateDbContextAsync())
+        {
+            ConfirmationTaskEntity task = ReadCanonicalTask("product-name");
+            task.PrivacySafeOrderSummaryJson = SerializedSummary("Tổ yến", "Quận 7");
+            task.EligibilityDecision = "PENDING_ELIGIBILITY";
+            intake.ConfirmationTasks.Add(task);
+            await intake.SaveChangesAsync();
+        }
+
+        await using (IvrDbContext eligibility = await Factory().CreateDbContextAsync())
+        {
+            ConfirmationTaskEntity stored = await eligibility.ConfirmationTasks
+                .SingleAsync(task => task.TaskId == "TASK-PRODUCT-NAME");
+            Assert.Contains("Tổ yến", stored.PrivacySafeOrderSummaryJson, StringComparison.Ordinal);
+            stored.EligibilityDecision = "ELIGIBLE_FOR_IVR";
+            await eligibility.SaveChangesAsync();
+        }
+
+        // Outside an item name the full guard still holds, and it reads the decoded value: an
+        // address marker the serializer escaped is refused, where the text as stored passed.
+        await using (IvrDbContext escaped = await Factory().CreateDbContextAsync())
+        {
+            ConfirmationTaskEntity task = ReadCanonicalTask("escaped-address");
+            task.PrivacySafeOrderSummaryJson = SerializedSummary("Cháo sâm", "đường Lê Lợi");
+            Assert.DoesNotContain("đường", task.PrivacySafeOrderSummaryJson, StringComparison.Ordinal);
+            escaped.ConfirmationTasks.Add(task);
+            await Assert.ThrowsAsync<InvalidOperationException>(() => escaped.SaveChangesAsync());
+        }
+
+        // Inside an item name, what the product guard refuses is still refused.
+        await using (IvrDbContext itemPhone = await Factory().CreateDbContextAsync())
+        {
+            ConfirmationTaskEntity task = ReadCanonicalTask("item-phone");
+            task.PrivacySafeOrderSummaryJson = SerializedSummary("Sâm 0912345678", "Quận 7");
+            itemPhone.ConfirmationTasks.Add(task);
+            await Assert.ThrowsAsync<InvalidOperationException>(() => itemPhone.SaveChangesAsync());
+        }
+
+        await using (IvrDbContext itemAddress = await Factory().CreateDbContextAsync())
+        {
+            ConfirmationTaskEntity task = ReadCanonicalTask("item-address");
+            task.PrivacySafeOrderSummaryJson = SerializedSummary("Sâm ngõ 5", "Quận 7");
+            itemAddress.ConfirmationTasks.Add(task);
+            await Assert.ThrowsAsync<InvalidOperationException>(() => itemAddress.SaveChangesAsync());
+        }
+
+        // And the text is still read whole: a number shaped like a telephone number sits in a
+        // numeric field, where no field-by-field read looks.
+        await using (IvrDbContext numberShaped = await Factory().CreateDbContextAsync())
+        {
+            ConfirmationTaskEntity task = ReadCanonicalTask("number-shaped");
+            task.PrivacySafeOrderSummaryJson = SerializedSummary("Cháo sâm", "Quận 7", 84_912_345_678m);
+            numberShaped.ConfirmationTasks.Add(task);
+            await Assert.ThrowsAsync<InvalidOperationException>(() => numberShaped.SaveChangesAsync());
+        }
+    }
+
+    /// <summary>The summary as intake stores it: the serializer's output, accents escaped.</summary>
+    private static string SerializedSummary(
+        string productName,
+        string deliveryArea,
+        decimal totalAmount = 560_000m) =>
+        JsonSerializer.Serialize(new
+        {
+            customer_display_name = "Quý khách",
+            order_code_short = "DH-Q12",
+            items = new[] { new { public_name = productName, quantity = 2, unit_label = "hộp" } },
+            total_amount = totalAmount,
+            currency = "VND",
+            delivery_area_short = deliveryArea,
+            program_display_name = "Giờ Vàng",
+            locale = "vi-VN",
+        });
+
     private static ConfirmationTaskEntity ReadCanonicalTask(string suffix = "canonical")
     {
         string seedPath = FindRepositoryFile("seed", "sales-target-v1.sample.json");

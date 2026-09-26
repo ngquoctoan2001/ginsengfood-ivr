@@ -145,6 +145,10 @@ public static class PiiGuard
     /// <summary>
     /// Use only for a field whose declared content is a product name or a unit label. A timeout
     /// counts as unsafe, for the same reason as in <see cref="IsSafeText"/>.
+    /// <para>
+    /// Besides those fields, <c>SpokenTextGuard</c> (Q-12) reads a whole spoken text with it, and
+    /// only alongside <see cref="IsSafeText"/> over everything except the item names.
+    /// </para>
     /// </summary>
     public static bool IsSafeProductText(string? value)
     {

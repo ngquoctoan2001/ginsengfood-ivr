@@ -1,0 +1,17 @@
+{
+  "schema": "ivr-acceptance-tests/v1",
+  "workId": "W-0370",
+  "scope": "software",
+  "requiredTestIds": [
+    "UT-PII-PRODUCT-04",
+    "UT-PII-PRODUCT-05",
+    "UT-PII-PRODUCT-06",
+    "UT-RENDER-DATA-04",
+    "IT-DB-TASK-SUMMARY-12",
+    "IT-TEL-PRODUCT-NAME-12"
+  ],
+  "gates": [
+    "generate-test-traceability.mjs",
+    "gate-status.mjs"
+  ]
+}

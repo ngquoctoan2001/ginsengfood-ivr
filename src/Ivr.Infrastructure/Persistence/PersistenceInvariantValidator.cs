@@ -170,9 +170,18 @@ internal static class PersistenceInvariantValidator
             throw new InvalidOperationException("Only protected opaque dial-token ciphertext may be persisted.");
         }
 
-        PiiGuard.EnsureSafeText(task.PrivacySafeOrderSummaryJson);
+        // Q-12 (PA1, 2026-09-26). The full guard used to read this text as stored, and the text is
+        // not stored the same way twice: intake writes the serializer's output, which escapes every
+        // accented letter, and a task read back from its jsonb column carries the letters
+        // themselves. So "Tổ yến" was saved at intake and refused on every later save of the same
+        // task, starting with eligibility's, and the order never reached a dial. The text is still
+        // read whole, with the product guard, for telephone numbers, dial tokens and the markers
+        // that only ever mean an address; the values are read decoded, field by field, each with
+        // the guard intake admitted it under.
+        PiiGuard.EnsureSafeProductText(task.PrivacySafeOrderSummaryJson);
         using JsonDocument summary = JsonDocument.Parse(task.PrivacySafeOrderSummaryJson);
         RejectForbiddenProperties(summary.RootElement);
+        EnsureSafeSummaryValues(summary.RootElement);
     }
 
     private static void ValidatePolicy(
@@ -209,6 +218,87 @@ internal static class PersistenceInvariantValidator
             {
                 throw new InvalidOperationException("Attempt offsets must be strictly increasing.");
             }
+        }
+    }
+
+    /// <summary>
+    /// Q-12. The stored summary's property names and string values, decoded, each with the guard
+    /// intake admitted it under: an item's <c>public_name</c> and <c>unit_label</c> take the
+    /// product guard (W-0243), and everything else the full guard.
+    /// </summary>
+    private static void EnsureSafeSummaryValues(JsonElement summary)
+    {
+        if (summary.ValueKind != JsonValueKind.Object)
+        {
+            EnsureSafeJsonValue(summary, productField: false);
+            return;
+        }
+
+        foreach (JsonProperty property in summary.EnumerateObject())
+        {
+            PiiGuard.EnsureSafeText(property.Name);
+            if (string.Equals(property.Name, "items", StringComparison.Ordinal)
+                && property.Value.ValueKind == JsonValueKind.Array)
+            {
+                foreach (JsonElement item in property.Value.EnumerateArray())
+                {
+                    EnsureSafeSummaryItem(item);
+                }
+            }
+            else
+            {
+                EnsureSafeJsonValue(property.Value, productField: false);
+            }
+        }
+    }
+
+    private static void EnsureSafeSummaryItem(JsonElement item)
+    {
+        if (item.ValueKind != JsonValueKind.Object)
+        {
+            EnsureSafeJsonValue(item, productField: false);
+            return;
+        }
+
+        foreach (JsonProperty field in item.EnumerateObject())
+        {
+            PiiGuard.EnsureSafeText(field.Name);
+            EnsureSafeJsonValue(
+                field.Value,
+                productField: field.Name is "public_name" or "unit_label");
+        }
+    }
+
+    private static void EnsureSafeJsonValue(JsonElement element, bool productField)
+    {
+        switch (element.ValueKind)
+        {
+            case JsonValueKind.String:
+                if (productField)
+                {
+                    PiiGuard.EnsureSafeProductText(element.GetString());
+                }
+                else
+                {
+                    PiiGuard.EnsureSafeText(element.GetString());
+                }
+
+                break;
+            case JsonValueKind.Object:
+                foreach (JsonProperty property in element.EnumerateObject())
+                {
+                    PiiGuard.EnsureSafeText(property.Name);
+                    EnsureSafeJsonValue(property.Value, productField: false);
+                }
+
+                break;
+            case JsonValueKind.Array:
+                foreach (JsonElement value in element.EnumerateArray())
+                {
+                    EnsureSafeJsonValue(value, productField: false);
+                }
+
+                break;
         }
     }
 
