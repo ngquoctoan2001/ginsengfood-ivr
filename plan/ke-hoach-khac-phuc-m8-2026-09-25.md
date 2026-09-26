@@ -239,9 +239,9 @@ biến `9/9`; gate sweep `44/44`. Rà lại thấy phần đã làm **đúng hư
 
 | Mã | Nguồn | Việc | File chính | Kiểm | Giờ | Trạng thái |
 | --- | --- | --- | --- | --- | ---: | --- |
-| `K-48` | 🆕 `N1` | Playlist >64 mục hoặc >5 phút (`RenderedAudio.cs:136-148`) ném lỗi rơi nhánh `_` → cách ly SIM → bọc thành `TtsSynthesisException` `TTS_PLAYLIST_TOO_LONG` (kênh lành) | Speech, gateway | `UT-N1-PLAYLIST-01` | 0,5 | 🟡 26/09 07:35 · phiên soak và L5 (L8) |
-| `K-49` | `N1` bước 4 | Chặn cứng sinh giọng ở `PRODUCTION_REAL` trên **mọi** đường (cả đường nguyên câu, không chỉ đoạn động): DI đăng ký `RuntimeSynthesisForbiddenTtsProvider`, không đăng ký HttpClient TTS; validator từ chối `EXTERNAL_CONFIGURABLE` ở `PRODUCTION_REAL`; `SpeechSynthesisService` ở ProductionReal không gọi `ITtsProvider`; thiếu audio ⇒ fail-closed (`AudioError`, kênh lành, `IVR_TECHNICAL_EXCEPTION` không tính lượt). Nhánh LAB giữ nguyên từng byte | Speech DI, `SpeechSynthesisService.cs` | `UT-N1-NOSYNTH-01..03` | 3 | 🟡 26/09 07:35 · phiên soak và L5 (L8) |
-| `K-50` | `N1` bước 5–6 | Helm: guard prod **từ chối** `tts.enabled=true` (nêu lý do luật 24/09); bỏ wire endpoint loopback trong template prod; đánh dấu `values-prod-tts.draft.yaml` SUPERSEDED; gate mới `speech-transition-gate.mjs` (đọc `values-prod.yaml`, không cần docker) + đăng ký `gate-invocations.json`; đảo ca dương prod của `tts-helm-selftest.mjs` | `deploy/helm`, `deploy/ci` | `SPEECH_TRANSITION_GATE_PASS`, `TTS_HELM_SELFTEST_PASS` | 2,5 | 🟡 26/09 07:35 · phiên soak và L5 (L8) |
+| `K-48` | 🆕 `N1` | Playlist >64 mục hoặc >5 phút (`RenderedAudio.cs:136-148`) ném lỗi rơi nhánh `_` → cách ly SIM → bọc thành `TtsSynthesisException` `TTS_PLAYLIST_TOO_LONG` (kênh lành) | Speech, gateway | `UT-N1-PLAYLIST-01` | 0,5 | ✅ 8efa3ee · 879/879 (W-0363) · UT-N1-PLAYLIST-01; không thêm phép kiểm >64 đoạn: số thứ tự đoạn dừng ở 64 ngay lúc tạo, test ghim điều đó |
+| `K-49` | `N1` bước 4 | Chặn cứng sinh giọng ở `PRODUCTION_REAL` trên **mọi** đường (cả đường nguyên câu, không chỉ đoạn động): DI đăng ký `RuntimeSynthesisForbiddenTtsProvider`, không đăng ký HttpClient TTS; validator từ chối `EXTERNAL_CONFIGURABLE` ở `PRODUCTION_REAL`; `SpeechSynthesisService` ở ProductionReal không gọi `ITtsProvider`; thiếu audio ⇒ fail-closed (`AudioError`, kênh lành, `IVR_TECHNICAL_EXCEPTION` không tính lượt). Nhánh LAB giữ nguyên từng byte | Speech DI, `SpeechSynthesisService.cs` | `UT-N1-NOSYNTH-01..03` | 3 | ✅ 8efa3ee · 879/879 (W-0363) · UT-N1-NOSYNTH-01..03; chặn khi cuộc gọi hoặc deployment là PRODUCTION_REAL; từ b005144 đọc chung câu trả lời với phép kiểm whitelist (K-42) |
+| `K-50` | `N1` bước 5–6 | Helm: guard prod **từ chối** `tts.enabled=true` (nêu lý do luật 24/09); bỏ wire endpoint loopback trong template prod; đánh dấu `values-prod-tts.draft.yaml` SUPERSEDED; gate mới `speech-transition-gate.mjs` (đọc `values-prod.yaml`, không cần docker) + đăng ký `gate-invocations.json`; đảo ca dương prod của `tts-helm-selftest.mjs` | `deploy/helm`, `deploy/ci` | `SPEECH_TRANSITION_GATE_PASS`, `TTS_HELM_SELFTEST_PASS` | 2,5 | ✅ 8efa3ee (W-0363) · SPEECH_TRANSITION_GATE_PASS, TTS_HELM_SELFTEST_PASS (prod_candidate=REFUSED_N1); gate mới đăng ký trong gate-invocations.json |
 
 ### Tuỳ chọn
 
@@ -968,7 +968,7 @@ git commit -m "type(scope): W-XXXX mô tả" -- <paths>
 | `C21` | Phát lại callback không giới hạn tuổi | Tài liệu ✅; code ⏸ | `K-13`, `Q-19` |
 | `C22` | Bảng map v0 bỏ phân biệt runtime | ⏸ chờ nguyên văn v1 | `Q-03`, `CB-02` |
 | `C23` | IR-07 hứa VieNeu đọc lúc gọi | Đính chính ✅ `3d04eee` (`Q-02`); phần N1 theo `Q-29` PA2 | `Q-02` |
-| `N1` | Không sinh giọng lúc gọi | ⬜ (`Q-25`, `Q-26` PA1 và `Q-29` PA2 ✔ 25/09) | `K-48`, `K-49`, `K-50`, `Q-11`, `Q-25`, `Q-26`, `Q-29` |
+| `N1` | Không sinh giọng lúc gọi | `K-48…K-50` ✅ `8efa3ee` 26/09 (bước 4–6); `Q-25`, `Q-26` PA1 và `Q-29` PA2 ✔ 25/09; `Q-29.1…Q-29.5` chưa làm, `Q-11` ⏸ Toàn | `K-48`, `K-49`, `K-50`, `Q-11`, `Q-25`, `Q-26`, `Q-29` |
 | `N2…N5` | ORDER_VERIFIED, bộ đếm, MB, giá | ✅ còn đúng (kiểm lại 25/09); N3 đầu-cuối chờ C22 | — |
 | `V6-1`/`V6-9`, `V6-4`/`V6-12`, `V6-8`/`V6-17` | Tất định, không classifier, không ORDER_VERIFIED | ✅ phân tích | — |
 | `V6-2`/`V6-10` | Template duyệt, có version | B13 ✅; S1 ⛔ Sếp | `Q-30` |
